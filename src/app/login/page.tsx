@@ -47,6 +47,11 @@ export default function LoginPage() {
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <Field label="Email" type="email" value={email} required onChange={(e) => setEmail(e.target.value)} />
           <Field label="Password" type="password" value={password} required onChange={(e) => setPassword(e.target.value)} />
+          <div className="flex justify-end">
+            <Link href="/forgot-password" className="text-xs font-medium text-cosmic/60 underline">
+              Forgot password?
+            </Link>
+          </div>
           {error && <p className="text-sm text-danger">{error}</p>}
           {needsVerify && (
             <Link
