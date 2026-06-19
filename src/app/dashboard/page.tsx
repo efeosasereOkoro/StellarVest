@@ -2,7 +2,9 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -13,28 +15,30 @@ export default function DashboardPage() {
   }, [isPending, session, router]);
 
   if (isPending) {
-    return <main className="flex min-h-screen items-center justify-center text-sm text-gray-500">Loading…</main>;
+    return <main className="flex flex-1 items-center justify-center text-sm text-cosmic/50">Loading…</main>;
   }
   if (!session) return null;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-6">
-      <h1 className="text-2xl font-semibold">Welcome to StellarVest</h1>
-      <p className="mt-2 text-sm text-gray-600">
-        Signed in as <span className="font-medium">{session.user.email}</span>
+    <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+      <h1 className="font-display text-3xl font-semibold tracking-tight">Your account</h1>
+      <p className="mt-1 text-sm text-cosmic/60">
+        Signed in as <span className="font-medium text-cosmic">{session.user.email}</span>
       </p>
-      <p className="mt-1 text-sm text-gray-500">
-        This is your account home. Investor onboarding (profile &amp; verification) comes next.
+
+      <Card className="mt-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-cosmic">Verification status</p>
+            <p className="mt-1 text-sm text-cosmic/60">Complete your profile to begin investing.</p>
+          </div>
+          <Badge tone="pitch">Registered</Badge>
+        </div>
+      </Card>
+
+      <p className="mt-6 text-sm text-cosmic/50">
+        Next: investor profile &amp; KYC document upload.
       </p>
-      <button
-        onClick={async () => {
-          await signOut();
-          router.push("/login");
-        }}
-        className="mt-6 w-fit rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50"
-      >
-        Sign out
-      </button>
     </main>
   );
 }

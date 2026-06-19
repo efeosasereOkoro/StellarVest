@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
+import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,49 +39,33 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <h1 className="text-2xl font-semibold">Sign in to StellarVest</h1>
-      <p className="mt-1 text-sm text-gray-500">Welcome back</p>
+    <main className="flex flex-1 items-center justify-center px-6 py-12">
+      <Card className="w-full max-w-md">
+        <h1 className="font-display text-2xl font-semibold">Sign in to StellarVest</h1>
+        <p className="mt-1 text-sm text-cosmic/60">Welcome back</p>
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Email</span>
-          <input
-            type="email" value={email} required
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Password</span>
-          <input
-            type="password" value={password} required
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
-          />
-        </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {needsVerify && (
-          <Link
-            href={`/verify?email=${encodeURIComponent(email)}`}
-            className="block text-sm font-medium text-gray-900 underline"
-          >
-            Enter your verification code →
-          </Link>
-        )}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
+        <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          <Field label="Email" type="email" value={email} required onChange={(e) => setEmail(e.target.value)} />
+          <Field label="Password" type="password" value={password} required onChange={(e) => setPassword(e.target.value)} />
+          {error && <p className="text-sm text-danger">{error}</p>}
+          {needsVerify && (
+            <Link
+              href={`/verify?email=${encodeURIComponent(email)}`}
+              className="block text-sm font-medium text-ignition underline"
+            >
+              Enter your verification code →
+            </Link>
+          )}
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "Signing in…" : "Sign in"}
+          </Button>
+        </form>
 
-      <p className="mt-6 text-sm text-gray-500">
-        New here?{" "}
-        <Link href="/signup" className="font-medium text-gray-900 underline">Create an account</Link>
-      </p>
+        <p className="mt-6 text-sm text-cosmic/60">
+          New here?{" "}
+          <Link href="/signup" className="font-medium text-cosmic underline">Create an account</Link>
+        </p>
+      </Card>
     </main>
   );
 }

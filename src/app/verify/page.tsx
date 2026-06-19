@@ -4,6 +4,9 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
+import { Button } from "@/components/ui/button";
 
 function VerifyInner() {
   const router = useRouter();
@@ -39,54 +42,41 @@ function VerifyInner() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <h1 className="text-2xl font-semibold">Verify your email</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        Enter the code we emailed you to finish setting up your account.
-      </p>
+    <main className="flex flex-1 items-center justify-center px-6 py-12">
+      <Card className="w-full max-w-md">
+        <h1 className="font-display text-2xl font-semibold">Verify your email</h1>
+        <p className="mt-1 text-sm text-cosmic/60">
+          Enter the code we emailed you to finish setting up your account.
+        </p>
 
-      <form onSubmit={onVerify} className="mt-6 space-y-4">
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Email</span>
-          <input
-            type="email" value={email} required
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">Verification code</span>
-          <input
+        <form onSubmit={onVerify} className="mt-6 space-y-4">
+          <Field label="Email" type="email" value={email} required onChange={(e) => setEmail(e.target.value)} />
+          <Field
+            label="Verification code"
             type="text" inputMode="numeric" autoComplete="one-time-code"
             value={otp} required
+            className="tracking-widest"
             onChange={(e) => setOtp(e.target.value.trim())}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm tracking-widest outline-none focus:border-gray-900"
           />
-        </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {resent && <p className="text-sm text-green-700">A new code is on its way.</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {loading ? "Verifying…" : "Verify & continue"}
-        </button>
-      </form>
+          {error && <p className="text-sm text-danger">{error}</p>}
+          {resent && <p className="text-sm text-deep-frontier">A new code is on its way.</p>}
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "Verifying…" : "Verify & continue"}
+          </Button>
+        </form>
 
-      <div className="mt-6 flex items-center justify-between text-sm text-gray-500">
-        <button onClick={onResend} className="font-medium text-gray-900 underline">
-          Resend code
-        </button>
-        <Link href="/login" className="font-medium text-gray-900 underline">Back to sign in</Link>
-      </div>
+        <div className="mt-6 flex items-center justify-between text-sm text-cosmic/60">
+          <button onClick={onResend} className="font-medium text-cosmic underline">Resend code</button>
+          <Link href="/login" className="font-medium text-cosmic underline">Back to sign in</Link>
+        </div>
+      </Card>
     </main>
   );
 }
 
 export default function VerifyPage() {
   return (
-    <Suspense fallback={<main className="flex min-h-screen items-center justify-center text-sm text-gray-500">Loading…</main>}>
+    <Suspense fallback={<main className="flex flex-1 items-center justify-center text-sm text-cosmic/50">Loading…</main>}>
       <VerifyInner />
     </Suspense>
   );
