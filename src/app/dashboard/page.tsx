@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,15 +30,20 @@ export default function DashboardPage() {
       <Card className="mt-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-cosmic">Verification status</p>
+            <p className="text-sm font-medium text-cosmic">Get started</p>
             <p className="mt-1 text-sm text-cosmic/60">Complete your profile to begin investing.</p>
           </div>
-          <Badge tone="pitch">Registered</Badge>
+          <Link
+            href="/profile"
+            className="inline-flex items-center justify-center rounded-lg bg-cosmic px-4 py-2.5 text-sm font-medium text-pioneer hover:bg-cosmic/90"
+          >
+            Complete profile
+          </Link>
         </div>
       </Card>
 
       <p className="mt-6 text-sm text-cosmic/50">
-        Next: investor profile &amp; KYC document upload.
+        Next: KYC document upload for verification.
       </p>
     </main>
   );

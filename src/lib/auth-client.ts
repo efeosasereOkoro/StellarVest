@@ -11,3 +11,9 @@ export const authClient = createAuthClient({
 });
 
 export const { signIn, signUp, signOut, useSession } = authClient;
+
+// Fetch a short-lived JWT for the current session, to authenticate our own API routes.
+export async function getToken(): Promise<string | null> {
+  const res = await authClient.$fetch<{ token: string }>("/token");
+  return res.data?.token ?? null;
+}
