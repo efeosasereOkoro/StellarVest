@@ -11,15 +11,25 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [needsVerify, setNeedsVerify] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setNeedsVerify(false);
     const { error } = await signIn.email({ email, password });
     setLoading(false);
     if (error) {
-      setError(error.message ?? "Sign-in failed. Check your email and password.");
+      const unverified =
+        error.code === "EMAIL_NOT_VERIFIED" ||
+        (error.message ?? "").toLowerCase().includes("not verified");
+      if (unverified) {
+        setNeedsVerify(true);
+        setError("Your email isn't verified yet.");
+      } else {
+        setError(error.message ?? "Sign-in failed. Check your email and password.");
+      }
       return;
     }
     router.push("/dashboard");
@@ -48,6 +58,14 @@ export default function LoginPage() {
           />
         </label>
         {error && <p className="text-sm text-red-600">{error}</p>}
+        {needsVerify && (
+          <Link
+            href={`/verify?email=${encodeURIComponent(email)}`}
+            className="block text-sm font-medium text-gray-900 underline"
+          >
+            Enter your verification code →
+          </Link>
+        )}
         <button
           type="submit"
           disabled={loading}
