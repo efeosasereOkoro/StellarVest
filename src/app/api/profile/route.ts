@@ -5,8 +5,11 @@ import { investorProfiles } from "@/db/schema";
 import { getAuthUser } from "@/lib/auth-server";
 
 export async function GET(req: Request) {
+  if (!req.headers.get("authorization")) {
+    return NextResponse.json({ error: "missing token" }, { status: 401 });
+  }
   const user = await getAuthUser(req);
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: "invalid token" }, { status: 401 });
 
   const rows = await db
     .select()
@@ -17,8 +20,11 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  if (!req.headers.get("authorization")) {
+    return NextResponse.json({ error: "missing token" }, { status: 401 });
+  }
   const user = await getAuthUser(req);
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: "invalid token" }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
   const fullName = String(body.fullName ?? "").trim();

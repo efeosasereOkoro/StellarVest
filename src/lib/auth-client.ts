@@ -12,8 +12,16 @@ export const authClient = createAuthClient({
 
 export const { signIn, signUp, signOut, useSession } = authClient;
 
-// Fetch a short-lived JWT for the current session, to authenticate our own API routes.
+// Get a short-lived JWT for the current session, to authenticate our own API routes.
+// Neon Auth (Better Auth) returns it in the `set-auth-jwt` response header on getSession.
 export async function getToken(): Promise<string | null> {
-  const res = await authClient.$fetch<{ token: string }>("/token");
-  return res.data?.token ?? null;
+  let jwt: string | null = null;
+  await authClient.getSession({
+    fetchOptions: {
+      onSuccess: (ctx) => {
+        jwt = ctx.response.headers.get("set-auth-jwt");
+      },
+    },
+  });
+  return jwt;
 }
