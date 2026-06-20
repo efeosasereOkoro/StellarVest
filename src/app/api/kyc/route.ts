@@ -4,6 +4,7 @@ import { put } from "@vercel/blob";
 import { db } from "@/db";
 import { kycDocuments, investorProfiles } from "@/db/schema";
 import { getAuthUser } from "@/lib/auth-server";
+import { recordAudit } from "@/lib/audit";
 
 const MAX_BYTES = 4 * 1024 * 1024; // 4MB (Vercel request body limit ~4.5MB)
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -81,6 +82,15 @@ export async function POST(req: Request) {
       target: investorProfiles.userId,
       set: { kycStatus: "submitted", kycRejectionReason: null, updatedAt: new Date() },
     });
+
+  await recordAudit({
+    actorId: auth.user.id,
+    actorEmail: auth.user.email,
+    action: "kyc.submitted",
+    targetType: "investor",
+    targetId: auth.user.id,
+    metadata: { filename: file.name },
+  });
 
   return NextResponse.json({ document, kycStatus: "submitted" });
 }

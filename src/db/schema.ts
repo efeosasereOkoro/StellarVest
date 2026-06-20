@@ -1,7 +1,7 @@
 // Drizzle schema — database tables live here.
 // Tables are added as we build each story.
 
-import { pgTable, pgEnum, uuid, text, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, text, integer, jsonb, timestamp } from "drizzle-orm/pg-core";
 
 // KYC lifecycle for an investor (manual review in the MVP — see DECISIONS D-003).
 export const kycStatus = pgEnum("kyc_status", [
@@ -35,6 +35,19 @@ export const kycDocuments = pgTable("kyc_documents", {
   uploadedAt: timestamp("uploaded_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Append-only audit trail. The app never updates or deletes these rows.
+export const auditLog = pgTable("audit_log", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  actorId: text("actor_id"),
+  actorEmail: text("actor_email"),
+  action: text("action").notNull(), // e.g. "kyc.verified", "kyc.rejected", "kyc.submitted"
+  targetType: text("target_type"), // e.g. "investor"
+  targetId: text("target_id"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type InvestorProfile = typeof investorProfiles.$inferSelect;
 export type NewInvestorProfile = typeof investorProfiles.$inferInsert;
 export type KycDocument = typeof kycDocuments.$inferSelect;
+export type AuditEntry = typeof auditLog.$inferSelect;

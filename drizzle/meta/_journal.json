@@ -22,6 +22,13 @@
       "when": 1781937747359,
       "tag": "0002_tearful_squadron_sinister",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781941939922,
+      "tag": "0003_harsh_moondragon",
+      "breakpoints": true
     }
   ]
 }

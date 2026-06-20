@@ -3,6 +3,7 @@ import { eq, desc, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { investorProfiles, kycDocuments } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
+import { recordAudit } from "@/lib/audit";
 
 export async function GET(req: Request) {
   const admin = await getAdminUser(req);
@@ -61,5 +62,15 @@ export async function POST(req: Request) {
     .returning({ userId: investorProfiles.userId, kycStatus: investorProfiles.kycStatus });
 
   if (!updated) return NextResponse.json({ error: "investor not found" }, { status: 404 });
+
+  await recordAudit({
+    actorId: admin.id,
+    actorEmail: admin.email,
+    action: action === "verify" ? "kyc.verified" : "kyc.rejected",
+    targetType: "investor",
+    targetId: userId,
+    metadata: action === "reject" && reason ? { reason } : undefined,
+  });
+
   return NextResponse.json({ updated });
 }

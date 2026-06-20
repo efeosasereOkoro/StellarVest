@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -86,7 +87,10 @@ export default function AdminKycPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
-      <h1 className="font-display text-3xl font-semibold tracking-tight">KYC review</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">KYC review</h1>
+        <Link href="/admin/audit" className="text-sm font-medium text-cosmic underline">Audit trail →</Link>
+      </div>
       <p className="mt-1 text-sm text-cosmic/60">
         Investors awaiting verification: <span className="font-medium text-cosmic">{queue.length}</span>
       </p>
