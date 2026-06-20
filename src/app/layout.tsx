@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Funnel_Display, Figtree } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
+import { AlphaBanner } from "@/components/alpha-banner";
 
 const funnelDisplay = Funnel_Display({
   variable: "--font-funnel-display",
@@ -28,6 +29,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-pioneer text-cosmic">
         <SiteHeader />
+        <AlphaBanner />
         <div className="flex flex-1 flex-col">{children}</div>
       </body>
     </html>
