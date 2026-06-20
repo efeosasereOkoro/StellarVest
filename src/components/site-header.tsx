@@ -1,12 +1,35 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession, signOut, getToken } from "@/lib/auth-client";
 
 export function SiteHeader() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!session) {
+      setIsAdmin(false);
+      return;
+    }
+    let active = true;
+    (async () => {
+      const token = await getToken();
+      const res = await fetch("/api/me", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (active && res.ok) {
+        const data = await res.json();
+        setIsAdmin(!!data.isAdmin);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [session]);
 
   return (
     <header className="border-b border-cosmic/10 bg-pioneer">
@@ -18,6 +41,11 @@ export function SiteHeader() {
         <nav className="flex items-center gap-2 text-sm">
           {isPending ? null : session ? (
             <>
+              {isAdmin && (
+                <Link href="/admin/kyc" className="rounded-lg px-3 py-2 font-medium hover:bg-cosmic/5">
+                  Admin
+                </Link>
+              )}
               <Link href="/dashboard" className="rounded-lg px-3 py-2 font-medium hover:bg-cosmic/5">
                 Dashboard
               </Link>

@@ -23,3 +23,20 @@ function payloadToUser(p: JWTPayload): AuthUser | null {
   if (!p.sub) return null;
   return { id: p.sub, email: typeof p.email === "string" ? p.email : undefined };
 }
+
+/** Is this email on the admin allowlist (ADMIN_EMAILS)? */
+export function isAdminEmail(email?: string): boolean {
+  if (!email) return false;
+  const allow = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  return allow.includes(email.toLowerCase());
+}
+
+/** Verify the request and return the user only if they're an admin. */
+export async function getAdminUser(req: Request): Promise<AuthUser | null> {
+  const user = await getAuthUser(req);
+  if (!user || !isAdminEmail(user.email)) return null;
+  return user;
+}
