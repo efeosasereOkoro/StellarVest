@@ -1,0 +1,1 @@
+ALTER TABLE "investor_profiles" ADD COLUMN "kyc_rejection_reason" text;

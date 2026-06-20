@@ -30,6 +30,7 @@ export default function ProfilePage() {
   const [loaded, setLoaded] = useState(false);
   const [fullName, setFullName] = useState("");
   const [kyc, setKyc] = useState("registered");
+  const [rejectionReason, setRejectionReason] = useState<string | null>(null);
   const [docs, setDocs] = useState<Doc[]>([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -58,6 +59,7 @@ export default function ProfilePage() {
           const data = await k.json();
           setDocs(data.documents ?? []);
           setKyc(data.kycStatus ?? "registered");
+          setRejectionReason(data.rejectionReason ?? null);
         }
       } finally {
         setLoaded(true);
@@ -102,6 +104,7 @@ export default function ProfilePage() {
     const { document, kycStatus } = await res.json();
     setDocs((prev) => [document, ...prev]);
     setKyc(kycStatus ?? "submitted");
+    setRejectionReason(null);
     if (fileRef.current) fileRef.current.value = "";
   }
 
@@ -121,6 +124,12 @@ export default function ProfilePage() {
           <span className="text-sm font-medium text-cosmic">KYC status</span>
           <Badge tone={KYC_TONE[kyc] ?? "neutral"}>{kyc}</Badge>
         </div>
+        {kyc === "rejected" && (
+          <div className="mb-5 rounded-lg bg-ignition/10 p-3 text-sm text-ignition">
+            Your verification was rejected.
+            {rejectionReason ? ` Reason: ${rejectionReason}.` : ""} Please upload updated documents below.
+          </div>
+        )}
         <form onSubmit={saveName} className="space-y-4">
           <Field label="Full name" type="text" value={fullName} required onChange={(e) => setFullName(e.target.value)} />
           {nameError && <p className="text-sm text-danger">{nameError}</p>}

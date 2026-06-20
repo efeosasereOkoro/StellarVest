@@ -26,11 +26,15 @@ export async function GET(req: Request) {
     .orderBy(desc(kycDocuments.uploadedAt));
 
   const prof = await db
-    .select({ kycStatus: investorProfiles.kycStatus })
+    .select({ kycStatus: investorProfiles.kycStatus, rejectionReason: investorProfiles.kycRejectionReason })
     .from(investorProfiles)
     .where(eq(investorProfiles.userId, auth.user.id));
 
-  return NextResponse.json({ documents, kycStatus: prof[0]?.kycStatus ?? "registered" });
+  return NextResponse.json({
+    documents,
+    kycStatus: prof[0]?.kycStatus ?? "registered",
+    rejectionReason: prof[0]?.rejectionReason ?? null,
+  });
 }
 
 export async function POST(req: Request) {
@@ -75,7 +79,7 @@ export async function POST(req: Request) {
     .values({ userId: auth.user.id, kycStatus: "submitted" })
     .onConflictDoUpdate({
       target: investorProfiles.userId,
-      set: { kycStatus: "submitted", updatedAt: new Date() },
+      set: { kycStatus: "submitted", kycRejectionReason: null, updatedAt: new Date() },
     });
 
   return NextResponse.json({ document, kycStatus: "submitted" });

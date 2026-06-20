@@ -15,6 +15,13 @@
       "when": 1781931936642,
       "tag": "0001_illegal_timeslip",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781937747359,
+      "tag": "0002_tearful_squadron_sinister",
+      "breakpoints": true
     }
   ]
 }

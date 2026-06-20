@@ -18,6 +18,7 @@ export const investorProfiles = pgTable("investor_profiles", {
   userId: text("user_id").notNull().unique(),
   fullName: text("full_name"),
   kycStatus: kycStatus("kyc_status").notNull().default("registered"),
+  kycRejectionReason: text("kyc_rejection_reason"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

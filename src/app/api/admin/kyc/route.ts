@@ -48,10 +48,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
   }
 
+  const reason = typeof body.reason === "string" ? body.reason.trim() : "";
   const kycStatus = action === "verify" ? "verified" : "rejected";
   const [updated] = await db
     .update(investorProfiles)
-    .set({ kycStatus, updatedAt: new Date() })
+    .set({
+      kycStatus,
+      kycRejectionReason: action === "reject" ? reason || null : null,
+      updatedAt: new Date(),
+    })
     .where(eq(investorProfiles.userId, userId))
     .returning({ userId: investorProfiles.userId, kycStatus: investorProfiles.kycStatus });
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "@/lib/auth-client";
+import { signIn, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,14 @@ export default function LoginPage() {
       }
       return;
     }
-    router.push("/dashboard");
+    // Admins go straight to the review area; everyone else to their dashboard.
+    let dest = "/dashboard";
+    try {
+      const token = await getToken();
+      const me = await fetch("/api/me", { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      if (me.ok && (await me.json()).isAdmin) dest = "/admin/kyc";
+    } catch {}
+    router.push(dest);
   }
 
   return (
