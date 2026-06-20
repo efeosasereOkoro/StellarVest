@@ -37,10 +37,6 @@ export async function POST(req: Request) {
   const auth = await requireUser(req);
   if (auth.error) return NextResponse.json({ error: auth.error }, { status: 401 });
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return NextResponse.json({ error: "File storage isn't configured yet." }, { status: 503 });
-  }
-
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");
   if (!(file instanceof File)) return NextResponse.json({ error: "No file provided." }, { status: 400 });
@@ -49,11 +45,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Use a JPG, PNG, WebP, or PDF." }, { status: 400 });
   }
 
-  // Store privately in Vercel Blob (unguessable + access-controlled).
-  const blob = await put(`kyc/${auth.user.id}/${file.name}`, file, {
-    access: "private",
-    addRandomSuffix: true,
-  });
+  // Store privately in Vercel Blob. Auth is handled by the SDK — a
+  // BLOB_READ_WRITE_TOKEN locally, or OIDC + BLOB_STORE_ID on Vercel.
+  let blob;
+  try {
+    blob = await put(`kyc/${auth.user.id}/${file.name}`, file, {
+      access: "private",
+      addRandomSuffix: true,
+    });
+  } catch {
+    return NextResponse.json({ error: "File storage isn't available right now." }, { status: 503 });
+  }
 
   const [document] = await db
     .insert(kycDocuments)
