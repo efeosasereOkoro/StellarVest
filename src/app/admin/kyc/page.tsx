@@ -103,12 +103,12 @@ export default function AdminKycPage() {
             const isPendingRow = pending?.userId === inv.userId;
             return (
               <Card key={inv.userId}>
-                <div className="flex items-start justify-between">
-                  <div>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
                     <p className="font-medium text-cosmic">{inv.fullName ?? "(no name)"}</p>
-                    <p className="text-xs text-cosmic/50">{inv.userId}</p>
+                    <p className="truncate text-xs text-cosmic/50">{inv.userId}</p>
                   </div>
-                  <Badge tone="pitch">{inv.kycStatus}</Badge>
+                  <Badge tone="pitch" className="shrink-0">{inv.kycStatus}</Badge>
                 </div>
 
                 <div className="mt-4">
@@ -118,9 +118,9 @@ export default function AdminKycPage() {
                   ) : (
                     <ul className="mt-2 space-y-1.5">
                       {inv.documents.map((d) => (
-                        <li key={d.id} className="flex items-center justify-between text-sm">
-                          <span className="text-cosmic">{d.filename}</span>
-                          <button onClick={() => viewDoc(d.id)} className="font-medium text-ignition underline">
+                        <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
+                          <span className="min-w-0 truncate text-cosmic">{d.filename}</span>
+                          <button onClick={() => viewDoc(d.id)} className="shrink-0 font-medium text-ignition underline">
                             View
                           </button>
                         </li>
@@ -148,18 +148,19 @@ export default function AdminKycPage() {
                         variant={pending!.action === "verify" ? "accent" : "primary"}
                         disabled={busy}
                         onClick={confirmDecide}
+                        className="flex-1 sm:flex-none"
                       >
                         {busy ? "…" : pending!.action === "verify" ? "Confirm verify" : "Confirm reject"}
                       </Button>
-                      <Button variant="outline" disabled={busy} onClick={() => setPending(null)}>
+                      <Button variant="outline" disabled={busy} onClick={() => setPending(null)} className="flex-1 sm:flex-none">
                         Cancel
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <div className="mt-5 flex gap-3">
-                    <Button variant="accent" onClick={() => start(inv.userId, "verify")}>Verify</Button>
-                    <Button variant="outline" onClick={() => start(inv.userId, "reject")}>Reject</Button>
+                    <Button variant="accent" className="flex-1 sm:flex-none" onClick={() => start(inv.userId, "verify")}>Verify</Button>
+                    <Button variant="outline" className="flex-1 sm:flex-none" onClick={() => start(inv.userId, "reject")}>Reject</Button>
                   </div>
                 )}
               </Card>
