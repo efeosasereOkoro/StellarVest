@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-type Profile = { fullName: string | null; kycStatus: string };
+type Doc = { id: string; filename: string; uploadedAt: string };
 
 const KYC_TONE: Record<string, "venture" | "pitch" | "ignition" | "neutral"> = {
   verified: "venture",
@@ -17,16 +17,25 @@ const KYC_TONE: Record<string, "venture" | "pitch" | "ignition" | "neutral"> = {
   rejected: "ignition",
 };
 
+async function authHeaders(extra: Record<string, string> = {}) {
+  const token = await getToken();
+  return token ? { Authorization: `Bearer ${token}`, ...extra } : extra;
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const [loaded, setLoaded] = useState(false);
   const [fullName, setFullName] = useState("");
   const [kyc, setKyc] = useState("registered");
+  const [docs, setDocs] = useState<Doc[]>([]);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isPending) return;
@@ -36,16 +45,19 @@ export default function ProfilePage() {
     }
     (async () => {
       try {
-        const token = await getToken();
-        const res = await fetch("/api/profile", {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        if (res.ok) {
-          const { profile } = (await res.json()) as { profile: Profile | null };
-          if (profile) {
-            setFullName(profile.fullName ?? "");
-            setKyc(profile.kycStatus ?? "registered");
-          }
+        const headers = await authHeaders();
+        const [p, k] = await Promise.all([
+          fetch("/api/profile", { headers }),
+          fetch("/api/kyc", { headers }),
+        ]);
+        if (p.ok) {
+          const { profile } = await p.json();
+          if (profile?.fullName) setFullName(profile.fullName);
+        }
+        if (k.ok) {
+          const data = await k.json();
+          setDocs(data.documents ?? []);
+          setKyc(data.kycStatus ?? "registered");
         }
       } finally {
         setLoaded(true);
@@ -53,29 +65,44 @@ export default function ProfilePage() {
     })();
   }, [isPending, session, router]);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function saveName(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    setError(null);
+    setNameError(null);
     setSaved(false);
-    const token = await getToken();
     const res = await fetch("/api/profile", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: await authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ fullName }),
     });
     setSaving(false);
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Couldn't save your profile. Please try again.");
+      const d = await res.json().catch(() => ({}));
+      setNameError(d.error ?? "Couldn't save. Please try again.");
       return;
     }
-    const { profile } = (await res.json()) as { profile: Profile };
-    setKyc(profile.kycStatus ?? "registered");
     setSaved(true);
+  }
+
+  async function uploadDoc(e: React.FormEvent) {
+    e.preventDefault();
+    const file = fileRef.current?.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    const body = new FormData();
+    body.append("file", file);
+    const res = await fetch("/api/kyc", { method: "POST", headers: await authHeaders(), body });
+    setUploading(false);
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      setUploadError(d.error ?? "Upload failed. Please try again.");
+      return;
+    }
+    const { document, kycStatus } = await res.json();
+    setDocs((prev) => [document, ...prev]);
+    setKyc(kycStatus ?? "submitted");
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   if (isPending || !session || !loaded) {
@@ -94,26 +121,45 @@ export default function ProfilePage() {
           <span className="text-sm font-medium text-cosmic">KYC status</span>
           <Badge tone={KYC_TONE[kyc] ?? "neutral"}>{kyc}</Badge>
         </div>
-
-        <form onSubmit={onSubmit} className="space-y-4">
-          <Field
-            label="Full name"
-            type="text"
-            value={fullName}
-            required
-            onChange={(e) => setFullName(e.target.value)}
-          />
-          {error && <p className="text-sm text-danger">{error}</p>}
+        <form onSubmit={saveName} className="space-y-4">
+          <Field label="Full name" type="text" value={fullName} required onChange={(e) => setFullName(e.target.value)} />
+          {nameError && <p className="text-sm text-danger">{nameError}</p>}
           {saved && <p className="text-sm text-deep-frontier">Saved.</p>}
-          <Button type="submit" disabled={saving}>
-            {saving ? "Saving…" : "Save profile"}
-          </Button>
+          <Button type="submit" disabled={saving}>{saving ? "Saving…" : "Save profile"}</Button>
         </form>
       </Card>
 
-      <p className="mt-6 text-sm text-cosmic/50">
-        Next: upload your KYC documents for verification.
-      </p>
+      <Card className="mt-6">
+        <p className="text-sm font-medium text-cosmic">Identity documents</p>
+        <p className="mt-1 text-sm text-cosmic/60">
+          Upload your ID for verification (JPG, PNG, WebP, or PDF — max 4MB). Uploading submits your account for review.
+        </p>
+
+        <form onSubmit={uploadDoc} className="mt-4 flex items-center gap-3">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            required
+            className="block w-full text-sm text-cosmic/70 file:mr-3 file:rounded-lg file:border-0 file:bg-cosmic file:px-3 file:py-2 file:text-sm file:font-medium file:text-pioneer hover:file:bg-cosmic/90"
+          />
+          <Button type="submit" variant="accent" disabled={uploading}>
+            {uploading ? "Uploading…" : "Upload"}
+          </Button>
+        </form>
+        {uploadError && <p className="mt-2 text-sm text-danger">{uploadError}</p>}
+
+        {docs.length > 0 && (
+          <ul className="mt-5 divide-y divide-cosmic/10 border-t border-cosmic/10">
+            {docs.map((d) => (
+              <li key={d.id} className="flex items-center justify-between py-2.5 text-sm">
+                <span className="text-cosmic">{d.filename}</span>
+                <span className="text-cosmic/50">{new Date(d.uploadedAt).toLocaleDateString()}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
     </main>
   );
 }
