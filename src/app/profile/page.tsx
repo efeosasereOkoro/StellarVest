@@ -37,6 +37,7 @@ export default function ProfilePage() {
   const [nameError, setNameError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState("");
 
   useEffect(() => {
     if (isPending) return;
@@ -106,6 +107,7 @@ export default function ProfilePage() {
     setKyc(kycStatus ?? "submitted");
     setRejectionReason(null);
     if (fileRef.current) fileRef.current.value = "";
+    setFileName("");
   }
 
   if (isPending || !session || !loaded) {
@@ -144,18 +146,20 @@ export default function ProfilePage() {
           Upload your ID for verification (JPG, PNG, WebP, or PDF — max 4MB). Uploading submits your account for review.
         </p>
 
-        <form onSubmit={uploadDoc} className="mt-4 flex items-center gap-3">
+        <form onSubmit={uploadDoc} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
             ref={fileRef}
             type="file"
             accept="image/jpeg,image/png,image/webp,application/pdf"
             required
+            onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
             className="block w-full text-sm text-cosmic/70 file:mr-3 file:rounded-lg file:border-0 file:bg-cosmic file:px-3 file:py-2 file:text-sm file:font-medium file:text-pioneer hover:file:bg-cosmic/90"
           />
-          <Button type="submit" variant="accent" disabled={uploading}>
+          <Button type="submit" variant="accent" disabled={uploading} className="w-full sm:w-auto">
             {uploading ? "Uploading…" : "Upload"}
           </Button>
         </form>
+        {fileName && <p className="mt-2 truncate text-sm text-cosmic/70">Selected: {fileName}</p>}
         {uploadError && <p className="mt-2 text-sm text-danger">{uploadError}</p>}
 
         {docs.length > 0 && (

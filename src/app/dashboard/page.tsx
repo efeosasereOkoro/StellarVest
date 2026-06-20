@@ -28,14 +28,14 @@ export default function DashboardPage() {
       </p>
 
       <Card className="mt-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-cosmic">Get started</p>
             <p className="mt-1 text-sm text-cosmic/60">Complete your profile to begin investing.</p>
           </div>
           <Link
             href="/profile"
-            className="inline-flex items-center justify-center rounded-lg bg-cosmic px-4 py-2.5 text-sm font-medium text-pioneer hover:bg-cosmic/90"
+            className="inline-flex w-full items-center justify-center rounded-lg bg-cosmic px-4 py-2.5 text-sm font-medium text-pioneer hover:bg-cosmic/90 sm:w-auto"
           >
             Complete profile
           </Link>
