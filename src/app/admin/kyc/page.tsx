@@ -26,6 +26,7 @@ export default function AdminKycPage() {
   const [pending, setPending] = useState<Pending | null>(null);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isPending) return;
@@ -51,6 +52,7 @@ export default function AdminKycPage() {
   function start(userId: string, action: "verify" | "reject") {
     setPending({ userId, action });
     setReason("");
+    setActionError(null);
   }
 
   async function confirmDecide() {
@@ -70,6 +72,9 @@ export default function AdminKycPage() {
       setQueue((q) => q.filter((i) => i.userId !== pending.userId));
       setPending(null);
       setReason("");
+    } else {
+      const d = await res.json().catch(() => ({}));
+      setActionError(d.error ?? "Couldn't complete that action.");
     }
   }
 
@@ -138,7 +143,7 @@ export default function AdminKycPage() {
                       <textarea
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}
-                        placeholder="Reason for rejection (optional) — shown to the investor"
+                        placeholder="Reason for rejection (required) — shown to the investor"
                         rows={2}
                         className="mb-3 w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30"
                       />
@@ -149,7 +154,7 @@ export default function AdminKycPage() {
                     <div className="flex gap-3">
                       <Button
                         variant={pending!.action === "verify" ? "accent" : "primary"}
-                        disabled={busy}
+                        disabled={busy || (pending!.action === "reject" && !reason.trim())}
                         onClick={confirmDecide}
                         className="flex-1 sm:flex-none"
                       >
@@ -159,6 +164,7 @@ export default function AdminKycPage() {
                         Cancel
                       </Button>
                     </div>
+                    {actionError && <p className="mt-3 text-sm text-danger">{actionError}</p>}
                   </div>
                 ) : (
                   <div className="mt-5 flex gap-3">

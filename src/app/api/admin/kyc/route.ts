@@ -50,6 +50,9 @@ export async function POST(req: Request) {
   }
 
   const reason = typeof body.reason === "string" ? body.reason.trim() : "";
+  if (action === "reject" && !reason) {
+    return NextResponse.json({ error: "A rejection reason is required." }, { status: 400 });
+  }
   const kycStatus = action === "verify" ? "verified" : "rejected";
   const [updated] = await db
     .update(investorProfiles)
