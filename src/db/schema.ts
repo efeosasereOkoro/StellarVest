@@ -1,7 +1,7 @@
 // Drizzle schema — database tables live here.
 // Tables are added as we build each story.
 
-import { pgTable, pgEnum, uuid, text, integer, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, text, integer, jsonb, timestamp, unique } from "drizzle-orm/pg-core";
 
 // KYC lifecycle for an investor (manual review in the MVP — see DECISIONS D-003).
 export const kycStatus = pgEnum("kyc_status", [
@@ -51,3 +51,51 @@ export type InvestorProfile = typeof investorProfiles.$inferSelect;
 export type NewInvestorProfile = typeof investorProfiles.$inferInsert;
 export type KycDocument = typeof kycDocuments.$inferSelect;
 export type AuditEntry = typeof auditLog.$inferSelect;
+
+// ---- Investment structures (E3) ----
+
+// Top-level structure managed by StarSector8.
+export const syndicates = pgTable("syndicates", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// A group of investors under a syndicate.
+export const investorCohorts = pgTable("investor_cohorts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  syndicateId: uuid("syndicate_id").notNull().references(() => syndicates.id),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// One pool per investor cohort; aggregates that cohort's confirmed contributions.
+export const investmentPools = pgTable("investment_pools", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  investorCohortId: uuid("investor_cohort_id").notNull().unique().references(() => investorCohorts.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// A group of startups that pooled capital is deployed into.
+export const startupCohorts = pgTable("startup_cohorts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Verified investors assigned to an investor cohort.
+export const cohortMembers = pgTable(
+  "cohort_members",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    investorCohortId: uuid("investor_cohort_id").notNull().references(() => investorCohorts.id),
+    userId: text("user_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique().on(t.investorCohortId, t.userId)],
+);
+
+export type Syndicate = typeof syndicates.$inferSelect;
+export type InvestorCohort = typeof investorCohorts.$inferSelect;
+export type StartupCohort = typeof startupCohorts.$inferSelect;

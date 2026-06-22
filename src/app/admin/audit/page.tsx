@@ -62,7 +62,10 @@ export default function AuditPage() {
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-3xl font-semibold tracking-tight">Audit trail</h1>
-        <Link href="/admin/kyc" className="text-sm font-medium text-cosmic underline">KYC review →</Link>
+        <div className="flex gap-4 text-cosmic">
+          <Link href="/admin/kyc" className="font-medium underline">KYC review</Link>
+          <Link href="/admin/structures" className="font-medium underline">Structures</Link>
+        </div>
       </div>
       <p className="mt-1 text-sm text-cosmic/60">
         Append-only record of governance actions ({entries.length} most recent).
