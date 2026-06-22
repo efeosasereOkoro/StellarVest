@@ -148,10 +148,9 @@ export default function StructuresPage() {
                   onChange={(e) => setCohortName((m) => ({ ...m, [s.id]: e.target.value }))}
                 />
                 <Button
-                  variant="outline"
                   disabled={busy}
                   onClick={() => createCohort(s.id)}
-                  className="w-full sm:w-auto"
+                  className="w-full shrink-0 whitespace-nowrap sm:w-auto"
                 >
                   Add cohort
                 </Button>
