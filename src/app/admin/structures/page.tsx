@@ -130,7 +130,7 @@ export default function StructuresPage() {
                 <ul className="mt-2 space-y-1.5">
                   {s.cohorts.map((c) => (
                     <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                      <span className="text-cosmic">{c.name}</span>
+                      <Link href={`/admin/cohorts/${c.id}`} className="font-medium text-cosmic underline">{c.name}</Link>
                       <span className="flex items-center gap-2 text-cosmic/50">
                         {c.hasPool && <Badge tone="venture">pool</Badge>}
                         {c.memberCount} {c.memberCount === 1 ? "member" : "members"}
