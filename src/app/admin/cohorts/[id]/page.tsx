@@ -35,13 +35,13 @@ export default function CohortPage() {
   const [selected, setSelected] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // Allocation state
   const [allocations, setAllocations] = useState<Alloc[]>([]);
   const [startupCohorts, setStartupCohorts] = useState<StartupCohort[]>([]);
   const [totalAllocated, setTotalAllocated] = useState(0);
   const [allocStartup, setAllocStartup] = useState("");
   const [allocPct, setAllocPct] = useState("");
   const [allocError, setAllocError] = useState<string | null>(null);
+  const [edits, setEdits] = useState<Record<string, string>>({});
 
   async function load() {
     const headers = await authHeaders();
@@ -62,6 +62,7 @@ export default function CohortPage() {
       setAllocations(a.allocations ?? []);
       setStartupCohorts(a.startupCohorts ?? []);
       setTotalAllocated(a.totalAllocated ?? 0);
+      setEdits({});
     }
     setState("ready");
   }
@@ -96,28 +97,36 @@ export default function CohortPage() {
     if (res.ok) await load();
   }
 
-  async function setAllocation(e: React.FormEvent) {
-    e.preventDefault();
+  // Create or update an allocation (used by both the add form and inline edits).
+  async function postAllocation(startupCohortId: string, percentage: number) {
     setBusy(true);
     setAllocError(null);
     const res = await fetch(`/api/admin/cohorts/${id}/allocations`, {
       method: "POST",
       headers: await authHeaders({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ startupCohortId: allocStartup, percentage: Number(allocPct) }),
+      body: JSON.stringify({ startupCohortId, percentage }),
     });
     setBusy(false);
     if (res.ok) {
+      await load();
+      return true;
+    }
+    const d = await res.json().catch(() => ({}));
+    setAllocError(d.error ?? "Couldn't save the allocation.");
+    return false;
+  }
+
+  async function addAllocation(e: React.FormEvent) {
+    e.preventDefault();
+    if (await postAllocation(allocStartup, Number(allocPct))) {
       setAllocStartup("");
       setAllocPct("");
-      await load();
-    } else {
-      const d = await res.json().catch(() => ({}));
-      setAllocError(d.error ?? "Couldn't save the allocation.");
     }
   }
 
   async function removeAllocation(startupCohortId: string) {
     setBusy(true);
+    setAllocError(null);
     const res = await fetch(`/api/admin/cohorts/${id}/allocations`, {
       method: "DELETE",
       headers: await authHeaders({ "Content-Type": "application/json" }),
@@ -147,6 +156,7 @@ export default function CohortPage() {
   }
 
   const remaining = 100 - totalAllocated;
+  const unallocated = startupCohorts.filter((sc) => !allocations.some((a) => a.startupCohortId === sc.id));
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
@@ -194,7 +204,7 @@ export default function CohortPage() {
 
       {/* Pool allocation */}
       <Card className="mt-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <p className="font-medium text-cosmic">Pool allocation</p>
           <Badge tone={remaining === 0 ? "venture" : "pitch"}>{totalAllocated}% allocated · {remaining}% left</Badge>
         </div>
@@ -202,32 +212,49 @@ export default function CohortPage() {
 
         {allocations.length > 0 && (
           <ul className="mt-3 divide-y divide-cosmic/10 border-t border-cosmic/10">
-            {allocations.map((a) => (
-              <li key={a.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
-                <span className="min-w-0 truncate text-cosmic">{a.startupName ?? a.startupCohortId}</span>
-                <span className="flex shrink-0 items-center gap-3">
-                  <span className="font-medium text-cosmic">{a.percentage}%</span>
-                  <button onClick={() => removeAllocation(a.startupCohortId)} disabled={busy} className="font-medium text-danger underline">Remove</button>
-                </span>
-              </li>
-            ))}
+            {allocations.map((a) => {
+              const val = edits[a.startupCohortId] ?? String(a.percentage);
+              const changed = val !== String(a.percentage);
+              return (
+                <li key={a.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                  <span className="min-w-0 flex-1 truncate text-cosmic">{a.startupName ?? a.startupCohortId}</span>
+                  <span className="flex shrink-0 items-center gap-2">
+                    <input
+                      type="number" min={1} max={100} value={val}
+                      onChange={(e) => setEdits((m) => ({ ...m, [a.startupCohortId]: e.target.value }))}
+                      className="w-16 rounded-lg border border-cosmic/15 bg-pioneer px-2 py-1 text-sm outline-none focus:border-venture"
+                    />
+                    <span className="text-cosmic/60">%</span>
+                    <button
+                      onClick={() => postAllocation(a.startupCohortId, Number(val))}
+                      disabled={busy || !changed || !val}
+                      className="font-medium text-cosmic underline disabled:opacity-40"
+                    >
+                      Save
+                    </button>
+                    <button onClick={() => removeAllocation(a.startupCohortId)} disabled={busy} className="font-medium text-danger underline">Remove</button>
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
 
         {startupCohorts.length === 0 ? (
           <p className="mt-3 text-sm text-cosmic/70">Create a startup cohort first (Structures page).</p>
+        ) : unallocated.length === 0 ? (
+          <p className="mt-3 text-sm text-cosmic/70">Every startup cohort is allocated. Edit a percentage above or remove one to free it up.</p>
         ) : (
-          <form onSubmit={setAllocation} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <form onSubmit={addAllocation} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <select value={allocStartup} onChange={(e) => setAllocStartup(e.target.value)} required className={inputCls}>
               <option value="">Startup cohort…</option>
-              {startupCohorts.map((sc) => (
+              {unallocated.map((sc) => (
                 <option key={sc.id} value={sc.id}>{sc.name}</option>
               ))}
             </select>
             <input
-              type="number" min={1} max={100} required
-              value={allocPct} onChange={(e) => setAllocPct(e.target.value)}
-              placeholder="%"
+              type="number" min={1} max={100} required value={allocPct}
+              onChange={(e) => setAllocPct(e.target.value)} placeholder="%"
               className="w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30 sm:w-24"
             />
             <Button type="submit" disabled={busy || !allocStartup || !allocPct} className="w-full shrink-0 whitespace-nowrap sm:w-auto">
