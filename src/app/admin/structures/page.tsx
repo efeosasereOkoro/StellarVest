@@ -37,7 +37,7 @@ export default function StructuresPage() {
   async function load() {
     const res = await fetch("/api/admin/structures", { headers: await authHeaders() });
     if (res.status === 403) return setState("forbidden");
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
     setSyndicates(data.syndicates ?? []);
     setStartups(data.startupCohorts ?? []);
     setState("ready");

@@ -57,7 +57,10 @@ export default function DashboardPage() {
         const res = await fetch("/api/kyc", {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
-        if (res.ok) setKyc((await res.json()).kycStatus ?? "registered");
+        if (res.ok) {
+          const d = await res.json().catch(() => ({}));
+          setKyc(d.kycStatus ?? "registered");
+        }
       } finally {
         setLoaded(true);
       }

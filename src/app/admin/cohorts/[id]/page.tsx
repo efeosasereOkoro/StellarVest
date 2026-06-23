@@ -34,7 +34,8 @@ export default function CohortPage() {
     const res = await fetch(`/api/admin/cohorts/${id}/members`, { headers: await authHeaders() });
     if (res.status === 403) return setState("forbidden");
     if (res.status === 404) return setState("notfound");
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+    if (!data.cohort) return setState("notfound");
     setCohort(data.cohort);
     setMembers(data.members ?? []);
     setAssignable(data.assignable ?? []);

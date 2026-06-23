@@ -53,11 +53,11 @@ export default function ProfilePage() {
           fetch("/api/kyc", { headers }),
         ]);
         if (p.ok) {
-          const { profile } = await p.json();
+          const { profile } = await p.json().catch(() => ({}));
           if (profile?.fullName) setFullName(profile.fullName);
         }
         if (k.ok) {
-          const data = await k.json();
+          const data = await k.json().catch(() => ({}));
           setDocs(data.documents ?? []);
           setKyc(data.kycStatus ?? "registered");
           setRejectionReason(data.rejectionReason ?? null);

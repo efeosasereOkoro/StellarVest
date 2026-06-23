@@ -37,7 +37,7 @@ export default function AdminKycPage() {
     (async () => {
       const res = await fetch("/api/admin/kyc", { headers: await authHeaders() });
       if (res.status === 403) return setState("forbidden");
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       setQueue(data.queue ?? []);
       setState("ready");
     })();
