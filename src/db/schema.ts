@@ -96,6 +96,21 @@ export const cohortMembers = pgTable(
   (t) => [unique().on(t.investorCohortId, t.userId)],
 );
 
+// Allocation of a pool to a startup cohort, as a percentage (many-to-many).
+export const allocations = pgTable(
+  "allocations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    poolId: uuid("pool_id").notNull().references(() => investmentPools.id),
+    startupCohortId: uuid("startup_cohort_id").notNull().references(() => startupCohorts.id),
+    percentage: integer("percentage").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique().on(t.poolId, t.startupCohortId)],
+);
+
 export type Syndicate = typeof syndicates.$inferSelect;
 export type InvestorCohort = typeof investorCohorts.$inferSelect;
 export type StartupCohort = typeof startupCohorts.$inferSelect;
+export type Allocation = typeof allocations.$inferSelect;
