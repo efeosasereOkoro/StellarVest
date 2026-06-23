@@ -43,6 +43,11 @@ export default function SignUpPage() {
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Creating account…" : "Create account"}
           </Button>
+          <p className="text-xs text-cosmic/70">
+            By creating an account, you agree to our{" "}
+            <Link href="/terms" className="underline hover:text-cosmic">Terms</Link> and{" "}
+            <Link href="/privacy" className="underline hover:text-cosmic">Privacy Policy</Link>.
+          </p>
         </form>
 
         <p className="mt-6 text-sm text-cosmic/60">

@@ -145,6 +145,9 @@ export default function ProfilePage() {
         <p className="mt-1 text-sm text-cosmic/60">
           Upload your ID for verification (JPG, PNG, WebP, or PDF — max 4MB). Uploading submits your account for review.
         </p>
+        <p className="mt-1 text-sm text-cosmic/70">
+          Your documents are stored privately and used only to verify your identity.
+        </p>
 
         <form onSubmit={uploadDoc} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <input

@@ -3,6 +3,7 @@ import { Funnel_Display, Figtree } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { AlphaBanner } from "@/components/alpha-banner";
+import { SiteFooter } from "@/components/site-footer";
 
 const funnelDisplay = Funnel_Display({
   variable: "--font-funnel-display",
@@ -31,6 +32,7 @@ export default function RootLayout({
         <SiteHeader />
         <AlphaBanner />
         <div className="flex flex-1 flex-col">{children}</div>
+        <SiteFooter />
       </body>
     </html>
   );
