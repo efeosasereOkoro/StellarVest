@@ -73,7 +73,7 @@ export default function CohortPage() {
   }
 
   if (isPending || state === "loading") {
-    return <main className="flex flex-1 items-center justify-center text-cosmic/50">Loading…</main>;
+    return <main className="flex flex-1 items-center justify-center text-cosmic/70">Loading…</main>;
   }
   if (state === "forbidden") {
     return (
@@ -100,7 +100,7 @@ export default function CohortPage() {
       <Card className="mt-6">
         <p className="font-medium text-cosmic">Members ({members.length})</p>
         {members.length === 0 ? (
-          <p className="mt-2 text-sm text-cosmic/50">No investors assigned yet.</p>
+          <p className="mt-2 text-sm text-cosmic/70">No investors assigned yet.</p>
         ) : (
           <ul className="mt-3 divide-y divide-cosmic/10 border-t border-cosmic/10">
             {members.map((m) => (
@@ -122,7 +122,7 @@ export default function CohortPage() {
       <Card className="mt-4">
         <p className="font-medium text-cosmic">Assign a verified investor</p>
         {assignable.length === 0 ? (
-          <p className="mt-2 text-sm text-cosmic/50">No verified investors available to add.</p>
+          <p className="mt-2 text-sm text-cosmic/70">No verified investors available to add.</p>
         ) : (
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
             <select

@@ -4,7 +4,8 @@
   /* Star Sector 8 brand palette */
   --color-venture: #abe043;        /* signature lime */
   --color-cosmic: #1b1b1b;         /* near-black */
-  --color-ignition: #e55b13;       /* orange */
+  --color-ignition: #e55b13;       /* orange (brand; large text / fills only) */
+  --color-ignition-ink: #c2410c;   /* darker orange for small text/links (AA on white) */
   --color-deep-pitch: #102a43;     /* dark navy */
   --color-deep-frontier: #1e260a;  /* dark olive */
   --color-frontier: #e0f5bb;       /* pale green */

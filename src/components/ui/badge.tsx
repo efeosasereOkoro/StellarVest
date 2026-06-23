@@ -5,7 +5,7 @@ type Tone = "venture" | "pitch" | "ignition" | "neutral";
 const TONES: Record<Tone, string> = {
   venture: "bg-frontier text-deep-frontier",
   pitch: "bg-pitch text-deep-pitch",
-  ignition: "bg-ignition/15 text-ignition",
+  ignition: "bg-ignition/15 text-ignition-ink",
   neutral: "bg-cosmic/8 text-cosmic/70",
 };
 

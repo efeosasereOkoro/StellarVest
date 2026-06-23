@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <main className="flex flex-1 items-center px-6 py-16">
       <div className="mx-auto w-full max-w-3xl">
-        <p className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-ignition">
+        <p className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-ignition-ink">
           StarSector8
         </p>
         <h1 className="mt-3 font-display text-5xl font-semibold leading-[1.05] tracking-tight text-cosmic sm:text-6xl">

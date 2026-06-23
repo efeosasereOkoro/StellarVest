@@ -111,7 +111,7 @@ export default function ProfilePage() {
   }
 
   if (isPending || !session || !loaded) {
-    return <main className="flex flex-1 items-center justify-center text-sm text-cosmic/50">Loading…</main>;
+    return <main className="flex flex-1 items-center justify-center text-sm text-cosmic/70">Loading…</main>;
   }
 
   return (
@@ -127,7 +127,7 @@ export default function ProfilePage() {
           <Badge tone={KYC_TONE[kyc] ?? "neutral"}>{kyc}</Badge>
         </div>
         {kyc === "rejected" && (
-          <div className="mb-5 rounded-lg bg-ignition/10 p-3 text-sm text-ignition">
+          <div className="mb-5 rounded-lg bg-ignition/10 p-3 text-sm text-ignition-ink">
             Your verification was rejected.
             {rejectionReason ? ` Reason: ${rejectionReason}.` : ""} Please upload updated documents below.
           </div>
@@ -167,7 +167,7 @@ export default function ProfilePage() {
             {docs.map((d) => (
               <li key={d.id} className="flex items-center justify-between py-2.5 text-sm">
                 <span className="text-cosmic">{d.filename}</span>
-                <span className="text-cosmic/50">{new Date(d.uploadedAt).toLocaleDateString()}</span>
+                <span className="text-cosmic/70">{new Date(d.uploadedAt).toLocaleDateString()}</span>
               </li>
             ))}
           </ul>

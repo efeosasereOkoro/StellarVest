@@ -76,7 +76,7 @@ function VerifyInner() {
 
 export default function VerifyPage() {
   return (
-    <Suspense fallback={<main className="flex flex-1 items-center justify-center text-sm text-cosmic/50">Loading…</main>}>
+    <Suspense fallback={<main className="flex flex-1 items-center justify-center text-sm text-cosmic/70">Loading…</main>}>
       <VerifyInner />
     </Suspense>
   );

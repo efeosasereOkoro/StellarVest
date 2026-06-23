@@ -63,7 +63,7 @@ export default function LoginPage() {
           {needsVerify && (
             <Link
               href={`/verify?email=${encodeURIComponent(email)}`}
-              className="block text-sm font-medium text-ignition underline"
+              className="block text-sm font-medium text-ignition-ink underline"
             >
               Enter your verification code →
             </Link>

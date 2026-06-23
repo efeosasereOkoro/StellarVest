@@ -47,7 +47,7 @@ export default function AuditPage() {
   }, [isPending, session, router]);
 
   if (isPending || state === "loading") {
-    return <main className="flex flex-1 items-center justify-center text-sm text-cosmic/50">Loading…</main>;
+    return <main className="flex flex-1 items-center justify-center text-sm text-cosmic/70">Loading…</main>;
   }
   if (state === "forbidden") {
     return (
@@ -80,7 +80,7 @@ export default function AuditPage() {
               <Card className="!p-4">
                 <div className="flex items-center justify-between gap-3">
                   <Badge tone={TONE[e.action] ?? "neutral"}>{e.action}</Badge>
-                  <span className="text-xs text-cosmic/50">{new Date(e.createdAt).toLocaleString()}</span>
+                  <span className="text-xs text-cosmic/70">{new Date(e.createdAt).toLocaleString()}</span>
                 </div>
                 <p className="mt-2 text-sm text-cosmic/80">
                   <span className="font-medium text-cosmic">{e.actorEmail ?? "system"}</span>

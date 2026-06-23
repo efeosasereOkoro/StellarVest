@@ -70,7 +70,7 @@ function ResetInner() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<main className="flex flex-1 items-center justify-center text-sm text-cosmic/50">Loading…</main>}>
+    <Suspense fallback={<main className="flex flex-1 items-center justify-center text-sm text-cosmic/70">Loading…</main>}>
       <ResetInner />
     </Suspense>
   );

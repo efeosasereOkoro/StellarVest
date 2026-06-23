@@ -84,7 +84,7 @@ export default function StructuresPage() {
   }
 
   if (isPending || state === "loading") {
-    return <main className="flex flex-1 items-center justify-center text-cosmic/50">Loading…</main>;
+    return <main className="flex flex-1 items-center justify-center text-cosmic/70">Loading…</main>;
   }
   if (state === "forbidden") {
     return (
@@ -117,7 +117,7 @@ export default function StructuresPage() {
         </Card>
 
         <div className="mt-4 space-y-4">
-          {syndicates.length === 0 && <p className="text-cosmic/50">No syndicates yet.</p>}
+          {syndicates.length === 0 && <p className="text-cosmic/70">No syndicates yet.</p>}
           {syndicates.map((s) => (
             <Card key={s.id}>
               <p className="font-medium text-cosmic">{s.name}</p>
@@ -125,13 +125,13 @@ export default function StructuresPage() {
 
               <p className="mt-4 text-sm font-medium text-cosmic/80">Investor cohorts</p>
               {s.cohorts.length === 0 ? (
-                <p className="mt-1 text-sm text-cosmic/50">No cohorts yet.</p>
+                <p className="mt-1 text-sm text-cosmic/70">No cohorts yet.</p>
               ) : (
                 <ul className="mt-2 space-y-1.5">
                   {s.cohorts.map((c) => (
                     <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
                       <Link href={`/admin/cohorts/${c.id}`} className="font-medium text-cosmic underline">{c.name}</Link>
-                      <span className="flex items-center gap-2 text-cosmic/50">
+                      <span className="flex items-center gap-2 text-cosmic/70">
                         {c.hasPool && <Badge tone="venture">pool</Badge>}
                         {c.memberCount} {c.memberCount === 1 ? "member" : "members"}
                       </span>

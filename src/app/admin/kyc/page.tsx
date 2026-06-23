@@ -79,7 +79,7 @@ export default function AdminKycPage() {
   }
 
   if (isPending || state === "loading") {
-    return <main className="flex flex-1 items-center justify-center text-sm text-cosmic/50">Loading…</main>;
+    return <main className="flex flex-1 items-center justify-center text-sm text-cosmic/70">Loading…</main>;
   }
   if (state === "forbidden") {
     return (
@@ -114,7 +114,7 @@ export default function AdminKycPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium text-cosmic">{inv.fullName ?? "(no name)"}</p>
-                    <p className="truncate text-xs text-cosmic/50">{inv.userId}</p>
+                    <p className="truncate text-xs text-cosmic/70">{inv.userId}</p>
                   </div>
                   <Badge tone="pitch" className="shrink-0">{inv.kycStatus}</Badge>
                 </div>
@@ -122,13 +122,13 @@ export default function AdminKycPage() {
                 <div className="mt-4">
                   <p className="text-sm font-medium text-cosmic/80">Documents</p>
                   {inv.documents.length === 0 ? (
-                    <p className="mt-1 text-sm text-cosmic/50">No documents uploaded.</p>
+                    <p className="mt-1 text-sm text-cosmic/70">No documents uploaded.</p>
                   ) : (
                     <ul className="mt-2 space-y-1.5">
                       {inv.documents.map((d) => (
                         <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
                           <span className="min-w-0 truncate text-cosmic">{d.filename}</span>
-                          <button onClick={() => viewDoc(d.id)} className="shrink-0 font-medium text-ignition underline">
+                          <button onClick={() => viewDoc(d.id)} className="shrink-0 font-medium text-ignition-ink underline">
                             View
                           </button>
                         </li>
