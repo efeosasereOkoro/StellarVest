@@ -38,6 +38,9 @@ export default function DealPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reviewRec, setReviewRec] = useState("comment");
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewError, setReviewError] = useState<string | null>(null);
 
   async function load() {
     const res = await fetch(`/api/admin/deals/${id}`, { headers: await authHeaders() });
@@ -96,6 +99,26 @@ export default function DealPage() {
   async function viewDoc(docId: string) {
     const res = await fetch(`/api/admin/deals/document?id=${docId}`, { headers: await authHeaders() });
     if (res.ok) window.open(URL.createObjectURL(await res.blob()), "_blank");
+  }
+
+  async function submitReview(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setReviewError(null);
+    const res = await fetch(`/api/admin/deals/${id}/reviews`, {
+      method: "POST",
+      headers: await authHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ recommendation: reviewRec, comment: reviewComment }),
+    });
+    setBusy(false);
+    if (res.ok) {
+      setReviewComment("");
+      setReviewRec("comment");
+      await load();
+    } else {
+      const d = await res.json().catch(() => ({}));
+      setReviewError(d.error ?? "Couldn't submit your review.");
+    }
   }
 
   if (isPending || state === "loading") {
@@ -184,6 +207,29 @@ export default function DealPage() {
               </li>
             ))}
           </ul>
+        )}
+        {deal.status === "under_review" && (
+          <form onSubmit={submitReview} className="mt-4 space-y-3 border-t border-cosmic/10 pt-4">
+            <p className="text-sm font-medium text-cosmic/80">Add your review</p>
+            <select
+              value={reviewRec}
+              onChange={(e) => setReviewRec(e.target.value)}
+              className="w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30"
+            >
+              <option value="approve">Recommend approve</option>
+              <option value="decline">Recommend decline</option>
+              <option value="comment">Comment only</option>
+            </select>
+            <textarea
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              rows={2}
+              placeholder="Comments (optional)"
+              className="w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30"
+            />
+            {reviewError && <p className="text-sm text-danger">{reviewError}</p>}
+            <Button type="submit" disabled={busy}>Submit review</Button>
+          </form>
         )}
       </Card>
     </main>
