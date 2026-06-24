@@ -28,8 +28,8 @@ const KYC: Record<
   verified: {
     tone: "venture",
     title: "You're verified",
-    body: "Your account is verified. Investment opportunities are coming soon.",
-    cta: null,
+    body: "Your account is verified. Browse the latest investment opportunities.",
+    cta: { label: "Browse deals", href: "/deals" },
   },
   rejected: {
     tone: "ignition",
