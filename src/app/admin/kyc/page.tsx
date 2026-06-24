@@ -94,7 +94,8 @@ export default function AdminKycPage() {
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="font-display text-3xl font-semibold tracking-tight">KYC review</h1>
-        <div className="flex gap-4 text-cosmic">
+        <div className="flex flex-wrap gap-4 text-cosmic">
+          <Link href="/admin/deals" className="font-medium underline">Deals</Link>
           <Link href="/admin/structures" className="font-medium underline">Structures</Link>
           <Link href="/admin/audit" className="font-medium underline">Audit</Link>
         </div>

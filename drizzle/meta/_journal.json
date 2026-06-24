@@ -43,6 +43,13 @@
       "when": 1782199652563,
       "tag": "0005_slim_pet_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1782274450899,
+      "tag": "0006_tricky_vermin",
+      "breakpoints": true
     }
   ]
 }

@@ -110,7 +110,53 @@ export const allocations = pgTable(
   (t) => [unique().on(t.poolId, t.startupCohortId)],
 );
 
+// ---- Deals & committee governance (E5) ----
+
+export const dealStatus = pgEnum("deal_status", [
+  "draft",
+  "under_review",
+  "approved",
+  "declined",
+  "published",
+]);
+
+export const deals = pgTable("deals", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  startupName: text("startup_name").notNull(),
+  description: text("description"),
+  status: dealStatus("status").notNull().default("draft"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+});
+
+// Due-diligence documents attached to a deal (private Blob; metadata here).
+export const dealDocuments = pgTable("deal_documents", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  dealId: uuid("deal_id").notNull().references(() => deals.id),
+  pathname: text("pathname").notNull(),
+  url: text("url").notNull(),
+  filename: text("filename").notNull(),
+  contentType: text("content_type"),
+  size: integer("size"),
+  uploadedAt: timestamp("uploaded_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Investment-committee comments/recommendations on a deal.
+export const committeeReviews = pgTable("committee_reviews", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  dealId: uuid("deal_id").notNull().references(() => deals.id),
+  reviewerId: text("reviewer_id"),
+  reviewerEmail: text("reviewer_email"),
+  recommendation: text("recommendation").notNull(), // approve | decline | comment
+  comment: text("comment"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Syndicate = typeof syndicates.$inferSelect;
 export type InvestorCohort = typeof investorCohorts.$inferSelect;
 export type StartupCohort = typeof startupCohorts.$inferSelect;
 export type Allocation = typeof allocations.$inferSelect;
+export type Deal = typeof deals.$inferSelect;
+export type DealDocument = typeof dealDocuments.$inferSelect;
+export type CommitteeReview = typeof committeeReviews.$inferSelect;
