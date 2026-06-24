@@ -12,14 +12,15 @@ export default function PrivacyPage() {
         <section>
           <h2 className="font-display text-xl font-semibold text-cosmic">What we collect</h2>
           <p className="mt-2">
-            Account details (name, email), and the identity documents you upload for verification.
+            Account details (name, email), the identity documents you upload for verification, and —
+            when you back a deal — your contribution amount and the payment reference for your transfer.
           </p>
         </section>
         <section>
           <h2 className="font-display text-xl font-semibold text-cosmic">How we use it</h2>
           <p className="mt-2">
-            To create and secure your account and to verify your identity (KYC). We don&apos;t sell
-            your personal data.
+            To create and secure your account, verify your identity (KYC), and record and reconcile
+            the contributions you make to deals. We don&apos;t sell your personal data.
           </p>
         </section>
         <section>

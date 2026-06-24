@@ -33,14 +33,24 @@ export default function TermsPage() {
           </p>
         </section>
         <section>
-          <h2 className="font-display text-xl font-semibold text-cosmic">4. No investment advice</h2>
+          <h2 className="font-display text-xl font-semibold text-cosmic">4. Contributions</h2>
+          <p className="mt-2">
+            When you back a deal you indicate a contribution amount and receive a payment reference.
+            You then transfer the funds bank-to-bank to the escrow account StarSector8 provides,
+            quoting that reference, and mark the payment as sent. Your contribution is recorded as
+            confirmed once StarSector8 reconciles the transfer. A pledge is an indication of intent,
+            not a binding obligation, until funds are confirmed.
+          </p>
+        </section>
+        <section>
+          <h2 className="font-display text-xl font-semibold text-cosmic">5. No investment advice</h2>
           <p className="mt-2">
             Information on the platform is not financial advice. Investing in early-stage startups
             carries significant risk, including the loss of your capital.
           </p>
         </section>
         <section>
-          <h2 className="font-display text-xl font-semibold text-cosmic">5. Changes &amp; contact</h2>
+          <h2 className="font-display text-xl font-semibold text-cosmic">6. Changes &amp; contact</h2>
           <p className="mt-2">
             We may update these terms as the platform evolves. Questions?{" "}
             <a href="mailto:support@starsector8.org" className="underline">support@starsector8.org</a>.
