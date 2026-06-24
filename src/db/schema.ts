@@ -1,7 +1,7 @@
 // Drizzle schema — database tables live here.
 // Tables are added as we build each story.
 
-import { pgTable, pgEnum, uuid, text, integer, jsonb, timestamp, unique } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, text, integer, numeric, jsonb, timestamp, unique } from "drizzle-orm/pg-core";
 
 // KYC lifecycle for an investor (manual review in the MVP — see DECISIONS D-003).
 export const kycStatus = pgEnum("kyc_status", [
@@ -153,6 +153,38 @@ export const committeeReviews = pgTable("committee_reviews", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// ---- Investor contributions (E6) ----
+
+// Contribution lifecycle. Money moves bank-to-bank through a manually operated
+// escrow (concierge model — DECISIONS D-004); the platform only records state.
+export const contributionStatus = pgEnum("contribution_status", [
+  "pledged", // investor indicated an amount
+  "paid", // investor marked "I've sent the funds"
+  "confirmed", // admin reconciled the bank transfer (E7)
+  "cancelled", // withdrawn before confirmation
+]);
+
+export const contributions = pgTable(
+  "contributions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    dealId: uuid("deal_id").notNull().references(() => deals.id),
+    userId: text("user_id").notNull(),
+    investorEmail: text("investor_email"),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+    currency: text("currency").notNull().default("USD"),
+    // Human-friendly reference the investor quotes on the bank transfer so the
+    // escrow operator can match the payment.
+    reference: text("reference").notNull(),
+    status: contributionStatus("status").notNull().default("pledged"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+  },
+  // One contribution per investor per deal.
+  (t) => [unique().on(t.dealId, t.userId)],
+);
+
 export type Syndicate = typeof syndicates.$inferSelect;
 export type InvestorCohort = typeof investorCohorts.$inferSelect;
 export type StartupCohort = typeof startupCohorts.$inferSelect;
@@ -160,3 +192,4 @@ export type Allocation = typeof allocations.$inferSelect;
 export type Deal = typeof deals.$inferSelect;
 export type DealDocument = typeof dealDocuments.$inferSelect;
 export type CommitteeReview = typeof committeeReviews.$inferSelect;
+export type Contribution = typeof contributions.$inferSelect;

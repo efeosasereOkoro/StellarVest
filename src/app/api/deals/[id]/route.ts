@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { deals, dealDocuments } from "@/db/schema";
+import { deals, dealDocuments, contributions } from "@/db/schema";
 import { getVerifiedInvestor } from "@/lib/investor";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -30,5 +30,12 @@ export async function GET(req: Request, { params }: Ctx) {
     .where(eq(dealDocuments.dealId, id))
     .orderBy(desc(dealDocuments.uploadedAt));
 
-  return NextResponse.json({ deal, documents });
+  // The investor's own contribution to this deal (if any), so the page can show
+  // the pledge form, funding instructions, or current status.
+  const [contribution] = await db
+    .select()
+    .from(contributions)
+    .where(and(eq(contributions.dealId, id), eq(contributions.userId, investor.id)));
+
+  return NextResponse.json({ deal, documents, contribution: contribution ?? null });
 }

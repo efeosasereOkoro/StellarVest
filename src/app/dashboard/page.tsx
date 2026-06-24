@@ -99,6 +99,13 @@ export default function DashboardPage() {
           )}
         </div>
       </Card>
+
+      {kyc === "verified" && (
+        <p className="mt-4 text-sm text-cosmic/70">
+          Already pledged?{" "}
+          <Link href="/portfolio" className="font-medium text-ignition-ink underline">View your contributions</Link>
+        </p>
+      )}
     </main>
   );
 }
