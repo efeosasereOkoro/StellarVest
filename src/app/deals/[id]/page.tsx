@@ -7,6 +7,7 @@ import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 
 type Deal = { id: string; startupName: string; description: string | null; publishedAt: string | null };
 type Doc = { id: string; filename: string; uploadedAt: string };
@@ -32,6 +33,8 @@ export default function InvestorDealPage() {
   const [contribution, setContribution] = useState<Contribution | null>(null);
   const [escrow, setEscrow] = useState("");
   const [amount, setAmount] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [editAmount, setEditAmount] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,6 +89,35 @@ export default function InvestorDealPage() {
     }
   }
 
+  async function saveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    const res = await fetch(`/api/deals/${id}/contribute`, {
+      method: "PATCH",
+      headers: await authHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ amount: Number(editAmount) }),
+    });
+    setBusy(false);
+    if (res.ok) {
+      setEditing(false);
+      await load();
+    } else {
+      const d = await res.json().catch(() => ({}));
+      setError(d.error ?? "Couldn't update your pledge.");
+    }
+  }
+
+  async function cancelPledge() {
+    setError(null);
+    const res = await fetch(`/api/deals/${id}/contribute`, { method: "DELETE", headers: await authHeaders() });
+    if (res.ok) await load();
+    else {
+      const d = await res.json().catch(() => ({}));
+      setError(d.error ?? "Couldn't cancel your pledge.");
+    }
+  }
+
   async function viewDoc(docId: string) {
     const res = await fetch(`/api/deals/document?id=${docId}`, { headers: await authHeaders() });
     if (res.ok) window.open(URL.createObjectURL(await res.blob()), "_blank");
@@ -111,6 +143,10 @@ export default function InvestorDealPage() {
     );
   }
 
+  // A cancelled pledge is treated as "no active contribution" so the investor
+  // can pledge again.
+  const active = contribution && contribution.status !== "cancelled" ? contribution : null;
+
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
       <Link href="/deals" className="text-cosmic/60 underline">&larr; All deals</Link>
@@ -124,7 +160,7 @@ export default function InvestorDealPage() {
       <Card className="mt-6">
         <p className="font-medium text-cosmic">Your contribution</p>
 
-        {!contribution && (
+        {!active && (
           <form onSubmit={pledge} className="mt-3 space-y-3">
             <p className="text-sm text-cosmic/70">Indicate how much you&rsquo;d like to contribute to this deal.</p>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -141,47 +177,92 @@ export default function InvestorDealPage() {
           </form>
         )}
 
-        {contribution && (
+        {active && (
           <div className="mt-3 space-y-4 text-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-cosmic/70">
-                Pledged <span className="font-semibold text-cosmic">{money(contribution.amount, contribution.currency)}</span>
+                Pledged <span className="font-semibold text-cosmic">{money(active.amount, active.currency)}</span>
               </span>
-              <Badge tone={contribution.status === "confirmed" ? "venture" : contribution.status === "paid" ? "pitch" : "neutral"}>
-                {contribution.status === "pledged" ? "Awaiting payment"
-                  : contribution.status === "paid" ? "Payment reported"
-                  : contribution.status === "confirmed" ? "Confirmed" : contribution.status}
+              <Badge tone={active.status === "confirmed" ? "venture" : active.status === "paid" ? "pitch" : "neutral"}>
+                {active.status === "pledged" ? "Awaiting payment"
+                  : active.status === "paid" ? "Payment reported"
+                  : active.status === "confirmed" ? "Confirmed" : active.status}
               </Badge>
             </div>
 
-            {contribution.status === "pledged" && (
-              <div className="rounded-lg border border-cosmic/10 bg-frontier/40 p-4">
-                <p className="font-medium text-cosmic">Funding instructions</p>
-                {escrow ? (
-                  <p className="mt-1 whitespace-pre-wrap text-cosmic/70">{escrow}</p>
-                ) : (
-                  <p className="mt-1 text-cosmic/70">
-                    StarSector8 operates a manual escrow. The escrow account details will be shared with you to complete your transfer.
+            {active.status === "pledged" && (
+              <>
+                <div className="rounded-lg border border-cosmic/10 bg-frontier/40 p-4">
+                  <p className="font-medium text-cosmic">Funding instructions</p>
+                  {escrow ? (
+                    <p className="mt-1 whitespace-pre-wrap text-cosmic/70">{escrow}</p>
+                  ) : (
+                    <p className="mt-1 text-cosmic/70">
+                      StarSector8 operates a manual escrow. The escrow account details will be shared with you to complete your transfer.
+                    </p>
+                  )}
+                  <p className="mt-3">
+                    Quote this payment reference on your transfer:{" "}
+                    <span className="font-mono font-semibold text-cosmic">{active.reference}</span>
                   </p>
+                  <p className="mt-1 text-xs text-cosmic/60">Once you&rsquo;ve sent the funds, mark it below — StarSector8 will confirm receipt.</p>
+                  <ConfirmButton
+                    variant="accent"
+                    className="mt-4"
+                    disabled={busy}
+                    onConfirm={markPaid}
+                    title="Confirm payment sent"
+                    message="Only do this after you've made the bank transfer. You won't be able to edit or cancel your pledge yourself afterwards."
+                    confirmLabel="Yes, I've sent it"
+                  >
+                    I&rsquo;ve sent the funds
+                  </ConfirmButton>
+                </div>
+
+                {editing ? (
+                  <form onSubmit={saveEdit} className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <div className="relative w-full sm:max-w-xs">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-cosmic/60">$</span>
+                      <input
+                        type="number" min="1" step="1" required inputMode="decimal" value={editAmount}
+                        onChange={(e) => setEditAmount(e.target.value)} placeholder="New amount"
+                        className="w-full rounded-lg border border-cosmic/15 bg-pioneer py-2 pl-7 pr-3 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30"
+                      />
+                    </div>
+                    <div className="flex gap-3">
+                      <Button type="submit" disabled={busy}>Save</Button>
+                      <Button type="button" variant="outline" disabled={busy} onClick={() => setEditing(false)}>Cancel</Button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="flex flex-wrap gap-3">
+                    <Button variant="outline" disabled={busy} onClick={() => { setEditAmount(String(Number(active.amount))); setEditing(true); }}>
+                      Edit amount
+                    </Button>
+                    <ConfirmButton
+                      variant="outline"
+                      disabled={busy}
+                      onConfirm={cancelPledge}
+                      title="Cancel this pledge?"
+                      message="This withdraws your pledge to this deal. You can pledge again later if you change your mind."
+                      confirmLabel="Cancel pledge"
+                    >
+                      Cancel pledge
+                    </ConfirmButton>
+                  </div>
                 )}
-                <p className="mt-3">
-                  Quote this payment reference on your transfer:{" "}
-                  <span className="font-mono font-semibold text-cosmic">{contribution.reference}</span>
-                </p>
-                <p className="mt-1 text-xs text-cosmic/60">Once you&rsquo;ve sent the funds, mark it below — StarSector8 will confirm receipt.</p>
-                <Button variant="accent" disabled={busy} onClick={markPaid} className="mt-4">I&rsquo;ve sent the funds</Button>
-              </div>
+              </>
             )}
 
-            {contribution.status === "paid" && (
+            {active.status === "paid" && (
               <p className="rounded-lg border border-cosmic/10 bg-pitch/40 p-4 text-cosmic/80">
                 Thanks — we&rsquo;ve recorded that you sent the funds (ref{" "}
-                <span className="font-mono font-semibold">{contribution.reference}</span>). StarSector8 will confirm once the
+                <span className="font-mono font-semibold">{active.reference}</span>). StarSector8 will confirm once the
                 transfer is received.
               </p>
             )}
 
-            {contribution.status === "confirmed" && (
+            {active.status === "confirmed" && (
               <p className="rounded-lg border border-cosmic/10 bg-frontier/40 p-4 text-cosmic/80">
                 Your contribution is confirmed. Thank you for investing in {deal.startupName}.
               </p>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Badge } from "@/components/ui/badge";
 
 type Deal = { id: string; startupName: string; description: string | null; status: string };
@@ -155,10 +156,30 @@ export default function DealPage() {
           {deal.status === "under_review" && (
             <>
               <Button variant="accent" disabled={busy} onClick={() => doAction("approve")}>Approve</Button>
-              <Button variant="outline" disabled={busy} onClick={() => doAction("decline")}>Decline</Button>
+              <ConfirmButton
+                variant="outline"
+                disabled={busy}
+                onConfirm={() => doAction("decline")}
+                title="Decline this deal?"
+                message="This permanently declines the deal. It won't be published to investors and can't be undone."
+                confirmLabel="Decline deal"
+              >
+                Decline
+              </ConfirmButton>
             </>
           )}
-          {deal.status === "approved" && <Button variant="accent" disabled={busy} onClick={() => doAction("publish")}>Publish to investors</Button>}
+          {deal.status === "approved" && (
+            <ConfirmButton
+              variant="accent"
+              disabled={busy}
+              onConfirm={() => doAction("publish")}
+              title="Publish to investors?"
+              message="Verified investors will be able to view this deal and contribute to it. This can't be undone."
+              confirmLabel="Publish"
+            >
+              Publish to investors
+            </ConfirmButton>
+          )}
           {(deal.status === "published" || deal.status === "declined") && (
             <p className="text-sm text-cosmic/70">This deal is {s.label.toLowerCase()} — no further actions.</p>
           )}

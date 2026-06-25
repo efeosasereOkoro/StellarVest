@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Badge } from "@/components/ui/badge";
 
 type Contribution = {
@@ -121,13 +122,27 @@ export default function AdminContributionsPage() {
               {(c.status === "paid" || c.status === "pledged") && (
                 <div className="mt-3 flex gap-3">
                   {c.status === "paid" && (
-                    <Button variant="accent" disabled={busyId === c.id} onClick={() => act(c.id, "confirm")}>
+                    <ConfirmButton
+                      variant="accent"
+                      disabled={busyId === c.id}
+                      onConfirm={() => act(c.id, "confirm")}
+                      title="Confirm funds received?"
+                      message={`This marks ${c.investorEmail ?? "the investor"}'s ${money(c.amount, c.currency)} contribution to ${c.startupName} as confirmed and emails them. Do this only once the transfer has cleared.`}
+                      confirmLabel="Confirm funds"
+                    >
                       Confirm funds received
-                    </Button>
+                    </ConfirmButton>
                   )}
-                  <Button variant="outline" disabled={busyId === c.id} onClick={() => act(c.id, "cancel")}>
+                  <ConfirmButton
+                    variant="outline"
+                    disabled={busyId === c.id}
+                    onConfirm={() => act(c.id, "cancel")}
+                    title="Cancel this contribution?"
+                    message={`This cancels ${c.investorEmail ?? "the investor"}'s ${money(c.amount, c.currency)} contribution to ${c.startupName}.`}
+                    confirmLabel="Cancel contribution"
+                  >
                     Cancel
-                  </Button>
+                  </ConfirmButton>
                 </div>
               )}
             </Card>
