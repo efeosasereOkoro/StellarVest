@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 type Entry = {
   id: string;
@@ -26,6 +27,39 @@ export default function AuditPage() {
   const { data: session, isPending } = useSession();
   const [state, setState] = useState<"loading" | "forbidden" | "ready">("loading");
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [actor, setActor] = useState("");
+  const [action, setAction] = useState("");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+
+  async function load(f = { actor, action, from, to }) {
+    const token = await getToken();
+    const qs = new URLSearchParams();
+    if (f.actor) qs.set("actor", f.actor);
+    if (f.action) qs.set("action", f.action);
+    if (f.from) qs.set("from", f.from);
+    if (f.to) qs.set("to", f.to);
+    const res = await fetch(`/api/admin/audit?${qs.toString()}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (res.status === 403) return setState("forbidden");
+    const data = await res.json().catch(() => ({}));
+    setEntries(data.entries ?? []);
+    setState("ready");
+  }
+
+  function applyFilters(e: React.FormEvent) {
+    e.preventDefault();
+    load();
+  }
+
+  function clearFilters() {
+    setActor("");
+    setAction("");
+    setFrom("");
+    setTo("");
+    load({ actor: "", action: "", from: "", to: "" });
+  }
 
   useEffect(() => {
     if (isPending) return;
@@ -33,16 +67,8 @@ export default function AuditPage() {
       router.replace("/login");
       return;
     }
-    (async () => {
-      const token = await getToken();
-      const res = await fetch("/api/admin/audit", {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (res.status === 403) return setState("forbidden");
-      const data = await res.json();
-      setEntries(data.entries ?? []);
-      setState("ready");
-    })();
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPending, session, router]);
 
   if (isPending || state === "loading") {
@@ -61,11 +87,40 @@ export default function AuditPage() {
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Audit trail</h1>
       <p className="mt-1 text-sm text-cosmic/60">
-        Append-only record of governance actions ({entries.length} most recent).
+        Append-only record of governance actions ({entries.length} shown, newest first).
       </p>
 
+      <Card className="mt-4">
+        <form onSubmit={applyFilters} className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-cosmic/70">Actor email</span>
+            <input value={actor} onChange={(e) => setActor(e.target.value)} placeholder="e.g. admin@…"
+              className="w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30" />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-cosmic/70">Action</span>
+            <input value={action} onChange={(e) => setAction(e.target.value)} placeholder="e.g. deal, kyc, contribution"
+              className="w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30" />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-cosmic/70">From</span>
+            <input type="date" value={from} onChange={(e) => setFrom(e.target.value)}
+              className="w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30" />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-cosmic/70">To</span>
+            <input type="date" value={to} onChange={(e) => setTo(e.target.value)}
+              className="w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30" />
+          </label>
+          <div className="flex gap-3 sm:col-span-2 lg:col-span-4">
+            <Button type="submit">Apply filters</Button>
+            <Button type="button" variant="outline" onClick={clearFilters}>Clear</Button>
+          </div>
+        </form>
+      </Card>
+
       {entries.length === 0 ? (
-        <Card className="mt-6 text-sm text-cosmic/60">No activity recorded yet.</Card>
+        <Card className="mt-6 text-sm text-cosmic/60">No activity matches these filters.</Card>
       ) : (
         <ul className="mt-6 space-y-2">
           {entries.map((e) => (

@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { investorProfiles } from "@/db/schema";
 import { getAuthUser } from "@/lib/auth-server";
+import { recordAudit } from "@/lib/audit";
 
 export async function GET(req: Request) {
   if (!req.headers.get("authorization")) {
@@ -38,6 +39,15 @@ export async function POST(req: Request) {
       set: { fullName, updatedAt: new Date() },
     })
     .returning();
+
+  await recordAudit({
+    actorId: user.id,
+    actorEmail: user.email,
+    action: "profile.updated",
+    targetType: "investor",
+    targetId: user.id,
+    metadata: { fullName },
+  });
 
   return NextResponse.json({ profile });
 }
