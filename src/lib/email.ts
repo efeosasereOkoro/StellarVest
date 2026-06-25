@@ -136,6 +136,18 @@ export function kycReceivedEmail(): { subject: string; html: string } {
   };
 }
 
+export function pledgeReceiptEmail(dealName: string, dealId: string, amountLabel: string, reference: string): { subject: string; html: string } {
+  return {
+    subject: `Your pledge to ${dealName} — next steps`,
+    html: layout(
+      "Pledge recorded",
+      `<p>We&rsquo;ve recorded your pledge of <strong>${escapeHtml(amountLabel)}</strong> to <strong>${escapeHtml(dealName)}</strong>.</p>
+       <p>To complete it, transfer the funds to the StarSector8 escrow account quoting your reference <strong>${escapeHtml(reference)}</strong>, then mark the payment as sent on the deal page.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/deals/${dealId}`, "View the deal")}</p>`,
+    ),
+  };
+}
+
 export function dealPublishedEmail(dealName: string, dealId: string): { subject: string; html: string } {
   return {
     subject: `New investment opportunity: ${dealName}`,

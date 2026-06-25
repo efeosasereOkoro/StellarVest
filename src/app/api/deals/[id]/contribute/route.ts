@@ -5,7 +5,7 @@ import { deals, contributions } from "@/db/schema";
 import { getVerifiedInvestor } from "@/lib/investor";
 import { getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
-import { sendEmail, newPledgeEmail } from "@/lib/email";
+import { sendEmail, newPledgeEmail, pledgeReceiptEmail } from "@/lib/email";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -62,10 +62,16 @@ export async function POST(req: Request, { params }: Ctx) {
     metadata: { amount: amount.toFixed(2), reference },
   });
 
-  // Notify admins of the new pledge (no-ops if email unconfigured).
+  // Notify admins of the new pledge, and send the investor a receipt with their
+  // reference + next steps (no-ops if email unconfigured).
   const amountLabel = `$${amount.toFixed(2)}`;
-  const mail = newPledgeEmail(deal.startupName, investor.email ?? "an investor", amountLabel, reference);
-  await Promise.all(getAdminEmails().map((to) => sendEmail({ to, ...mail })));
+  const adminMail = newPledgeEmail(deal.startupName, investor.email ?? "an investor", amountLabel, reference);
+  await Promise.all([
+    ...getAdminEmails().map((to) => sendEmail({ to, ...adminMail })),
+    investor.email
+      ? sendEmail({ to: investor.email, ...pledgeReceiptEmail(deal.startupName, id, amountLabel, reference) })
+      : Promise.resolve(false),
+  ]);
 
   return NextResponse.json({ contribution });
 }

@@ -9,13 +9,14 @@ export async function GET(req: Request) {
   const admin = await getAdminUser(req);
   if (!admin) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
-  const [pendingKyc, verifiedInvestors, syndicateCount, cohortCount, publishedDeals, awaitingFunds] = await Promise.all([
+  const [pendingKyc, verifiedInvestors, syndicateCount, cohortCount, publishedDeals, awaitingFunds, dealsUnderReview] = await Promise.all([
     db.select({ c: count() }).from(investorProfiles).where(eq(investorProfiles.kycStatus, "submitted")),
     db.select({ c: count() }).from(investorProfiles).where(eq(investorProfiles.kycStatus, "verified")),
     db.select({ c: count() }).from(syndicates),
     db.select({ c: count() }).from(investorCohorts),
     db.select({ c: count() }).from(deals).where(eq(deals.status, "published")),
     db.select({ c: count() }).from(contributions).where(eq(contributions.status, "paid")),
+    db.select({ c: count() }).from(deals).where(eq(deals.status, "under_review")),
   ]);
 
   return NextResponse.json({
@@ -25,5 +26,6 @@ export async function GET(req: Request) {
     cohortCount: cohortCount[0]?.c ?? 0,
     publishedDeals: publishedDeals[0]?.c ?? 0,
     awaitingFunds: awaitingFunds[0]?.c ?? 0,
+    dealsUnderReview: dealsUnderReview[0]?.c ?? 0,
   });
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { and, desc, eq, isNotNull } from "drizzle-orm";
+import { and, count, desc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
-import { deals, dealDocuments, committeeReviews, investorProfiles } from "@/db/schema";
+import { deals, dealDocuments, committeeReviews, investorProfiles, contributions } from "@/db/schema";
 import { getAdminUser, getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, dealNeedsReviewEmail, dealPublishedEmail } from "@/lib/email";
@@ -13,6 +13,9 @@ const TRANSITIONS: Record<string, { from: string; to: string }> = {
   approve: { from: "under_review", to: "approved" },
   decline: { from: "under_review", to: "declined" },
   publish: { from: "approved", to: "published" },
+  // Recovery transitions (audit findings A2/I4 — let admins undo a mistake).
+  reopen: { from: "declined", to: "under_review" },
+  unpublish: { from: "published", to: "approved" },
 };
 
 export async function GET(req: Request, { params }: Ctx) {
@@ -54,14 +57,25 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: `Can't do that — the deal is "${deal.status}".` }, { status: 400 });
   }
 
+  // Don't allow unpublishing once investors have contributed.
+  if (action === "unpublish") {
+    const [{ c }] = await db.select({ c: count() }).from(contributions).where(eq(contributions.dealId, id));
+    if (c > 0) {
+      return NextResponse.json({ error: "Can't unpublish — investors have already contributed to this deal." }, { status: 400 });
+    }
+  }
+
   const set: Record<string, unknown> = { status: t.to, updatedAt: new Date() };
-  if (t.to === "published") set.publishedAt = new Date();
+  if (action === "publish") set.publishedAt = new Date();
+  if (action === "unpublish") set.publishedAt = null;
   const [updated] = await db.update(deals).set(set).where(eq(deals.id, id)).returning();
 
+  const auditAction =
+    action === "reopen" ? "deal.reopened" : action === "unpublish" ? "deal.unpublished" : `deal.${t.to}`;
   await recordAudit({
     actorId: admin.id,
     actorEmail: admin.email,
-    action: `deal.${t.to}`,
+    action: auditAction,
     targetType: "deal",
     targetId: id,
   });

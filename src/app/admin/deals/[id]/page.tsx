@@ -51,7 +51,14 @@ export default function DealPage() {
     if (!data.deal) return setState("notfound");
     setDeal(data.deal);
     setDocs(data.documents ?? []);
-    setReviews(data.reviews ?? []);
+    const allReviews: Review[] = data.reviews ?? [];
+    setReviews(allReviews);
+    // Pre-fill the form with this reviewer's existing review, if any (editable).
+    const mine = allReviews.find((r) => r.reviewerEmail && r.reviewerEmail === session?.user?.email);
+    if (mine) {
+      setReviewRec(mine.recommendation);
+      setReviewComment(mine.comment ?? "");
+    }
     setState("ready");
   }
 
@@ -138,6 +145,7 @@ export default function DealPage() {
   }
 
   const s = STATUS[deal.status] ?? STATUS.draft;
+  const myReview = reviews.find((r) => r.reviewerEmail && r.reviewerEmail === session?.user?.email);
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
@@ -180,8 +188,29 @@ export default function DealPage() {
               Publish to investors
             </ConfirmButton>
           )}
-          {(deal.status === "published" || deal.status === "declined") && (
-            <p className="text-sm text-cosmic/70">This deal is {s.label.toLowerCase()} — no further actions.</p>
+          {deal.status === "published" && (
+            <ConfirmButton
+              variant="outline"
+              disabled={busy}
+              onConfirm={() => doAction("unpublish")}
+              title="Unpublish this deal?"
+              message="This removes the deal from investors and returns it to Approved. Only possible if no one has contributed yet."
+              confirmLabel="Unpublish"
+            >
+              Unpublish
+            </ConfirmButton>
+          )}
+          {deal.status === "declined" && (
+            <ConfirmButton
+              variant="outline"
+              disabled={busy}
+              onConfirm={() => doAction("reopen")}
+              title="Reopen for review?"
+              message="This sends the deal back to the investment committee (status: Under review)."
+              confirmLabel="Reopen"
+            >
+              Reopen for review
+            </ConfirmButton>
           )}
         </div>
         {error && <p className="mt-3 text-sm text-danger">{error}</p>}
@@ -231,7 +260,7 @@ export default function DealPage() {
         )}
         {deal.status === "under_review" && (
           <form onSubmit={submitReview} className="mt-4 space-y-3 border-t border-cosmic/10 pt-4">
-            <p className="text-sm font-medium text-cosmic/80">Add your review</p>
+            <p className="text-sm font-medium text-cosmic/80">{myReview ? "Update your review" : "Add your review"}</p>
             <select
               value={reviewRec}
               onChange={(e) => setReviewRec(e.target.value)}
@@ -249,7 +278,7 @@ export default function DealPage() {
               className="w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30"
             />
             {reviewError && <p className="text-sm text-danger">{reviewError}</p>}
-            <Button type="submit" disabled={busy}>Submit review</Button>
+            <Button type="submit" disabled={busy}>{myReview ? "Update review" : "Submit review"}</Button>
           </form>
         )}
       </Card>

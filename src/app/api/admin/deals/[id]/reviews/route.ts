@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { deals, committeeReviews } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
@@ -27,18 +27,31 @@ export async function POST(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "Reviews can only be added while a deal is under committee review." }, { status: 400 });
   }
 
-  await db.insert(committeeReviews).values({
-    dealId: id,
-    reviewerId: reviewer.id,
-    reviewerEmail: reviewer.email,
-    recommendation,
-    comment: comment || null,
-  });
+  // One review per member: update their existing review if present, else insert.
+  const [existing] = await db
+    .select({ id: committeeReviews.id })
+    .from(committeeReviews)
+    .where(and(eq(committeeReviews.dealId, id), eq(committeeReviews.reviewerId, reviewer.id)));
+
+  if (existing) {
+    await db
+      .update(committeeReviews)
+      .set({ recommendation, comment: comment || null })
+      .where(eq(committeeReviews.id, existing.id));
+  } else {
+    await db.insert(committeeReviews).values({
+      dealId: id,
+      reviewerId: reviewer.id,
+      reviewerEmail: reviewer.email,
+      recommendation,
+      comment: comment || null,
+    });
+  }
 
   await recordAudit({
     actorId: reviewer.id,
     actorEmail: reviewer.email,
-    action: "deal.review_added",
+    action: existing ? "deal.review_updated" : "deal.review_added",
     targetType: "deal",
     targetId: id,
     metadata: { recommendation },

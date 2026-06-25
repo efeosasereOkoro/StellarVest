@@ -14,6 +14,7 @@ type Overview = {
   cohortCount: number;
   publishedDeals: number;
   awaitingFunds: number;
+  dealsUnderReview: number;
 };
 
 export default function AdminHomePage() {
@@ -43,6 +44,7 @@ export default function AdminHomePage() {
 
   const tiles = [
     { label: "KYC awaiting review", value: o?.pendingKyc ?? 0, href: "/admin/kyc", urgent: (o?.pendingKyc ?? 0) > 0 },
+    { label: "Deals awaiting review", value: o?.dealsUnderReview ?? 0, href: "/admin/deals", urgent: (o?.dealsUnderReview ?? 0) > 0 },
     { label: "Funds awaiting confirmation", value: o?.awaitingFunds ?? 0, href: "/admin/contributions", urgent: (o?.awaitingFunds ?? 0) > 0 },
     { label: "Verified investors", value: o?.verifiedInvestors ?? 0, href: "/admin/kyc" },
     { label: "Published deals", value: o?.publishedDeals ?? 0, href: "/admin/deals" },

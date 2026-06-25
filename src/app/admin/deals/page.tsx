@@ -84,6 +84,24 @@ export default function DealsPage() {
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Deals</h1>
 
+      {(() => {
+        const needsReview = deals.filter((d) => d.status === "under_review");
+        if (needsReview.length === 0) return null;
+        return (
+          <Card className="mt-6 border-pitch bg-pitch/20">
+            <p className="font-medium text-cosmic">Awaiting committee review ({needsReview.length})</p>
+            <ul className="mt-2 space-y-1.5">
+              {needsReview.map((d) => (
+                <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
+                  <Link href={`/admin/deals/${d.id}`} className="min-w-0 truncate font-medium text-cosmic underline">{d.startupName}</Link>
+                  <Link href={`/admin/deals/${d.id}`} className="shrink-0 font-medium text-ignition-ink underline">Review →</Link>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        );
+      })()}
+
       <Card className="mt-6">
         <form onSubmit={create} className="space-y-3">
           <Field label="Startup name" value={name} onChange={(e) => setName(e.target.value)} required />
