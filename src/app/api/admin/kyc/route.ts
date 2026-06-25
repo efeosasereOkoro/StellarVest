@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { investorProfiles, kycDocuments } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
+import { sendEmail, kycVerifiedEmail, kycRejectedEmail } from "@/lib/email";
 
 export async function GET(req: Request) {
   const admin = await getAdminUser(req);
@@ -62,7 +63,7 @@ export async function POST(req: Request) {
       updatedAt: new Date(),
     })
     .where(eq(investorProfiles.userId, userId))
-    .returning({ userId: investorProfiles.userId, kycStatus: investorProfiles.kycStatus });
+    .returning({ userId: investorProfiles.userId, email: investorProfiles.email, kycStatus: investorProfiles.kycStatus });
 
   if (!updated) return NextResponse.json({ error: "investor not found" }, { status: 404 });
 
@@ -74,6 +75,12 @@ export async function POST(req: Request) {
     targetId: userId,
     metadata: action === "reject" && reason ? { reason } : undefined,
   });
+
+  // Notify the investor of the result (no-ops if email isn't configured yet).
+  if (updated.email) {
+    const mail = action === "verify" ? kycVerifiedEmail() : kycRejectedEmail(reason);
+    await sendEmail({ to: updated.email, ...mail });
+  }
 
   return NextResponse.json({ updated });
 }

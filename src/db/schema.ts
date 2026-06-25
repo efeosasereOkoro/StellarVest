@@ -16,6 +16,9 @@ export const investorProfiles = pgTable("investor_profiles", {
   id: uuid("id").defaultRandom().primaryKey(),
   // The Neon Auth user this profile belongs to (Better Auth user id).
   userId: text("user_id").notNull().unique(),
+  // Captured from the auth token so we can email the investor (KYC result,
+  // contribution updates) without round-tripping to Neon Auth.
+  email: text("email"),
   fullName: text("full_name"),
   kycStatus: kycStatus("kyc_status").notNull().default("registered"),
   kycRejectionReason: text("kyc_rejection_reason"),

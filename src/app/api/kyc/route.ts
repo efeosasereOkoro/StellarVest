@@ -74,13 +74,14 @@ export async function POST(req: Request) {
     })
     .returning({ id: kycDocuments.id, filename: kycDocuments.filename, uploadedAt: kycDocuments.uploadedAt });
 
-  // Ensure a profile row exists and move KYC to "submitted".
+  // Ensure a profile row exists and move KYC to "submitted". Capture the email
+  // from the token so we can notify the investor of the review result.
   await db
     .insert(investorProfiles)
-    .values({ userId: auth.user.id, kycStatus: "submitted" })
+    .values({ userId: auth.user.id, email: auth.user.email ?? null, kycStatus: "submitted" })
     .onConflictDoUpdate({
       target: investorProfiles.userId,
-      set: { kycStatus: "submitted", kycRejectionReason: null, updatedAt: new Date() },
+      set: { email: auth.user.email ?? null, kycStatus: "submitted", kycRejectionReason: null, updatedAt: new Date() },
     });
 
   await recordAudit({
