@@ -30,14 +30,6 @@ const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral
   cancelled: { tone: "ignition", label: "Cancelled" },
 };
 
-const NAV = [
-  { href: "/admin/kyc", label: "KYC review" },
-  { href: "/admin/structures", label: "Structures" },
-  { href: "/admin/deals", label: "Deals" },
-  { href: "/admin/settings", label: "Settings" },
-  { href: "/admin/audit", label: "Audit" },
-];
-
 async function authHeaders(extra: Record<string, string> = {}): Promise<Record<string, string>> {
   const token = await getToken();
   return token ? { Authorization: `Bearer ${token}`, ...extra } : extra;
@@ -93,12 +85,7 @@ export default function AdminContributionsPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Contributions</h1>
-        <div className="flex flex-wrap gap-4 text-cosmic">
-          {NAV.map((n) => <Link key={n.href} href={n.href} className="font-medium underline">{n.label}</Link>)}
-        </div>
-      </div>
+      <h1 className="font-display text-3xl font-semibold tracking-tight">Contributions</h1>
       <p className="mt-1 text-sm text-cosmic/70">
         {awaiting > 0 ? `${awaiting} awaiting confirmation` : "Nothing awaiting confirmation"} · {items.length} total
       </p>

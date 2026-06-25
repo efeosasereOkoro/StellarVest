@@ -42,7 +42,7 @@ export function SiteHeader() {
       return (
         <>
           {isAdmin && (
-            <Link href="/admin/kyc" className={LINK} onClick={() => setOpen(false)}>
+            <Link href="/admin" className={LINK} onClick={() => setOpen(false)}>
               Admin
             </Link>
           )}

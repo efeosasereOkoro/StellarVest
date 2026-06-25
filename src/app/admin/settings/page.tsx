@@ -2,18 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
-const NAV = [
-  { href: "/admin/kyc", label: "KYC review" },
-  { href: "/admin/structures", label: "Structures" },
-  { href: "/admin/deals", label: "Deals" },
-  { href: "/admin/contributions", label: "Contributions" },
-  { href: "/admin/audit", label: "Audit" },
-];
 
 async function authHeaders(extra: Record<string, string> = {}): Promise<Record<string, string>> {
   const token = await getToken();
@@ -63,12 +54,7 @@ export default function AdminSettingsPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Settings</h1>
-        <div className="flex flex-wrap gap-4 text-cosmic">
-          {NAV.map((n) => <Link key={n.href} href={n.href} className="font-medium underline">{n.label}</Link>)}
-        </div>
-      </div>
+      <h1 className="font-display text-3xl font-semibold tracking-tight">Settings</h1>
 
       <Card className="mt-6">
         <form onSubmit={save} className="space-y-3">

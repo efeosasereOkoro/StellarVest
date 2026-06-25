@@ -82,16 +82,7 @@ export default function DealsPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Deals</h1>
-        <div className="flex flex-wrap gap-4 text-cosmic">
-          <Link href="/admin/kyc" className="font-medium underline">KYC review</Link>
-          <Link href="/admin/structures" className="font-medium underline">Structures</Link>
-          <Link href="/admin/contributions" className="font-medium underline">Contributions</Link>
-          <Link href="/admin/settings" className="font-medium underline">Settings</Link>
-          <Link href="/admin/audit" className="font-medium underline">Audit</Link>
-        </div>
-      </div>
+      <h1 className="font-display text-3xl font-semibold tracking-tight">Deals</h1>
 
       <Card className="mt-6">
         <form onSubmit={create} className="space-y-3">
