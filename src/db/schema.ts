@@ -188,6 +188,17 @@ export const contributions = pgTable(
   (t) => [unique().on(t.dealId, t.userId)],
 );
 
+// ---- Platform settings (E7) ----
+
+// Singleton (id = 1) holding admin-editable settings. For now: the escrow
+// funding instructions shown to investors when they contribute (concierge
+// model, D-004).
+export const platformSettings = pgTable("platform_settings", {
+  id: integer("id").primaryKey(),
+  escrowInstructions: text("escrow_instructions"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Syndicate = typeof syndicates.$inferSelect;
 export type InvestorCohort = typeof investorCohorts.$inferSelect;
 export type StartupCohort = typeof startupCohorts.$inferSelect;
@@ -196,3 +207,4 @@ export type Deal = typeof deals.$inferSelect;
 export type DealDocument = typeof dealDocuments.$inferSelect;
 export type CommitteeReview = typeof committeeReviews.$inferSelect;
 export type Contribution = typeof contributions.$inferSelect;
+export type PlatformSettings = typeof platformSettings.$inferSelect;

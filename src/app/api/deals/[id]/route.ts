@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { deals, dealDocuments, contributions } from "@/db/schema";
+import { deals, dealDocuments, contributions, platformSettings } from "@/db/schema";
 import { getVerifiedInvestor } from "@/lib/investor";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -37,5 +37,16 @@ export async function GET(req: Request, { params }: Ctx) {
     .from(contributions)
     .where(and(eq(contributions.dealId, id), eq(contributions.userId, investor.id)));
 
-  return NextResponse.json({ deal, documents, contribution: contribution ?? null });
+  // Escrow funding instructions the admin maintains (shown when pledged).
+  const [settings] = await db
+    .select({ escrowInstructions: platformSettings.escrowInstructions })
+    .from(platformSettings)
+    .where(eq(platformSettings.id, 1));
+
+  return NextResponse.json({
+    deal,
+    documents,
+    contribution: contribution ?? null,
+    escrowInstructions: settings?.escrowInstructions ?? "",
+  });
 }

@@ -90,6 +90,40 @@ export function kycRejectedEmail(reason: string): { subject: string; html: strin
   };
 }
 
+export function fundsConfirmedEmail(dealName: string, amountLabel: string): { subject: string; html: string } {
+  return {
+    subject: `Your contribution to ${dealName} is confirmed`,
+    html: layout(
+      "Funds confirmed ✅",
+      `<p>We&rsquo;ve confirmed receipt of your <strong>${escapeHtml(amountLabel)}</strong> contribution to <strong>${escapeHtml(dealName)}</strong>. Thank you for investing.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/portfolio`, "View your contributions")}</p>`,
+    ),
+  };
+}
+
+export function newPledgeEmail(dealName: string, investorEmail: string, amountLabel: string, reference: string): { subject: string; html: string } {
+  return {
+    subject: `New pledge: ${amountLabel} to ${dealName}`,
+    html: layout(
+      "New contribution pledged",
+      `<p><strong>${escapeHtml(investorEmail)}</strong> pledged <strong>${escapeHtml(amountLabel)}</strong> to <strong>${escapeHtml(dealName)}</strong>.</p>
+       <p>Reference: <strong>${escapeHtml(reference)}</strong>. You&rsquo;ll be able to confirm the funds once the transfer is received.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/admin/contributions`, "Review contributions")}</p>`,
+    ),
+  };
+}
+
+export function dealNeedsReviewEmail(dealName: string, dealId: string): { subject: string; html: string } {
+  return {
+    subject: `Committee review needed: ${dealName}`,
+    html: layout(
+      "A deal needs your review",
+      `<p><strong>${escapeHtml(dealName)}</strong> has been sent to the investment committee and is awaiting recommendations.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/admin/deals/${dealId}`, "Open the deal")}</p>`,
+    ),
+  };
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }

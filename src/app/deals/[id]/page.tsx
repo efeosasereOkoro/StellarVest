@@ -30,6 +30,7 @@ export default function InvestorDealPage() {
   const [deal, setDeal] = useState<Deal | null>(null);
   const [docs, setDocs] = useState<Doc[]>([]);
   const [contribution, setContribution] = useState<Contribution | null>(null);
+  const [escrow, setEscrow] = useState("");
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +44,7 @@ export default function InvestorDealPage() {
     setDeal(data.deal);
     setDocs(data.documents ?? []);
     setContribution(data.contribution ?? null);
+    setEscrow(data.escrowInstructions ?? "");
     setState("ready");
   }
 
@@ -155,13 +157,18 @@ export default function InvestorDealPage() {
             {contribution.status === "pledged" && (
               <div className="rounded-lg border border-cosmic/10 bg-frontier/40 p-4">
                 <p className="font-medium text-cosmic">Funding instructions</p>
-                <p className="mt-1 text-cosmic/70">
-                  StarSector8 operates a manual escrow. We&rsquo;ll send you the escrow bank details by email; transfer your
-                  contribution quoting the reference below, then mark it as paid here.
-                </p>
+                {escrow ? (
+                  <p className="mt-1 whitespace-pre-wrap text-cosmic/70">{escrow}</p>
+                ) : (
+                  <p className="mt-1 text-cosmic/70">
+                    StarSector8 operates a manual escrow. The escrow account details will be shared with you to complete your transfer.
+                  </p>
+                )}
                 <p className="mt-3">
-                  Payment reference: <span className="font-mono font-semibold text-cosmic">{contribution.reference}</span>
+                  Quote this payment reference on your transfer:{" "}
+                  <span className="font-mono font-semibold text-cosmic">{contribution.reference}</span>
                 </p>
+                <p className="mt-1 text-xs text-cosmic/60">Once you&rsquo;ve sent the funds, mark it below — StarSector8 will confirm receipt.</p>
                 <Button variant="accent" disabled={busy} onClick={markPaid} className="mt-4">I&rsquo;ve sent the funds</Button>
               </div>
             )}

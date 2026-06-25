@@ -24,14 +24,18 @@ function payloadToUser(p: JWTPayload): AuthUser | null {
   return { id: p.sub, email: typeof p.email === "string" ? p.email : undefined };
 }
 
-/** Is this email on the admin allowlist (ADMIN_EMAILS)? */
-export function isAdminEmail(email?: string): boolean {
-  if (!email) return false;
-  const allow = (process.env.ADMIN_EMAILS ?? "")
+/** The admin allowlist (ADMIN_EMAILS), normalised. */
+export function getAdminEmails(): string[] {
+  return (process.env.ADMIN_EMAILS ?? "")
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
-  return allow.includes(email.toLowerCase());
+}
+
+/** Is this email on the admin allowlist (ADMIN_EMAILS)? */
+export function isAdminEmail(email?: string): boolean {
+  if (!email) return false;
+  return getAdminEmails().includes(email.toLowerCase());
 }
 
 /** Verify the request and return the user only if they're an admin. */

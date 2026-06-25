@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { deals, dealDocuments, committeeReviews } from "@/db/schema";
-import { getAdminUser } from "@/lib/auth-server";
+import { getAdminUser, getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
+import { sendEmail, dealNeedsReviewEmail } from "@/lib/email";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -64,6 +65,12 @@ export async function PATCH(req: Request, { params }: Ctx) {
     targetType: "deal",
     targetId: id,
   });
+
+  // Tell the committee a deal needs review (no-ops if email unconfigured).
+  if (t.to === "under_review") {
+    const mail = dealNeedsReviewEmail(updated.startupName, id);
+    await Promise.all(getAdminEmails().map((to) => sendEmail({ to, ...mail })));
+  }
 
   return NextResponse.json({ deal: updated });
 }
