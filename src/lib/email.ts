@@ -40,7 +40,11 @@ export async function sendEmail({ to, subject, html }: SendArgs): Promise<boolea
 
 // --- Shared layout -------------------------------------------------------
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://stellarvest.vercel.app";
+// Link target for emails. Prefer an explicit override, then Vercel's stable
+// production domain (set automatically on every deployment), then localhost.
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
 
 function layout(heading: string, bodyHtml: string): string {
   return `
