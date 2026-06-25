@@ -11,6 +11,7 @@ type Entry = {
   id: string;
   actorEmail: string | null;
   action: string;
+  targetType: string | null;
   targetId: string | null;
   metadata: { reason?: string; filename?: string } | null;
   createdAt: string;
@@ -132,7 +133,7 @@ export default function AuditPage() {
                 </div>
                 <p className="mt-2 text-sm text-cosmic/80">
                   <span className="font-medium text-cosmic">{e.actorEmail ?? "system"}</span>
-                  {e.targetId ? <> → investor <span className="text-cosmic/60">{e.targetId.slice(0, 8)}…</span></> : null}
+                  {e.targetId ? <> → {(e.targetType ?? "record").replace(/_/g, " ")} <span className="text-cosmic/60">{e.targetId.slice(0, 8)}…</span></> : null}
                 </p>
                 {e.metadata?.reason && (
                   <p className="mt-1 text-sm text-cosmic/60">Reason: {e.metadata.reason}</p>
