@@ -66,7 +66,7 @@ export function ConfirmButton({
               <Button type="button" variant="outline" disabled={busy} onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button type="button" variant={variant} disabled={busy} onClick={go}>
+              <Button type="button" variant={variant} disabled={busy} onClick={go} autoFocus>
                 {confirmLabel}
               </Button>
             </div>

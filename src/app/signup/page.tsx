@@ -7,6 +7,7 @@ import { signUp } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
+import { PASSWORD_HINT, validatePassword } from "@/lib/password";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -18,6 +19,11 @@ export default function SignUpPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const pwError = validatePassword(password);
+    if (pwError) {
+      setError(pwError);
+      return;
+    }
     setLoading(true);
     setError(null);
     const { error } = await signUp.email({ name, email, password });
@@ -38,7 +44,10 @@ export default function SignUpPage() {
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <Field label="Full name" type="text" value={name} required onChange={(e) => setName(e.target.value)} />
           <Field label="Email" type="email" value={email} required onChange={(e) => setEmail(e.target.value)} />
-          <Field label="Password" type="password" value={password} required onChange={(e) => setPassword(e.target.value)} />
+          <div>
+            <Field label="Password" type="password" value={password} required minLength={8} onChange={(e) => setPassword(e.target.value)} aria-describedby="pw-hint" />
+            <p id="pw-hint" className="mt-1 text-xs text-cosmic/60">{PASSWORD_HINT}</p>
+          </div>
           {error && <p className="text-sm text-danger">{error}</p>}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Creating account…" : "Create account"}

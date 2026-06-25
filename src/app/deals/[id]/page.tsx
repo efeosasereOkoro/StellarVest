@@ -168,7 +168,7 @@ export default function InvestorDealPage() {
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-cosmic/60">$</span>
                 <input
                   type="number" min="1" step="1" required inputMode="decimal" value={amount}
-                  onChange={(e) => setAmount(e.target.value)} placeholder="Amount"
+                  onChange={(e) => setAmount(e.target.value)} placeholder="Amount" aria-label="Contribution amount in US dollars"
                   className="w-full rounded-lg border border-cosmic/15 bg-pioneer py-2 pl-7 pr-3 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30"
                 />
               </div>
@@ -225,7 +225,7 @@ export default function InvestorDealPage() {
                       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-cosmic/60">$</span>
                       <input
                         type="number" min="1" step="1" required inputMode="decimal" value={editAmount}
-                        onChange={(e) => setEditAmount(e.target.value)} placeholder="New amount"
+                        onChange={(e) => setEditAmount(e.target.value)} placeholder="New amount" aria-label="New contribution amount in US dollars"
                         className="w-full rounded-lg border border-cosmic/15 bg-pioneer py-2 pl-7 pr-3 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30"
                       />
                     </div>
@@ -283,7 +283,7 @@ export default function InvestorDealPage() {
             {docs.map((d) => (
               <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
                 <span className="min-w-0 truncate text-cosmic">{d.filename}</span>
-                <button onClick={() => viewDoc(d.id)} className="shrink-0 font-medium text-ignition-ink underline">View</button>
+                <button onClick={() => viewDoc(d.id)} aria-label={`View ${d.filename}`} className="shrink-0 font-medium text-ignition-ink underline">View</button>
               </li>
             ))}
           </ul>

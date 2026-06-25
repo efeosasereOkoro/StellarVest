@@ -226,7 +226,7 @@ export default function DealPage() {
             {docs.map((d) => (
               <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
                 <span className="min-w-0 truncate text-cosmic">{d.filename}</span>
-                <button onClick={() => viewDoc(d.id)} className="shrink-0 font-medium text-ignition-ink underline">View</button>
+                <button onClick={() => viewDoc(d.id)} aria-label={`View ${d.filename}`} className="shrink-0 font-medium text-ignition-ink underline">View</button>
               </li>
             ))}
           </ul>
@@ -275,6 +275,7 @@ export default function DealPage() {
               onChange={(e) => setReviewComment(e.target.value)}
               rows={2}
               placeholder="Comments (optional)"
+              aria-label="Review comments"
               className="w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30"
             />
             {reviewError && <p className="text-sm text-danger">{reviewError}</p>}

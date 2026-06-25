@@ -7,6 +7,7 @@ import { authClient } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
+import { PASSWORD_HINT, validatePassword } from "@/lib/password";
 
 function ResetInner() {
   const router = useRouter();
@@ -22,6 +23,11 @@ function ResetInner() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const pwError = validatePassword(password);
+    if (pwError) {
+      setError(pwError);
+      return;
+    }
     if (password !== confirm) {
       setError("Passwords don't match.");
       return;
@@ -55,7 +61,10 @@ function ResetInner() {
           </>
         ) : (
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
-            <Field label="New password" type="password" value={password} required onChange={(e) => setPassword(e.target.value)} />
+            <div>
+              <Field label="New password" type="password" value={password} required minLength={8} onChange={(e) => setPassword(e.target.value)} aria-describedby="pw-hint" />
+              <p id="pw-hint" className="mt-1 text-xs text-cosmic/60">{PASSWORD_HINT}</p>
+            </div>
             <Field label="Confirm new password" type="password" value={confirm} required onChange={(e) => setConfirm(e.target.value)} />
             {error && <p className="text-sm text-danger">{error}</p>}
             <Button type="submit" disabled={loading} className="w-full">
