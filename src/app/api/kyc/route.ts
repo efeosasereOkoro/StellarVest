@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { kycDocuments, investorProfiles } from "@/db/schema";
 import { getAuthUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
+import { sendEmail, kycReceivedEmail } from "@/lib/email";
 
 const MAX_BYTES = 4 * 1024 * 1024; // 4MB (Vercel request body limit ~4.5MB)
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -92,6 +93,11 @@ export async function POST(req: Request) {
     targetId: auth.user.id,
     metadata: { filename: file.name },
   });
+
+  // Acknowledge receipt (no-ops if email unconfigured).
+  if (auth.user.email) {
+    await sendEmail({ to: auth.user.email, ...kycReceivedEmail() });
+  }
 
   return NextResponse.json({ document, kycStatus: "submitted" });
 }

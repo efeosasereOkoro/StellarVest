@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
-import { deals, dealDocuments, committeeReviews } from "@/db/schema";
+import { deals, dealDocuments, committeeReviews, investorProfiles } from "@/db/schema";
 import { getAdminUser, getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
-import { sendEmail, dealNeedsReviewEmail } from "@/lib/email";
+import { sendEmail, dealNeedsReviewEmail, dealPublishedEmail } from "@/lib/email";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -70,6 +70,16 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (t.to === "under_review") {
     const mail = dealNeedsReviewEmail(updated.startupName, id);
     await Promise.all(getAdminEmails().map((to) => sendEmail({ to, ...mail })));
+  }
+
+  // Announce a newly published deal to verified investors.
+  if (t.to === "published") {
+    const investors = await db
+      .select({ email: investorProfiles.email })
+      .from(investorProfiles)
+      .where(and(eq(investorProfiles.kycStatus, "verified"), isNotNull(investorProfiles.email)));
+    const mail = dealPublishedEmail(updated.startupName, id);
+    await Promise.all(investors.map((i) => sendEmail({ to: i.email as string, ...mail })));
   }
 
   return NextResponse.json({ deal: updated });

@@ -124,6 +124,28 @@ export function dealNeedsReviewEmail(dealName: string, dealId: string): { subjec
   };
 }
 
+export function kycReceivedEmail(): { subject: string; html: string } {
+  return {
+    subject: "We've received your verification documents",
+    html: layout(
+      "Documents received",
+      `<p>Thanks — we&rsquo;ve received your identity documents and they&rsquo;re now in review. We&rsquo;ll email you as soon as your verification is complete.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/dashboard`, "Go to your dashboard")}</p>`,
+    ),
+  };
+}
+
+export function dealPublishedEmail(dealName: string, dealId: string): { subject: string; html: string } {
+  return {
+    subject: `New investment opportunity: ${dealName}`,
+    html: layout(
+      "A new deal is open",
+      `<p><strong>${escapeHtml(dealName)}</strong> is now open for contributions on StellarVest.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/deals/${dealId}`, "View the deal")}</p>`,
+    ),
+  };
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
