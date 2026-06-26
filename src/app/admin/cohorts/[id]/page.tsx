@@ -7,12 +7,15 @@ import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 
 type Member = { userId: string; fullName: string | null; kycStatus: string | null };
 type Assignable = { userId: string; fullName: string | null };
 type Cohort = { id: string; name: string; syndicate: string | null };
 type Alloc = { id: string; startupCohortId: string; startupName: string | null; percentage: number };
 type StartupCohort = { id: string; name: string };
+
+const money = (v: string) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(v));
 
 async function authHeaders(extra: Record<string, string> = {}) {
   const token = await getToken();
@@ -30,6 +33,10 @@ export default function CohortPage() {
 
   const [state, setState] = useState<"loading" | "forbidden" | "notfound" | "ready">("loading");
   const [cohort, setCohort] = useState<Cohort | null>(null);
+  const [poolTotal, setPoolTotal] = useState("0");
+  const [renaming, setRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState("");
+  const [pageError, setPageError] = useState<string | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [assignable, setAssignable] = useState<Assignable[]>([]);
   const [selected, setSelected] = useState("");
@@ -54,6 +61,7 @@ export default function CohortPage() {
     const data = await mRes.json().catch(() => ({}));
     if (!data.cohort) return setState("notfound");
     setCohort(data.cohort);
+    setPoolTotal(data.poolTotal ?? "0");
     setMembers(data.members ?? []);
     setAssignable(data.assignable ?? []);
     setSelected("");
@@ -95,6 +103,26 @@ export default function CohortPage() {
     });
     setBusy(false);
     if (res.ok) await load();
+  }
+
+  async function renameCohort() {
+    setBusy(true);
+    setPageError(null);
+    const res = await fetch(`/api/admin/cohorts/${id}`, {
+      method: "PATCH",
+      headers: await authHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ name: renameValue }),
+    });
+    setBusy(false);
+    if (res.ok) { setRenaming(false); await load(); }
+    else setPageError((await res.json().catch(() => ({}))).error ?? "Couldn't rename.");
+  }
+
+  async function deleteCohort() {
+    setPageError(null);
+    const res = await fetch(`/api/admin/cohorts/${id}`, { method: "DELETE", headers: await authHeaders() });
+    if (res.ok) router.push("/admin/structures");
+    else setPageError((await res.json().catch(() => ({}))).error ?? "Couldn't delete.");
   }
 
   // Create or update an allocation (used by both the add form and inline edits).
@@ -161,8 +189,26 @@ export default function CohortPage() {
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
       <Link href="/admin/structures" className="text-cosmic/60 underline">← Structures</Link>
-      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">{cohort.name}</h1>
-      {cohort.syndicate && <p className="mt-1 text-cosmic/60">{cohort.syndicate}</p>}
+      <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+        {renaming ? (
+          <div className="flex flex-1 items-center gap-2">
+            <input className={inputCls} value={renameValue} onChange={(e) => setRenameValue(e.target.value)} aria-label="Cohort name" />
+            <Button disabled={busy || !renameValue.trim()} onClick={renameCohort} className="shrink-0">Save</Button>
+            <Button variant="outline" disabled={busy} onClick={() => setRenaming(false)} className="shrink-0">Cancel</Button>
+          </div>
+        ) : (
+          <>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">{cohort.name}</h1>
+            <span className="flex shrink-0 gap-3 text-sm">
+              <button onClick={() => { setRenameValue(cohort.name); setRenaming(true); setPageError(null); }} className="font-medium text-cosmic underline">Rename</button>
+              <ConfirmButton variant="outline" disabled={busy} onConfirm={deleteCohort}
+                title="Delete cohort?" message={`Delete "${cohort.name}"? Only possible once it has no members and no allocations.`} confirmLabel="Delete">Delete</ConfirmButton>
+            </span>
+          </>
+        )}
+      </div>
+      {cohort.syndicate && !renaming && <p className="mt-1 text-cosmic/60">{cohort.syndicate}</p>}
+      {pageError && <p className="mt-2 text-sm text-danger">{pageError}</p>}
 
       {/* Members */}
       <Card className="mt-6">
@@ -209,6 +255,9 @@ export default function CohortPage() {
           <Badge tone={remaining === 0 ? "venture" : "pitch"}>{totalAllocated}% allocated · {remaining}% left</Badge>
         </div>
         <p className="mt-1 text-sm text-cosmic/70">Split this cohort&apos;s pool across startup cohorts (must total ≤ 100%).</p>
+        <p className="mt-2 text-sm text-cosmic/70">
+          Confirmed contributions from members: <span className="font-semibold text-cosmic">{money(poolTotal)}</span>
+        </p>
 
         {allocations.length > 0 && (
           <ul className="mt-3 divide-y divide-cosmic/10 border-t border-cosmic/10">

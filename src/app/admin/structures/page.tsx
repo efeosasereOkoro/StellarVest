@@ -12,7 +12,9 @@ import { ConfirmButton } from "@/components/ui/confirm-button";
 
 type Cohort = { id: string; name: string; hasPool: boolean; memberCount: number };
 type Syndicate = { id: string; name: string; description: string | null; cohorts: Cohort[] };
-type StartupCohort = { id: string; name: string };
+type StartupCohort = { id: string; name: string; disbursedTotal: string };
+
+const money = (v: string) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(v));
 
 async function authHeaders(extra: Record<string, string> = {}) {
   const token = await getToken();
@@ -34,9 +36,14 @@ export default function StructuresPage() {
   const [cohortName, setCohortName] = useState<Record<string, string>>({});
   const [startupName, setStartupName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Inline rename: editKey is e.g. "syn:<id>" / "st:<id>".
   const [editKey, setEditKey] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  // Disbursement form inputs, keyed by startup-cohort id.
+  const [disbAmount, setDisbAmount] = useState<Record<string, string>>({});
+  const [disbNote, setDisbNote] = useState<Record<string, string>>({});
 
   async function load() {
     const res = await fetch("/api/admin/structures", { headers: await authHeaders() });
@@ -57,121 +64,78 @@ export default function StructuresPage() {
   async function post(url: string, body: unknown) {
     setBusy(true);
     setError(null);
-    const res = await fetch(url, {
-      method: "POST",
-      headers: await authHeaders({ "Content-Type": "application/json" }),
-      body: JSON.stringify(body),
-    });
+    const res = await fetch(url, { method: "POST", headers: await authHeaders({ "Content-Type": "application/json" }), body: JSON.stringify(body) });
     setBusy(false);
     if (res.ok) await load();
+    else setError((await res.json().catch(() => ({}))).error ?? "Something went wrong.");
     return res.ok;
   }
 
   async function rename(url: string) {
-    const name = editValue.trim();
-    if (!name) return;
     setBusy(true);
     setError(null);
-    const res = await fetch(url, {
-      method: "PATCH",
-      headers: await authHeaders({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ name }),
-    });
+    const res = await fetch(url, { method: "PATCH", headers: await authHeaders({ "Content-Type": "application/json" }), body: JSON.stringify({ name: editValue }) });
     setBusy(false);
-    if (res.ok) {
-      setEditKey(null);
-      await load();
-    } else {
-      const d = await res.json().catch(() => ({}));
-      setError(d.error ?? "Couldn't rename.");
-    }
+    if (res.ok) { setEditKey(null); await load(); }
+    else setError((await res.json().catch(() => ({}))).error ?? "Couldn't rename.");
   }
 
   async function remove(url: string) {
     setError(null);
     const res = await fetch(url, { method: "DELETE", headers: await authHeaders() });
     if (res.ok) await load();
-    else {
-      const d = await res.json().catch(() => ({}));
-      setError(d.error ?? "Couldn't delete.");
+    else setError((await res.json().catch(() => ({}))).error ?? "Couldn't delete.");
+  }
+
+  async function recordDisbursement(scId: string) {
+    const amount = Number(disbAmount[scId]);
+    if (!Number.isFinite(amount) || amount < 1) return;
+    if (await post(`/api/admin/startup-cohorts/${scId}/disbursements`, { amount, note: disbNote[scId] ?? "" })) {
+      setDisbAmount((m) => ({ ...m, [scId]: "" }));
+      setDisbNote((m) => ({ ...m, [scId]: "" }));
     }
   }
 
-  function startEdit(key: string, name: string) {
+  function startEdit(key: string, current: string) {
     setEditKey(key);
-    setEditValue(name);
+    setEditValue(current);
     setError(null);
   }
 
   async function createSyndicate(e: React.FormEvent) {
     e.preventDefault();
-    if (await post("/api/admin/syndicates", { name: synName, description: synDesc })) {
-      setSynName("");
-      setSynDesc("");
-    }
+    if (await post("/api/admin/syndicates", { name: synName, description: synDesc })) { setSynName(""); setSynDesc(""); }
   }
-
   async function createCohort(syndicateId: string) {
     const name = cohortName[syndicateId]?.trim();
     if (!name) return;
-    if (await post("/api/admin/cohorts", { syndicateId, name })) {
-      setCohortName((m) => ({ ...m, [syndicateId]: "" }));
-    }
+    if (await post("/api/admin/cohorts", { syndicateId, name })) setCohortName((m) => ({ ...m, [syndicateId]: "" }));
   }
-
   async function createStartup(e: React.FormEvent) {
     e.preventDefault();
     if (await post("/api/admin/startup-cohorts", { name: startupName })) setStartupName("");
-  }
-
-  // Inline rename form, shown in place of an item's name while editing.
-  function renameForm(url: string) {
-    return (
-      <form
-        onSubmit={(e) => { e.preventDefault(); rename(url); }}
-        className="flex flex-1 flex-wrap items-center gap-2"
-      >
-        <input className={`${inputCls} max-w-xs`} value={editValue} autoFocus onChange={(e) => setEditValue(e.target.value)} aria-label="New name" />
-        <Button type="submit" disabled={busy}>Save</Button>
-        <Button type="button" variant="outline" disabled={busy} onClick={() => setEditKey(null)}>Cancel</Button>
-      </form>
-    );
-  }
-
-  function rowActions(key: string, name: string, url: string, kind: string) {
-    return (
-      <div className="flex shrink-0 gap-2">
-        <Button variant="outline" disabled={busy} onClick={() => startEdit(key, name)}>Rename</Button>
-        <ConfirmButton
-          variant="outline"
-          disabled={busy}
-          onConfirm={() => remove(url)}
-          title={`Delete ${kind}?`}
-          message={`This permanently deletes “${name}”. Only possible if it has no dependents (you'll be told what to remove first if it does).`}
-          confirmLabel="Delete"
-        >
-          Delete
-        </ConfirmButton>
-      </div>
-    );
   }
 
   if (isPending || state === "loading") {
     return <main className="flex flex-1 items-center justify-center text-cosmic/70">Loading…</main>;
   }
   if (state === "forbidden") {
-    return (
-      <main className="mx-auto w-full max-w-xl flex-1 px-6 py-12">
-        <h1 className="font-display text-2xl font-semibold">Admins only</h1>
-        <p className="mt-2 text-cosmic/60">Your account doesn&apos;t have admin access.</p>
-      </main>
-    );
+    return <main className="mx-auto w-full max-w-xl flex-1 px-6 py-12"><h1 className="font-display text-2xl font-semibold">Admins only</h1></main>;
   }
+
+  // Inline rename control (input + Save/Cancel), reused for syndicates + startup cohorts.
+  const renameForm = (url: string) => (
+    <div className="flex flex-1 items-center gap-2">
+      <input className={inputCls} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label="New name" />
+      <Button disabled={busy || !editValue.trim()} onClick={() => rename(url)} className="shrink-0">Save</Button>
+      <Button variant="outline" disabled={busy} onClick={() => setEditKey(null)} className="shrink-0">Cancel</Button>
+    </div>
+  );
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Investment structures</h1>
-      {error && <p className="mt-3 rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>}
+      {error && <p className="mt-3 text-sm text-danger">{error}</p>}
 
       {/* Syndicates */}
       <section className="mt-8">
@@ -188,54 +152,40 @@ export default function StructuresPage() {
           {syndicates.length === 0 && <p className="text-cosmic/70">No syndicates yet.</p>}
           {syndicates.map((s) => (
             <Card key={s.id}>
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                {editKey === `syn:${s.id}` ? (
-                  renameForm(`/api/admin/syndicates/${s.id}`)
-                ) : (
+              <div className="flex items-start justify-between gap-3">
+                {editKey === `syn:${s.id}` ? renameForm(`/api/admin/syndicates/${s.id}`) : (
                   <>
-                    <div className="min-w-0">
-                      <p className="font-medium text-cosmic">{s.name}</p>
-                      {s.description && <p className="mt-0.5 text-sm text-cosmic/60">{s.description}</p>}
-                    </div>
-                    {rowActions(`syn:${s.id}`, s.name, `/api/admin/syndicates/${s.id}`, "syndicate")}
+                    <p className="font-medium text-cosmic">{s.name}</p>
+                    <span className="flex shrink-0 gap-3 text-sm">
+                      <button onClick={() => startEdit(`syn:${s.id}`, s.name)} className="font-medium text-cosmic underline">Rename</button>
+                      <ConfirmButton variant="outline" disabled={busy} onConfirm={() => remove(`/api/admin/syndicates/${s.id}`)}
+                        title="Delete syndicate?" message={`Delete "${s.name}"? Only possible if it has no cohorts.`} confirmLabel="Delete">Delete</ConfirmButton>
+                    </span>
                   </>
                 )}
               </div>
+              {s.description && editKey !== `syn:${s.id}` && <p className="mt-0.5 text-sm text-cosmic/60">{s.description}</p>}
 
               <p className="mt-4 text-sm font-medium text-cosmic/80">Investor cohorts</p>
               {s.cohorts.length === 0 ? (
                 <p className="mt-1 text-sm text-cosmic/70">No cohorts yet.</p>
               ) : (
-                <ul className="mt-2 space-y-2">
+                <ul className="mt-2 space-y-1.5">
                   {s.cohorts.map((c) => (
                     <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                      {editKey === `coh:${c.id}` ? (
-                        renameForm(`/api/admin/cohorts/${c.id}`)
-                      ) : (
-                        <>
-                          <span className="flex min-w-0 flex-wrap items-center gap-2">
-                            <Link href={`/admin/cohorts/${c.id}`} className="font-medium text-cosmic underline">{c.name}</Link>
-                            {c.hasPool && <Badge tone="venture">pool</Badge>}
-                            <span className="text-cosmic/70">{c.memberCount} {c.memberCount === 1 ? "member" : "members"}</span>
-                          </span>
-                          {rowActions(`coh:${c.id}`, c.name, `/api/admin/cohorts/${c.id}`, "cohort")}
-                        </>
-                      )}
+                      <Link href={`/admin/cohorts/${c.id}`} className="font-medium text-cosmic underline">{c.name}</Link>
+                      <span className="flex items-center gap-2 text-cosmic/70">
+                        {c.hasPool && <Badge tone="venture">pool</Badge>}
+                        {c.memberCount} {c.memberCount === 1 ? "member" : "members"}
+                      </span>
                     </li>
                   ))}
                 </ul>
               )}
 
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                <input
-                  className={inputCls}
-                  placeholder="New cohort name"
-                  value={cohortName[s.id] ?? ""}
-                  onChange={(e) => setCohortName((m) => ({ ...m, [s.id]: e.target.value }))}
-                />
-                <Button disabled={busy} onClick={() => createCohort(s.id)} className="w-full shrink-0 whitespace-nowrap sm:w-auto">
-                  Add cohort
-                </Button>
+                <input className={inputCls} placeholder="New cohort name" value={cohortName[s.id] ?? ""} onChange={(e) => setCohortName((m) => ({ ...m, [s.id]: e.target.value }))} />
+                <Button disabled={busy} onClick={() => createCohort(s.id)} className="w-full shrink-0 whitespace-nowrap sm:w-auto">Add cohort</Button>
               </div>
             </Card>
           ))}
@@ -252,23 +202,43 @@ export default function StructuresPage() {
             </div>
             <Button type="submit" disabled={busy} className="w-full sm:w-auto">Create</Button>
           </form>
-          {startups.length > 0 && (
-            <ul className="mt-4 space-y-2 border-t border-cosmic/10 pt-3 text-sm">
-              {startups.map((sc) => (
-                <li key={sc.id} className="flex flex-wrap items-center justify-between gap-2">
-                  {editKey === `st:${sc.id}` ? (
-                    renameForm(`/api/admin/startup-cohorts/${sc.id}`)
-                  ) : (
-                    <>
-                      <span className="min-w-0 truncate text-cosmic">{sc.name}</span>
-                      {rowActions(`st:${sc.id}`, sc.name, `/api/admin/startup-cohorts/${sc.id}`, "startup cohort")}
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
         </Card>
+
+        <div className="mt-4 space-y-4">
+          {startups.length === 0 && <p className="text-cosmic/70">No startup cohorts yet.</p>}
+          {startups.map((sc) => (
+            <Card key={sc.id}>
+              <div className="flex items-start justify-between gap-3">
+                {editKey === `st:${sc.id}` ? renameForm(`/api/admin/startup-cohorts/${sc.id}`) : (
+                  <>
+                    <div>
+                      <p className="font-medium text-cosmic">{sc.name}</p>
+                      <p className="mt-0.5 text-sm text-cosmic/70">Disbursed: <span className="font-semibold text-cosmic">{money(sc.disbursedTotal)}</span></p>
+                    </div>
+                    <span className="flex shrink-0 gap-3 text-sm">
+                      <button onClick={() => startEdit(`st:${sc.id}`, sc.name)} className="font-medium text-cosmic underline">Rename</button>
+                      <ConfirmButton variant="outline" disabled={busy} onConfirm={() => remove(`/api/admin/startup-cohorts/${sc.id}`)}
+                        title="Delete startup cohort?" message={`Delete "${sc.name}"? Only possible if nothing is allocated to it.`} confirmLabel="Delete">Delete</ConfirmButton>
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {/* Record a disbursement (E7-S3) */}
+              <div className="mt-3 flex flex-col gap-2 border-t border-cosmic/10 pt-3 sm:flex-row sm:items-center">
+                <div className="relative w-full sm:max-w-[10rem]">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-cosmic/60">$</span>
+                  <input type="number" min="1" step="1" inputMode="decimal" placeholder="Amount" aria-label={`Disbursement amount for ${sc.name}`}
+                    value={disbAmount[sc.id] ?? ""} onChange={(e) => setDisbAmount((m) => ({ ...m, [sc.id]: e.target.value }))}
+                    className="w-full rounded-lg border border-cosmic/15 bg-pioneer py-2 pl-7 pr-3 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30" />
+                </div>
+                <input className={inputCls} placeholder="Note (optional)" aria-label={`Disbursement note for ${sc.name}`}
+                  value={disbNote[sc.id] ?? ""} onChange={(e) => setDisbNote((m) => ({ ...m, [sc.id]: e.target.value }))} />
+                <Button disabled={busy || !disbAmount[sc.id]} onClick={() => recordDisbursement(sc.id)} className="w-full shrink-0 whitespace-nowrap sm:w-auto">Record disbursement</Button>
+              </div>
+            </Card>
+          ))}
+        </div>
       </section>
     </main>
   );

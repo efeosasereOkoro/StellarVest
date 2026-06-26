@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, sum } from "drizzle-orm";
 import { db } from "@/db";
-import { cohortMembers, investorCohorts, investorProfiles, syndicates } from "@/db/schema";
+import { cohortMembers, investorCohorts, investorProfiles, syndicates, contributions } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 
@@ -42,7 +42,19 @@ export async function GET(req: Request, { params }: Ctx) {
   const memberIds = new Set(members.map((m) => m.userId));
   const assignable = verified.filter((v) => !memberIds.has(v.userId));
 
-  return NextResponse.json({ cohort, members, assignable });
+  // Pool total = confirmed contributions made by this cohort's members.
+  // (Contributions are per-deal in the MVP; this aggregates them by member.)
+  let poolTotal = "0";
+  const ids = members.map((m) => m.userId);
+  if (ids.length) {
+    const [row] = await db
+      .select({ total: sum(contributions.amount) })
+      .from(contributions)
+      .where(and(inArray(contributions.userId, ids), eq(contributions.status, "confirmed")));
+    poolTotal = row?.total ?? "0";
+  }
+
+  return NextResponse.json({ cohort, members, assignable, poolTotal });
 }
 
 export async function POST(req: Request, { params }: Ctx) {

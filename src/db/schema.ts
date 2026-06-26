@@ -199,6 +199,20 @@ export const platformSettings = pgTable("platform_settings", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// ---- Disbursements (E7-S3) ----
+// Records capital released from escrow out to a startup cohort. Concierge model
+// (D-004): the platform records the movement; it never holds the funds.
+export const disbursements = pgTable("disbursements", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  startupCohortId: uuid("startup_cohort_id").notNull().references(() => startupCohorts.id),
+  amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("USD"),
+  note: text("note"),
+  recordedByEmail: text("recorded_by_email"),
+  disbursedAt: timestamp("disbursed_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Syndicate = typeof syndicates.$inferSelect;
 export type InvestorCohort = typeof investorCohorts.$inferSelect;
 export type StartupCohort = typeof startupCohorts.$inferSelect;
@@ -208,3 +222,4 @@ export type DealDocument = typeof dealDocuments.$inferSelect;
 export type CommitteeReview = typeof committeeReviews.$inferSelect;
 export type Contribution = typeof contributions.$inferSelect;
 export type PlatformSettings = typeof platformSettings.$inferSelect;
+export type Disbursement = typeof disbursements.$inferSelect;
