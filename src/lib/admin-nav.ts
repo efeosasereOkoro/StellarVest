@@ -5,6 +5,7 @@ export const ADMIN_NAV = [
   { href: "/admin/kyc", label: "KYC review" },
   { href: "/admin/structures", label: "Structures" },
   { href: "/admin/deals", label: "Deals" },
+  { href: "/admin/startups", label: "Startups" },
   { href: "/admin/contributions", label: "Contributions" },
   { href: "/admin/settings", label: "Settings" },
   { href: "/admin/audit", label: "Audit" },

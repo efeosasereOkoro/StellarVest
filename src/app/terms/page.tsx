@@ -43,14 +43,23 @@ export default function TermsPage() {
           </p>
         </section>
         <section>
-          <h2 className="font-display text-xl font-semibold text-cosmic">5. No investment advice</h2>
+          <h2 className="font-display text-xl font-semibold text-cosmic">5. Founders &amp; startups</h2>
+          <p className="mt-2">
+            If you list a startup, you confirm you&apos;re authorised to do so and that the information and
+            documents you submit are accurate. StarSector8 reviews submissions at its discretion;
+            listing or submitting does <strong>not</strong> guarantee investment. You&apos;re responsible
+            for the updates you post to investors.
+          </p>
+        </section>
+        <section>
+          <h2 className="font-display text-xl font-semibold text-cosmic">6. No investment advice</h2>
           <p className="mt-2">
             Information on the platform is not financial advice. Investing in early-stage startups
             carries significant risk, including the loss of your capital.
           </p>
         </section>
         <section>
-          <h2 className="font-display text-xl font-semibold text-cosmic">6. Changes &amp; contact</h2>
+          <h2 className="font-display text-xl font-semibold text-cosmic">7. Changes &amp; contact</h2>
           <p className="mt-2">
             We may update these terms as the platform evolves. Questions?{" "}
             <a href="mailto:support@starsector8.org" className="underline">support@starsector8.org</a>.

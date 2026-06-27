@@ -159,6 +159,41 @@ export function dealPublishedEmail(dealName: string, dealId: string): { subject:
   };
 }
 
+export function startupSubmittedEmail(startupName: string): { subject: string; html: string } {
+  return {
+    subject: `Startup submitted for review: ${startupName}`,
+    html: layout(
+      "A startup needs review",
+      `<p><strong>${escapeHtml(startupName)}</strong> has been submitted by its founder and is awaiting your review.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/admin/startups`, "Review submissions")}</p>`,
+    ),
+  };
+}
+
+export function startupApprovedEmail(startupName: string): { subject: string; html: string } {
+  return {
+    subject: `${startupName} is approved on StellarVest`,
+    html: layout(
+      "Your startup is approved ✅",
+      `<p>Good news — <strong>${escapeHtml(startupName)}</strong> has been approved. You can now post updates to investors from your founder dashboard.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/founder`, "Go to your dashboard")}</p>`,
+    ),
+  };
+}
+
+export function startupRejectedEmail(startupName: string, reason: string): { subject: string; html: string } {
+  return {
+    subject: `Action needed on ${startupName}`,
+    html: layout(
+      "We couldn't approve your submission yet",
+      `<p>Your submission for <strong>${escapeHtml(startupName)}</strong> didn&rsquo;t pass review. Here&rsquo;s why:</p>
+       <p style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin:12px 0"><strong>${escapeHtml(reason)}</strong></p>
+       <p>You can update your details and documents and resubmit.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/founder`, "Update & resubmit")}</p>`,
+    ),
+  };
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }

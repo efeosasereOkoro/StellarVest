@@ -14,13 +14,16 @@ export default function PrivacyPage() {
           <p className="mt-2">
             Account details (name, email), the identity documents you upload for verification, and —
             when you back a deal — your contribution amount and the payment reference for your transfer.
+            If you list a startup as a founder, we also collect your startup details and the documents
+            you upload (pitch, due-diligence, and founder identity/KYC).
           </p>
         </section>
         <section>
           <h2 className="font-display text-xl font-semibold text-cosmic">How we use it</h2>
           <p className="mt-2">
-            To create and secure your account, verify your identity (KYC), and record and reconcile
-            the contributions you make to deals. We don&apos;t sell your personal data.
+            To create and secure your account, verify your identity (KYC), record and reconcile the
+            contributions you make to deals, and — for founders — review startups submitted for
+            investment. We don&apos;t sell your personal data.
           </p>
         </section>
         <section>

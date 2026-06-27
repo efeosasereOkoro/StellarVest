@@ -85,6 +85,13 @@
       "when": 1782500110433,
       "tag": "0011_minor_hydra",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1782537473876,
+      "tag": "0012_stale_iceman",
+      "breakpoints": true
     }
   ]
 }

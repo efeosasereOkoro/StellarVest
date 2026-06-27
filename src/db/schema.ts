@@ -213,6 +213,53 @@ export const disbursements = pgTable("disbursements", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// ---- Founder onboarding (E11) ----
+
+export const startupStatus = pgEnum("startup_status", [
+  "draft", // founder is still editing
+  "submitted", // sent for review
+  "under_review", // admin is reviewing
+  "approved", // listed
+  "rejected", // sent back with a reason
+]);
+
+// One startup per founder (MVP). Owned by the founder's auth user id.
+export const startups = pgTable("startups", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  founderUserId: text("founder_user_id").notNull().unique(),
+  founderEmail: text("founder_email"),
+  name: text("name").notNull(),
+  description: text("description"),
+  website: text("website"),
+  stage: text("stage"),
+  status: startupStatus("status").notNull().default("draft"),
+  rejectionReason: text("rejection_reason"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Founder documents (pitch / due-diligence / KYC), stored privately in Blob.
+export const startupDocuments = pgTable("startup_documents", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  startupId: uuid("startup_id").notNull().references(() => startups.id),
+  kind: text("kind").notNull(), // pitch | dd | kyc | other
+  pathname: text("pathname").notNull(),
+  url: text("url").notNull(),
+  filename: text("filename").notNull(),
+  contentType: text("content_type"),
+  size: integer("size"),
+  uploadedAt: timestamp("uploaded_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Post-investment updates posted by an approved founder.
+export const startupUpdates = pgTable("startup_updates", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  startupId: uuid("startup_id").notNull().references(() => startups.id),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Syndicate = typeof syndicates.$inferSelect;
 export type InvestorCohort = typeof investorCohorts.$inferSelect;
 export type StartupCohort = typeof startupCohorts.$inferSelect;
@@ -223,3 +270,6 @@ export type CommitteeReview = typeof committeeReviews.$inferSelect;
 export type Contribution = typeof contributions.$inferSelect;
 export type PlatformSettings = typeof platformSettings.$inferSelect;
 export type Disbursement = typeof disbursements.$inferSelect;
+export type Startup = typeof startups.$inferSelect;
+export type StartupDocument = typeof startupDocuments.$inferSelect;
+export type StartupUpdate = typeof startupUpdates.$inferSelect;

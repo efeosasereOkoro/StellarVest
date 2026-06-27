@@ -60,6 +60,24 @@ export default function Home() {
       </section>
 
       <section className="mx-auto w-full max-w-3xl px-6 py-14">
+        <div className="rounded-2xl border border-cosmic/10 bg-cosmic/[0.02] p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
+          <div>
+            <h2 className="font-display text-2xl font-semibold">For founders</h2>
+            <p className="mt-2 max-w-xl text-sm text-cosmic/70">
+              Raising capital? List your startup, share your pitch and due-diligence documents, and submit to be
+              considered for investment by StarSector8.
+            </p>
+          </div>
+          <Link
+            href="/founder"
+            className="mt-4 inline-flex shrink-0 items-center justify-center rounded-lg border border-cosmic/15 px-5 py-2.5 text-sm font-medium transition-colors hover:bg-cosmic/5 sm:mt-0"
+          >
+            List your startup
+          </Link>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-3xl px-6 py-14">
         <h2 className="font-display text-2xl font-semibold">Built for trust</h2>
         <div className="mt-6 grid gap-5 sm:grid-cols-3">
           {TRUST.map((t) => (

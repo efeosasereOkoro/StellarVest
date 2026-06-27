@@ -104,8 +104,22 @@ export default function DashboardPage() {
         <p className="mt-4 text-sm text-cosmic/70">
           Already pledged?{" "}
           <Link href="/portfolio" className="font-medium text-ignition-ink underline">View your contributions</Link>
+          {" · "}
+          <Link href="/updates" className="font-medium text-ignition-ink underline">Portfolio updates</Link>
         </p>
       )}
+
+      <Card className="mt-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium text-cosmic">Raising capital?</p>
+            <p className="mt-1 text-sm text-cosmic/70">List your startup to be considered for investment by StarSector8.</p>
+          </div>
+          <Link href="/founder" className="inline-flex w-full items-center justify-center rounded-lg border border-cosmic/15 px-4 py-2.5 text-sm font-medium text-cosmic hover:bg-cosmic/5 sm:w-auto">
+            List your startup
+          </Link>
+        </div>
+      </Card>
     </main>
   );
 }
