@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
@@ -116,7 +117,8 @@ export default function ProfilePage() {
 
   return (
     <main className="mx-auto w-full max-w-xl flex-1 px-6 py-12">
-      <h1 className="font-display text-3xl font-semibold tracking-tight">Your profile</h1>
+      <Link href="/dashboard" className="text-cosmic/60 underline">&larr; Dashboard</Link>
+      <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Your profile</h1>
       <p className="mt-1 text-sm text-cosmic/60">
         Signed in as <span className="font-medium text-cosmic">{session.user.email}</span>
       </p>

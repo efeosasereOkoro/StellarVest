@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
@@ -148,7 +149,8 @@ export default function FounderPage() {
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <Link href="/dashboard" className="text-cosmic/60 underline">&larr; Dashboard</Link>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
         <h1 className="font-display text-3xl font-semibold tracking-tight">{startup ? startup.name : "List your startup"}</h1>
         {s && <Badge tone={s.tone}>{s.label}</Badge>}
       </div>
