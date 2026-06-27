@@ -123,7 +123,7 @@ export default function DashboardPage() {
         </p>
       )}
 
-      {role !== "founder" && (
+      {!role && (
         <Card className="mt-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
