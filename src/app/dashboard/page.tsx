@@ -92,27 +92,29 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      <Card className="mt-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium text-cosmic">{s.title}</p>
-              <Badge tone={s.tone}>{kyc}</Badge>
+      {role !== "founder" && (
+        <Card className="mt-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-cosmic">{s.title}</p>
+                <Badge tone={s.tone}>{kyc}</Badge>
+              </div>
+              <p className="mt-1 text-sm text-cosmic/70">{s.body}</p>
             </div>
-            <p className="mt-1 text-sm text-cosmic/70">{s.body}</p>
+            {s.cta && (
+              <Link
+                href={s.cta.href}
+                className="inline-flex w-full items-center justify-center rounded-lg bg-cosmic px-4 py-2.5 text-sm font-medium text-pioneer hover:bg-cosmic/90 sm:w-auto"
+              >
+                {s.cta.label}
+              </Link>
+            )}
           </div>
-          {s.cta && (
-            <Link
-              href={s.cta.href}
-              className="inline-flex w-full items-center justify-center rounded-lg bg-cosmic px-4 py-2.5 text-sm font-medium text-pioneer hover:bg-cosmic/90 sm:w-auto"
-            >
-              {s.cta.label}
-            </Link>
-          )}
-        </div>
-      </Card>
+        </Card>
+      )}
 
-      {kyc === "verified" && (
+      {role !== "founder" && kyc === "verified" && (
         <p className="mt-4 text-sm text-cosmic/70">
           Already pledged?{" "}
           <Link href="/portfolio" className="font-medium text-ignition-ink underline">View your contributions</Link>
@@ -121,17 +123,19 @@ export default function DashboardPage() {
         </p>
       )}
 
-      <Card className="mt-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-cosmic">Raising capital?</p>
-            <p className="mt-1 text-sm text-cosmic/70">List your startup to be considered for investment by StarSector8.</p>
+      {role !== "founder" && (
+        <Card className="mt-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-cosmic">Raising capital?</p>
+              <p className="mt-1 text-sm text-cosmic/70">List your startup to be considered for investment by StarSector8.</p>
+            </div>
+            <Link href="/founder" className="inline-flex w-full items-center justify-center rounded-lg border border-cosmic/15 px-4 py-2.5 text-sm font-medium text-cosmic hover:bg-cosmic/5 sm:w-auto">
+              List your startup
+            </Link>
           </div>
-          <Link href="/founder" className="inline-flex w-full items-center justify-center rounded-lg border border-cosmic/15 px-4 py-2.5 text-sm font-medium text-cosmic hover:bg-cosmic/5 sm:w-auto">
-            List your startup
-          </Link>
-        </div>
-      </Card>
+        </Card>
+      )}
     </main>
   );
 }
