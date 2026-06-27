@@ -3,7 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { authClient } from "@/lib/auth-client";
+import { authClient, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,24 @@ function VerifyInner() {
     setLoading(false);
     if (error) {
       setError(error.message ?? "That code didn't work. Check it and try again.");
+      return;
+    }
+    // Persist the role chosen at signup and route to the right home.
+    const role = params.get("role");
+    if (role === "investor" || role === "founder") {
+      try {
+        const token = await getToken();
+        if (token) {
+          await fetch("/api/account/role", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ role }),
+          });
+        }
+      } catch {
+        // best-effort; the user can still use either path
+      }
+      router.push(role === "founder" ? "/founder" : "/dashboard");
       return;
     }
     router.push("/dashboard");

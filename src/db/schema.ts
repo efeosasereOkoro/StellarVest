@@ -55,6 +55,21 @@ export type NewInvestorProfile = typeof investorProfiles.$inferInsert;
 export type KycDocument = typeof kycDocuments.$inferSelect;
 export type AuditEntry = typeof auditLog.$inferSelect;
 
+// Self-selected account role, chosen at signup. Drives default routing + nav
+// (not a hard restriction — a user can use the other path too). Admin/committee
+// remain the ADMIN_EMAILS allowlist, separate from this.
+export const accountRole = pgEnum("account_role", ["investor", "founder"]);
+
+export const userAccounts = pgTable("user_accounts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull().unique(),
+  role: accountRole("role").notNull().default("investor"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type UserAccount = typeof userAccounts.$inferSelect;
+
 // ---- Investment structures (E3) ----
 
 // Top-level structure managed by StarSector8.

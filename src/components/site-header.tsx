@@ -31,18 +31,24 @@ export function SiteHeader() {
   const pathname = usePathname();
   const { data: session, isPending } = useSession();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (!session) {
       setIsAdmin(false);
+      setRole(null);
       return;
     }
     let active = true;
     (async () => {
       const token = await getToken();
       const res = await fetch("/api/me", { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-      if (active && res.ok) setIsAdmin(!!(await res.json()).isAdmin);
+      if (active && res.ok) {
+        const me = await res.json();
+        setIsAdmin(!!me.isAdmin);
+        setRole(me.role ?? null);
+      }
     })();
     return () => {
       active = false;
@@ -67,6 +73,11 @@ export function SiteHeader() {
           {isAdmin && (
             <Link href="/admin" className={LINK} onClick={() => setOpen(false)}>
               Admin
+            </Link>
+          )}
+          {role === "founder" && (
+            <Link href="/founder" className={LINK} onClick={() => setOpen(false)}>
+              My startup
             </Link>
           )}
           <Link href="/dashboard" className={LINK} onClick={() => setOpen(false)}>

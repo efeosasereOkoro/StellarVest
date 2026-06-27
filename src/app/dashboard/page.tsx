@@ -44,6 +44,7 @@ export default function DashboardPage() {
   const { data: session, isPending } = useSession();
   const [loaded, setLoaded] = useState(false);
   const [kyc, setKyc] = useState("registered");
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (isPending) return;
@@ -54,13 +55,10 @@ export default function DashboardPage() {
     (async () => {
       try {
         const token = await getToken();
-        const res = await fetch("/api/kyc", {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        if (res.ok) {
-          const d = await res.json().catch(() => ({}));
-          setKyc(d.kycStatus ?? "registered");
-        }
+        const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+        const [kycRes, meRes] = await Promise.all([fetch("/api/kyc", { headers }), fetch("/api/me", { headers })]);
+        if (kycRes.ok) setKyc((await kycRes.json().catch(() => ({}))).kycStatus ?? "registered");
+        if (meRes.ok) setRole((await meRes.json().catch(() => ({}))).role ?? null);
       } finally {
         setLoaded(true);
       }
@@ -79,6 +77,20 @@ export default function DashboardPage() {
       <p className="mt-1 text-sm text-cosmic/70">
         Signed in as <span className="font-medium text-cosmic">{session.user.email}</span>
       </p>
+
+      {role === "founder" && (
+        <Card className="mt-6 border-venture/40 bg-frontier/30">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-cosmic">You&rsquo;re set up as a founder</p>
+              <p className="mt-1 text-sm text-cosmic/70">Manage your startup profile, documents, and updates.</p>
+            </div>
+            <Link href="/founder" className="inline-flex w-full items-center justify-center rounded-lg bg-cosmic px-4 py-2.5 text-sm font-medium text-pioneer hover:bg-cosmic/90 sm:w-auto">
+              My startup
+            </Link>
+          </div>
+        </Card>
+      )}
 
       <Card className="mt-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
