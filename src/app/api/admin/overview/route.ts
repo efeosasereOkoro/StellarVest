@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { count, eq } from "drizzle-orm";
+import { count, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { investorProfiles, syndicates, investorCohorts, deals, contributions } from "@/db/schema";
+import { investorProfiles, syndicates, investorCohorts, deals, contributions, startups } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 
 // Counts for the admin home overview.
@@ -9,7 +9,10 @@ export async function GET(req: Request) {
   const admin = await getAdminUser(req);
   if (!admin) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
-  const [pendingKyc, verifiedInvestors, syndicateCount, cohortCount, publishedDeals, awaitingFunds, dealsUnderReview] = await Promise.all([
+  const [
+    pendingKyc, verifiedInvestors, syndicateCount, cohortCount,
+    publishedDeals, awaitingFunds, dealsUnderReview, startupsAwaitingReview, startupCount,
+  ] = await Promise.all([
     db.select({ c: count() }).from(investorProfiles).where(eq(investorProfiles.kycStatus, "submitted")),
     db.select({ c: count() }).from(investorProfiles).where(eq(investorProfiles.kycStatus, "verified")),
     db.select({ c: count() }).from(syndicates),
@@ -17,6 +20,8 @@ export async function GET(req: Request) {
     db.select({ c: count() }).from(deals).where(eq(deals.status, "published")),
     db.select({ c: count() }).from(contributions).where(eq(contributions.status, "paid")),
     db.select({ c: count() }).from(deals).where(eq(deals.status, "under_review")),
+    db.select({ c: count() }).from(startups).where(inArray(startups.status, ["submitted", "under_review"])),
+    db.select({ c: count() }).from(startups),
   ]);
 
   return NextResponse.json({
@@ -27,5 +32,7 @@ export async function GET(req: Request) {
     publishedDeals: publishedDeals[0]?.c ?? 0,
     awaitingFunds: awaitingFunds[0]?.c ?? 0,
     dealsUnderReview: dealsUnderReview[0]?.c ?? 0,
+    startupsAwaitingReview: startupsAwaitingReview[0]?.c ?? 0,
+    startupCount: startupCount[0]?.c ?? 0,
   });
 }
