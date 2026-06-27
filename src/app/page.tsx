@@ -69,7 +69,7 @@ export default function Home() {
             </p>
           </div>
           <Link
-            href="/founder"
+            href="/signup"
             className="mt-4 inline-flex shrink-0 items-center justify-center rounded-lg border border-cosmic/15 px-5 py-2.5 text-sm font-medium transition-colors hover:bg-cosmic/5 sm:mt-0"
           >
             List your startup
