@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, count, desc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
-import { deals, dealDocuments, committeeReviews, investorProfiles, contributions } from "@/db/schema";
+import { deals, dealDocuments, committeeReviews, investorProfiles, contributions, startupDocuments } from "@/db/schema";
 import { getAdminUser, getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, dealNeedsReviewEmail, dealPublishedEmail } from "@/lib/email";
@@ -38,7 +38,16 @@ export async function GET(req: Request, { params }: Ctx) {
     .where(eq(committeeReviews.dealId, id))
     .orderBy(desc(committeeReviews.createdAt));
 
-  return NextResponse.json({ deal, documents, reviews });
+  // Documents pulled from the linked approved startup (single source of truth).
+  const founderDocuments = deal.startupId
+    ? await db
+        .select({ id: startupDocuments.id, kind: startupDocuments.kind, filename: startupDocuments.filename, uploadedAt: startupDocuments.uploadedAt })
+        .from(startupDocuments)
+        .where(eq(startupDocuments.startupId, deal.startupId))
+        .orderBy(desc(startupDocuments.uploadedAt))
+    : [];
+
+  return NextResponse.json({ deal, documents, reviews, founderDocuments });
 }
 
 export async function PATCH(req: Request, { params }: Ctx) {

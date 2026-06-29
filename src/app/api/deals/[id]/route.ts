@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { deals, dealDocuments, contributions, platformSettings } from "@/db/schema";
+import { deals, dealDocuments, contributions, platformSettings, startupDocuments } from "@/db/schema";
 import { getVerifiedInvestor } from "@/lib/investor";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -15,8 +15,12 @@ export async function GET(req: Request, { params }: Ctx) {
   const [deal] = await db
     .select({
       id: deals.id,
+      startupId: deals.startupId,
       startupName: deals.startupName,
       description: deals.description,
+      fundingGoal: deals.fundingGoal,
+      valuation: deals.valuation,
+      terms: deals.terms,
       publishedAt: deals.publishedAt,
     })
     .from(deals)
@@ -43,9 +47,19 @@ export async function GET(req: Request, { params }: Ctx) {
     .from(platformSettings)
     .where(eq(platformSettings.id, 1));
 
+  // Documents pulled from the linked approved startup (single source of truth).
+  const founderDocuments = deal.startupId
+    ? await db
+        .select({ id: startupDocuments.id, kind: startupDocuments.kind, filename: startupDocuments.filename, uploadedAt: startupDocuments.uploadedAt })
+        .from(startupDocuments)
+        .where(eq(startupDocuments.startupId, deal.startupId))
+        .orderBy(desc(startupDocuments.uploadedAt))
+    : [];
+
   return NextResponse.json({
     deal,
     documents,
+    founderDocuments,
     contribution: contribution ?? null,
     escrowInstructions: settings?.escrowInstructions ?? "",
   });

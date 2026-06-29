@@ -140,8 +140,15 @@ export const dealStatus = pgEnum("deal_status", [
 
 export const deals = pgTable("deals", {
   id: uuid("id").defaultRandom().primaryKey(),
+  // Deals are created from an approved startup (the single source of truth for
+  // its profile + documents). Nullable for legacy free-text deals.
+  startupId: uuid("startup_id").references(() => startups.id),
   startupName: text("startup_name").notNull(),
   description: text("description"),
+  // Deal-specific terms entered by the admin (the startup profile supplies the rest).
+  fundingGoal: numeric("funding_goal", { precision: 14, scale: 2 }),
+  valuation: text("valuation"),
+  terms: text("terms"),
   status: dealStatus("status").notNull().default("draft"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

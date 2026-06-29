@@ -9,9 +9,13 @@ import { Button } from "@/components/ui/button";
 import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Badge } from "@/components/ui/badge";
 
-type Deal = { id: string; startupName: string; description: string | null; status: string };
+type Deal = { id: string; startupId: string | null; startupName: string; description: string | null; status: string; fundingGoal: string | null; valuation: string | null; terms: string | null };
 type Doc = { id: string; filename: string; uploadedAt: string };
+type FounderDoc = { id: string; kind: string; filename: string; uploadedAt: string };
 type Review = { id: string; reviewerEmail: string | null; recommendation: string; comment: string | null; createdAt: string };
+
+const money = (a: string) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(a));
+const KIND_LABEL: Record<string, string> = { pitch: "Pitch deck", dd: "Due diligence", kyc: "Founder ID/KYC", other: "Other" };
 
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
   draft: { tone: "neutral", label: "Draft" },
@@ -36,6 +40,7 @@ export default function DealPage() {
   const [state, setState] = useState<"loading" | "forbidden" | "notfound" | "ready">("loading");
   const [deal, setDeal] = useState<Deal | null>(null);
   const [docs, setDocs] = useState<Doc[]>([]);
+  const [founderDocs, setFounderDocs] = useState<FounderDoc[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,6 +56,7 @@ export default function DealPage() {
     if (!data.deal) return setState("notfound");
     setDeal(data.deal);
     setDocs(data.documents ?? []);
+    setFounderDocs(data.founderDocuments ?? []);
     const allReviews: Review[] = data.reviews ?? [];
     setReviews(allReviews);
     // Pre-fill the form with this reviewer's existing review, if any (editable).
@@ -106,6 +112,11 @@ export default function DealPage() {
 
   async function viewDoc(docId: string) {
     const res = await fetch(`/api/admin/deals/document?id=${docId}`, { headers: await authHeaders() });
+    if (res.ok) window.open(URL.createObjectURL(await res.blob()), "_blank");
+  }
+
+  async function viewFounderDoc(docId: string) {
+    const res = await fetch(`/api/admin/startups/document?id=${docId}`, { headers: await authHeaders() });
     if (res.ok) window.open(URL.createObjectURL(await res.blob()), "_blank");
   }
 
@@ -216,9 +227,36 @@ export default function DealPage() {
         {error && <p className="mt-3 text-sm text-danger">{error}</p>}
       </Card>
 
-      {/* Deal Room documents */}
+      {/* Deal terms */}
+      {(deal.fundingGoal || deal.valuation || deal.terms) && (
+        <Card className="mt-4">
+          <p className="font-medium text-cosmic">Deal terms</p>
+          <dl className="mt-2 space-y-2 text-sm">
+            {deal.fundingGoal && <div className="flex justify-between gap-3"><dt className="text-cosmic/70">Funding goal</dt><dd className="font-medium text-cosmic">{money(deal.fundingGoal)}</dd></div>}
+            {deal.valuation && <div className="flex justify-between gap-3"><dt className="text-cosmic/70">Valuation</dt><dd className="font-medium text-cosmic">{deal.valuation}</dd></div>}
+            {deal.terms && <div><dt className="text-cosmic/70">Investment terms</dt><dd className="mt-0.5 whitespace-pre-wrap text-cosmic">{deal.terms}</dd></div>}
+          </dl>
+        </Card>
+      )}
+
+      {/* Startup documents — pulled from the approved profile (single source of truth) */}
+      {founderDocs.length > 0 && (
+        <Card className="mt-4">
+          <p className="font-medium text-cosmic">Startup documents <span className="text-sm font-normal text-cosmic/50">(from the approved profile)</span></p>
+          <ul className="mt-2 space-y-1.5">
+            {founderDocs.map((d) => (
+              <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
+                <span className="min-w-0 truncate text-cosmic"><span className="text-cosmic/60">{KIND_LABEL[d.kind] ?? d.kind}:</span> {d.filename}</span>
+                <button onClick={() => viewFounderDoc(d.id)} aria-label={`View ${d.filename}`} className="shrink-0 font-medium text-ignition-ink underline">View</button>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {/* Additional deal documents (optional supplements beyond the startup profile) */}
       <Card className="mt-4">
-        <p className="font-medium text-cosmic">Deal Room documents</p>
+        <p className="font-medium text-cosmic">Additional documents <span className="text-sm font-normal text-cosmic/50">(optional, specific to this deal)</span></p>
         {docs.length === 0 ? (
           <p className="mt-1 text-sm text-cosmic/70">No documents yet.</p>
         ) : (
