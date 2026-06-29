@@ -115,12 +115,30 @@ export default function DashboardPage() {
       )}
 
       {role !== "founder" && kyc === "verified" && (
-        <p className="mt-4 text-sm text-cosmic/70">
-          Already pledged?{" "}
-          <Link href="/portfolio" className="font-medium text-ignition-ink underline">View your contributions</Link>
-          {" · "}
-          <Link href="/updates" className="font-medium text-ignition-ink underline">Portfolio updates</Link>
-        </p>
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Link href="/portfolio" className="block">
+            <Card className="h-full transition-colors hover:border-cosmic/25">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-frontier text-deep-frontier">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <path d="M5 4h14v16l-3-2-2 2-2-2-2 2-3-2z" /><path d="M9 9h6M9 13h6" />
+                </svg>
+              </span>
+              <p className="mt-3 font-medium text-cosmic">Your contributions</p>
+              <p className="mt-0.5 text-sm text-cosmic/70">Track your pledges through to confirmation.</p>
+            </Card>
+          </Link>
+          <Link href="/updates" className="block">
+            <Card className="h-full transition-colors hover:border-cosmic/25">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-pitch text-deep-pitch">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 0 1-3.4 0" />
+                </svg>
+              </span>
+              <p className="mt-3 font-medium text-cosmic">Portfolio updates</p>
+              <p className="mt-0.5 text-sm text-cosmic/70">Latest news from startups you&rsquo;ve backed.</p>
+            </Card>
+          </Link>
+        </div>
       )}
     </main>
   );
