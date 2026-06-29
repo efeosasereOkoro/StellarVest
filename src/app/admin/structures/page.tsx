@@ -140,15 +140,20 @@ export default function StructuresPage() {
       {/* Syndicates */}
       <section className="mt-8">
         <h2 className="font-display text-xl font-semibold">Syndicates</h2>
-        <Card className="mt-3">
-          <form onSubmit={createSyndicate} className="space-y-3">
-            <Field label="New syndicate name" value={synName} onChange={(e) => setSynName(e.target.value)} required />
+        <p className="mt-1 text-sm text-cosmic/70">Top-level groups; each holds investor cohorts and their pools.</p>
+
+        {/* Create — distinct dashed/tinted "add" box */}
+        <div className="mt-3 rounded-2xl border border-dashed border-cosmic/25 bg-cosmic/[0.025] p-5">
+          <p className="text-sm font-semibold text-cosmic">+ New syndicate</p>
+          <form onSubmit={createSyndicate} className="mt-3 space-y-3">
+            <Field label="Name" value={synName} onChange={(e) => setSynName(e.target.value)} required />
             <Field label="Description (optional)" value={synDesc} onChange={(e) => setSynDesc(e.target.value)} />
             <Button type="submit" disabled={busy}>Create syndicate</Button>
           </form>
-        </Card>
+        </div>
 
-        <div className="mt-4 space-y-4">
+        <p className="mt-7 text-xs font-semibold uppercase tracking-wide text-cosmic/50">Your syndicates ({syndicates.length})</p>
+        <div className="mt-3 space-y-4">
           {syndicates.length === 0 && <p className="text-cosmic/70">No syndicates yet.</p>}
           {syndicates.map((s) => (
             <Card key={s.id}>
@@ -195,16 +200,21 @@ export default function StructuresPage() {
       {/* Startup cohorts */}
       <section className="mt-10">
         <h2 className="font-display text-xl font-semibold">Startup cohorts</h2>
-        <Card className="mt-3">
-          <form onSubmit={createStartup} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <p className="mt-1 text-sm text-cosmic/70">Buckets that a pool is allocated to and disbursed against — <span className="text-cosmic">not</span> the founder-submitted startup profiles. These are how you split and deploy capital.</p>
+
+        {/* Create — distinct dashed/tinted "add" box */}
+        <div className="mt-3 rounded-2xl border border-dashed border-cosmic/25 bg-cosmic/[0.025] p-5">
+          <p className="text-sm font-semibold text-cosmic">+ New startup cohort</p>
+          <form onSubmit={createStartup} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
-              <Field label="New startup cohort name" value={startupName} onChange={(e) => setStartupName(e.target.value)} required />
+              <Field label="Name" value={startupName} onChange={(e) => setStartupName(e.target.value)} required />
             </div>
             <Button type="submit" disabled={busy} className="w-full sm:w-auto">Create</Button>
           </form>
-        </Card>
+        </div>
 
-        <div className="mt-4 space-y-4">
+        <p className="mt-7 text-xs font-semibold uppercase tracking-wide text-cosmic/50">Your startup cohorts ({startups.length})</p>
+        <div className="mt-3 space-y-4">
           {startups.length === 0 && <p className="text-cosmic/70">No startup cohorts yet.</p>}
           {startups.map((sc) => (
             <Card key={sc.id}>
