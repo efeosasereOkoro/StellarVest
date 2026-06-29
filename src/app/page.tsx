@@ -49,9 +49,9 @@ function TrustIcon({ children }: { children: React.ReactNode }) {
 export default function Home() {
   return (
     <main className="flex-1">
-      {/* Hero */}
-      <section className="border-b border-cosmic/10 bg-frontier/30">
-        <div className="mx-auto w-full max-w-3xl px-6 py-20">
+      {/* Hero — fills the first screen (above the fold), content vertically centred */}
+      <section className="flex min-h-[calc(100dvh-7rem)] items-center border-b border-cosmic/10 bg-frontier/30">
+        <div className="mx-auto w-full max-w-3xl px-6 py-12">
           <p className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-ignition-ink">StarSector8</p>
           <h1 className="mt-3 font-display text-5xl font-semibold leading-[1.05] tracking-tight text-cosmic sm:text-6xl">
             From day-zero ideas to{" "}
