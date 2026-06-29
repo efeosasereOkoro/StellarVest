@@ -80,7 +80,8 @@ export default function AdminHomePage() {
   return (
     <main className="w-full flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Admin</h1>
-      <p className="mt-1 text-sm text-cosmic/70">
+      <p className="mt-1 text-sm text-cosmic/70">Your operations dashboard — what needs attention and the platform at a glance.</p>
+      <p className="mt-1 text-sm text-cosmic/60">
         Signed in as <span className="font-medium text-cosmic">{session.user.email}</span>
       </p>
 

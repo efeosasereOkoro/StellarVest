@@ -86,7 +86,8 @@ export default function AdminContributionsPage() {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Contributions</h1>
-      <p className="mt-1 text-sm text-cosmic/70">
+      <p className="mt-1 text-sm text-cosmic/70">Confirm investor payments and track each contribution through to confirmation.</p>
+      <p className="mt-1 text-sm text-cosmic/60">
         {awaiting > 0 ? `${awaiting} awaiting confirmation` : "Nothing awaiting confirmation"} · {items.length} total
       </p>
       {error && <p className="mt-3 text-sm text-danger">{error}</p>}

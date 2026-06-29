@@ -135,6 +135,7 @@ export default function StructuresPage() {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Investment structures</h1>
+      <p className="mt-1 text-sm text-cosmic/70">Set up syndicates and investor cohorts, and allocate each pool to startup cohorts.</p>
       {error && <p className="mt-3 text-sm text-danger">{error}</p>}
 
       {/* Syndicates */}
