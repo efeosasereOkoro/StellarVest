@@ -89,7 +89,7 @@ export default function AdminHomePage() {
         <h2 className="font-display text-lg font-semibold text-cosmic">Needs your attention</h2>
         <span className="text-sm text-cosmic/60">{totalAttention === 0 ? "All clear 🎉" : `${totalAttention} item${totalAttention === 1 ? "" : "s"} waiting`}</span>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {attention.map((a) => {
           const urgent = a.value > 0;
           return (
@@ -108,7 +108,7 @@ export default function AdminHomePage() {
 
       {/* At a glance */}
       <h2 className="mt-10 font-display text-lg font-semibold text-cosmic">At a glance</h2>
-      <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {glance.map((g) => (
           <Link key={g.label} href={g.href} className="block">
             <Card className="h-full transition-colors hover:border-cosmic/25">

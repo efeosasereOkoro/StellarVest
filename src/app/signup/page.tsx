@@ -48,7 +48,7 @@ export default function SignUpPage() {
         <h1 className="font-display text-2xl font-semibold">Create your account</h1>
         <p className="mt-1 text-sm text-cosmic/60">Tell us how you&rsquo;ll use StellarVest.</p>
 
-        <div className="mt-4 grid grid-cols-2 gap-3" role="radiogroup" aria-label="Account type">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Account type">
           {ROLES.map((r) => {
             const active = role === r.value;
             return (
