@@ -1,4 +1,12 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
 export function AlphaBanner() {
+  // The landing page carries its own alpha strip inside the hero.
+  const pathname = usePathname();
+  if (pathname === "/") return null;
+
   return (
     <div className="border-b border-ignition/20 bg-ignition/10">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-2 gap-y-1 px-6 py-2 text-[14px] leading-relaxed text-cosmic/80">

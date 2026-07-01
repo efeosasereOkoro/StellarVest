@@ -1,6 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function SiteFooter() {
+  // The landing page renders its own footer.
+  const pathname = usePathname();
+  if (pathname === "/") return null;
+
   return (
     <footer className="mt-16 border-t border-cosmic/10 bg-pioneer">
       <div className="mx-auto flex max-w-5xl flex-col gap-3 px-6 py-8 text-sm text-cosmic/70 sm:flex-row sm:items-center sm:justify-between">

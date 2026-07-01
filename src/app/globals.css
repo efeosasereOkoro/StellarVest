@@ -31,3 +31,33 @@ body {
   color: var(--color-cosmic);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+/* Landing-page ambient motion (cosmic hero starfield + orbital graphic).
+   Prefixed sv- to stay out of the way; disabled for reduced-motion users. */
+@keyframes sv-twinkle {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.95; }
+}
+@keyframes sv-twinkle2 {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.25; }
+}
+@keyframes sv-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes sv-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+.sv-twinkle { animation: sv-twinkle 6.5s ease-in-out infinite; }
+.sv-twinkle2 { animation: sv-twinkle2 8s ease-in-out infinite; }
+.sv-twinkle-cta { animation: sv-twinkle 7s ease-in-out infinite; }
+.sv-float { animation: sv-float 9s ease-in-out infinite; }
+.sv-spin-slow { transform-origin: 300px 300px; animation: sv-spin 80s linear infinite; }
+.sv-spin-slower { transform-origin: 300px 300px; animation: sv-spin 130s linear infinite reverse; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sv-twinkle, .sv-twinkle2, .sv-twinkle-cta, .sv-float, .sv-spin-slow, .sv-spin-slower {
+    animation: none;
+  }
+}

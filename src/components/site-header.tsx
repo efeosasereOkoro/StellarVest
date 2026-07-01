@@ -108,6 +108,10 @@ export function SiteHeader() {
     );
   }
 
+  // The landing page ("/") renders its own dark integrated nav, so the global
+  // light header steps aside there.
+  if (pathname === "/") return null;
+
   const inAdmin = !!session && isAdmin && pathname.startsWith("/admin");
 
   // The mobile sheet. In the admin area it carries the admin sections + an
