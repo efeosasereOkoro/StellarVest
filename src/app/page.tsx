@@ -188,8 +188,9 @@ export default function Home() {
               </ul>
             </div>
 
-            {/* orbital graphic */}
-            <div className="flex min-w-[280px] flex-[1_1_360px] justify-center">
+            {/* orbital graphic — a companion to the headline on wide screens only;
+                below lg it would stack into a tall block of empty space, so it's hidden */}
+            <div className="hidden min-w-[280px] flex-[1_1_360px] justify-center lg:flex">
               <div className="sv-float relative aspect-square w-full max-w-[460px]">
                 <svg viewBox="0 0 600 600" width="100%" height="100%" className="overflow-visible" style={{ filter: "drop-shadow(0 0 34px rgba(171,224,67,.14))" }}>
                   <circle cx="300" cy="300" r="90" fill="none" stroke="rgba(255,255,255,.10)" strokeWidth="1.4" />
