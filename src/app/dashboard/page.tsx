@@ -8,6 +8,17 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 type Cta = { label: string; href: string } | null;
+type ContributionSummary = { confirmed: Record<string, number>; pending: Record<string, number> };
+
+// Format a money amount in its currency; fall back to "CUR n" if the code isn't
+// a valid ISO currency (defensive — the MVP records USD).
+function money(currency: string, amount: number) {
+  try {
+    return new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 0 }).format(amount);
+  } catch {
+    return `${currency} ${amount.toLocaleString()}`;
+  }
+}
 
 const KYC: Record<
   string,
@@ -45,6 +56,7 @@ export default function DashboardPage() {
   const [loaded, setLoaded] = useState(false);
   const [kyc, setKyc] = useState("registered");
   const [role, setRole] = useState<string | null>(null);
+  const [summary, setSummary] = useState<ContributionSummary | null>(null);
 
   useEffect(() => {
     if (isPending) return;
@@ -56,9 +68,14 @@ export default function DashboardPage() {
       try {
         const token = await getToken();
         const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-        const [kycRes, meRes] = await Promise.all([fetch("/api/kyc", { headers }), fetch("/api/me", { headers })]);
+        const [kycRes, meRes, sumRes] = await Promise.all([
+          fetch("/api/kyc", { headers }),
+          fetch("/api/me", { headers }),
+          fetch("/api/contributions/summary", { headers }),
+        ]);
         if (kycRes.ok) setKyc((await kycRes.json().catch(() => ({}))).kycStatus ?? "registered");
         if (meRes.ok) setRole((await meRes.json().catch(() => ({}))).role ?? null);
+        if (sumRes.ok) setSummary(await sumRes.json().catch(() => null));
       } finally {
         setLoaded(true);
       }
@@ -70,6 +87,9 @@ export default function DashboardPage() {
   }
 
   const s = KYC[kyc] ?? KYC.registered;
+  const confirmedEntries = summary ? Object.entries(summary.confirmed) : [];
+  const pendingEntries = summary ? Object.entries(summary.pending) : [];
+  const hasContributions = confirmedEntries.length > 0 || pendingEntries.length > 0;
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
@@ -111,6 +131,23 @@ export default function DashboardPage() {
               </Link>
             )}
           </div>
+        </Card>
+      )}
+
+      {role !== "founder" && kyc === "verified" && hasContributions && (
+        <Card className="mt-4 border-venture/40 bg-frontier/30">
+          <p className="text-xs font-medium uppercase tracking-wide text-cosmic/60">Total contributed</p>
+          <p className="mt-1 font-display text-3xl font-semibold text-cosmic">
+            {confirmedEntries.length
+              ? confirmedEntries.map(([c, n]) => money(c, n)).join(" · ")
+              : money(pendingEntries[0][0], 0)}
+          </p>
+          {pendingEntries.length > 0 && (
+            <p className="mt-1 text-sm text-cosmic/70">
+              + {pendingEntries.map(([c, n]) => money(c, n)).join(" · ")} pending confirmation
+            </p>
+          )}
+          <p className="mt-1 text-xs text-cosmic/50">Confirmed across all your contributions.</p>
         </Card>
       )}
 
