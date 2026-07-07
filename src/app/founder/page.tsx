@@ -58,6 +58,7 @@ export default function FounderPage() {
   const [mEmail, setMEmail] = useState("");
   const [mPhone, setMPhone] = useState("");
   const [mLinkedin, setMLinkedin] = useState("");
+  const [mErr, setMErr] = useState<Record<string, string>>({});
 
   // Profile form
   const [name, setName] = useState("");
@@ -153,15 +154,37 @@ export default function FounderPage() {
 
   function resetMember() {
     setMId(null); setMName(""); setMRole(""); setMEmail(""); setMPhone(""); setMLinkedin("");
+    setMErr({});
   }
 
   function editMember(m: TeamMember) {
     setMId(m.id); setMName(m.name); setMRole(m.role);
     setMEmail(m.email ?? ""); setMPhone(m.phone ?? ""); setMLinkedin(m.linkedin ?? "");
+    setMErr({});
+  }
+
+  // Clear a field's error as the founder starts fixing it.
+  function clearMErr(key: string) {
+    setMErr((prev) => (prev[key] ? { ...prev, [key]: "" } : prev));
   }
 
   async function saveMember(e: React.FormEvent) {
     e.preventDefault();
+
+    // Validate required fields up front, naming each missing one.
+    const errs: Record<string, string> = {};
+    if (!mName.trim()) errs.name = "Name is required.";
+    if (!mRole.trim()) errs.role = "Role is required.";
+    if (!mEmail.trim()) errs.email = "Email is required.";
+    else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mEmail.trim())) errs.email = "Enter a valid email address.";
+    if (!mPhone.trim()) errs.phone = "Phone number is required.";
+    if (Object.keys(errs).length > 0) {
+      setMErr(errs);
+      setError("Please fill in the highlighted field(s).");
+      return;
+    }
+    setMErr({});
+
     setBusy(true);
     setError(null);
     const res = await fetch(
@@ -265,12 +288,16 @@ export default function FounderPage() {
               ))}
             </ul>
           )}
-          <form onSubmit={saveMember} className="mt-4 space-y-3">
+          <form onSubmit={saveMember} noValidate className="mt-4 space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Name" value={mName} onChange={(e) => setMName(e.target.value)} required />
-              <Field label="Role" value={mRole} onChange={(e) => setMRole(e.target.value)} placeholder="e.g. CEO, CTO" required />
-              <Field label="Email" type="email" value={mEmail} onChange={(e) => setMEmail(e.target.value)} />
-              <Field label="Phone" value={mPhone} onChange={(e) => setMPhone(e.target.value)} />
+              <Field label="Name" value={mName} error={mErr.name} required
+                onChange={(e) => { setMName(e.target.value); clearMErr("name"); }} />
+              <Field label="Role" value={mRole} error={mErr.role} placeholder="e.g. CEO, CTO" required
+                onChange={(e) => { setMRole(e.target.value); clearMErr("role"); }} />
+              <Field label="Email" type="email" value={mEmail} error={mErr.email} required
+                onChange={(e) => { setMEmail(e.target.value); clearMErr("email"); }} />
+              <Field label="Phone" value={mPhone} error={mErr.phone} required
+                onChange={(e) => { setMPhone(e.target.value); clearMErr("phone"); }} />
             </div>
             <Field label="LinkedIn (optional)" value={mLinkedin} onChange={(e) => setMLinkedin(e.target.value)} placeholder="https://linkedin.com/in/…" />
             <div className="flex gap-3">

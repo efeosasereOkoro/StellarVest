@@ -4,12 +4,7 @@ import { db } from "@/db";
 import { startups, startupTeamMembers } from "@/db/schema";
 import { getAuthUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
-
-// Trim a value to a non-empty string, or null.
-function str(v: unknown): string | null {
-  const s = String(v ?? "").trim();
-  return s || null;
-}
+import { validateMember } from "@/lib/team-member";
 
 // Add a team member to the founder's own startup (B-048).
 export async function POST(req: Request) {
@@ -21,20 +16,12 @@ export async function POST(req: Request) {
   if (!startup) return NextResponse.json({ error: "Create your startup first." }, { status: 400 });
 
   const body = await req.json().catch(() => ({}));
-  const name = str(body.name);
-  const role = str(body.role);
-  if (!name || !role) return NextResponse.json({ error: "Name and role are required." }, { status: 400 });
+  const fields = validateMember(body);
+  if ("error" in fields) return NextResponse.json({ error: fields.error }, { status: 400 });
 
   const [member] = await db
     .insert(startupTeamMembers)
-    .values({
-      startupId: startup.id,
-      name,
-      role,
-      linkedin: str(body.linkedin),
-      phone: str(body.phone),
-      email: str(body.email),
-    })
+    .values({ startupId: startup.id, ...fields.values })
     .returning();
 
   await recordAudit({ actorId: user.id, actorEmail: user.email, action: "startup.team.added", targetType: "startup", targetId: startup.id, metadata: { memberId: member.id } });

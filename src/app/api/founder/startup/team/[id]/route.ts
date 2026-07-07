@@ -4,13 +4,9 @@ import { db } from "@/db";
 import { startups, startupTeamMembers } from "@/db/schema";
 import { getAuthUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
+import { validateMember } from "@/lib/team-member";
 
 type Ctx = { params: Promise<{ id: string }> };
-
-function str(v: unknown): string | null {
-  const s = String(v ?? "").trim();
-  return s || null;
-}
 
 // Resolve the member and confirm it belongs to a startup the caller owns.
 async function ownedMember(req: Request, memberId: string) {
@@ -36,13 +32,12 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if ("error" in res) return NextResponse.json({ error: res.error }, { status: res.status });
 
   const body = await req.json().catch(() => ({}));
-  const name = str(body.name);
-  const role = str(body.role);
-  if (!name || !role) return NextResponse.json({ error: "Name and role are required." }, { status: 400 });
+  const fields = validateMember(body);
+  if ("error" in fields) return NextResponse.json({ error: fields.error }, { status: 400 });
 
   const [member] = await db
     .update(startupTeamMembers)
-    .set({ name, role, linkedin: str(body.linkedin), phone: str(body.phone), email: str(body.email), updatedAt: new Date() })
+    .set({ ...fields.values, updatedAt: new Date() })
     .where(eq(startupTeamMembers.id, id))
     .returning();
 
