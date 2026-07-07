@@ -6,9 +6,22 @@ import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DOC_KIND_LABEL, ID_TYPES } from "@/lib/kyc";
 
-type Doc = { id: string; filename: string; uploadedAt: string };
-type Investor = { userId: string; fullName: string | null; kycStatus: string; documents: Doc[] };
+type Doc = { id: string; kind: string | null; filename: string; uploadedAt: string };
+type Investor = {
+  userId: string;
+  fullName: string | null;
+  kycStatus: string;
+  residency: string | null;
+  nin: string | null;
+  residentialAddress: string | null;
+  idType: string | null;
+  idNumber: string | null;
+  documents: Doc[];
+};
+
+const idTypeLabel = (v: string | null) => ID_TYPES.find((t) => t.value === v)?.label ?? v ?? "—";
 type Pending = { userId: string; action: "verify" | "reject" };
 
 async function authHeaders(extra: Record<string, string> = {}) {
@@ -113,6 +126,22 @@ export default function AdminKycPage() {
                   <Badge tone="pitch" className="shrink-0">{inv.kycStatus}</Badge>
                 </div>
 
+                {/* Captured KYC details */}
+                <div className="mt-4 rounded-lg bg-cosmic/[0.03] p-3 text-sm">
+                  <p className="font-medium text-cosmic/80">Details</p>
+                  <dl className="mt-1 space-y-0.5 text-cosmic/70">
+                    <div className="flex gap-2"><dt className="text-cosmic/50">Based in:</dt><dd>{inv.residency === "nigeria" ? "Nigeria" : inv.residency === "diaspora" ? "Diaspora (outside Nigeria)" : "—"}</dd></div>
+                    {inv.residency === "nigeria" ? (
+                      <>
+                        <div className="flex gap-2"><dt className="text-cosmic/50">NIN:</dt><dd>{inv.nin ?? "—"}</dd></div>
+                        <div className="flex gap-2"><dt className="text-cosmic/50">Address:</dt><dd>{inv.residentialAddress ?? "—"}</dd></div>
+                      </>
+                    ) : inv.residency === "diaspora" ? (
+                      <div className="flex gap-2"><dt className="text-cosmic/50">{idTypeLabel(inv.idType)}:</dt><dd>{inv.idNumber ?? "—"}</dd></div>
+                    ) : null}
+                  </dl>
+                </div>
+
                 <div className="mt-4">
                   <p className="text-sm font-medium text-cosmic/80">Documents</p>
                   {inv.documents.length === 0 ? (
@@ -121,7 +150,10 @@ export default function AdminKycPage() {
                     <ul className="mt-2 space-y-1.5">
                       {inv.documents.map((d) => (
                         <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
-                          <span className="min-w-0 truncate text-cosmic">{d.filename}</span>
+                          <span className="min-w-0 truncate text-cosmic">
+                            {d.kind && <span className="text-cosmic/60">{DOC_KIND_LABEL[d.kind] ?? d.kind}: </span>}
+                            {d.filename}
+                          </span>
                           <button onClick={() => viewDoc(d.id)} className="shrink-0 font-medium text-ignition-ink underline">
                             View
                           </button>

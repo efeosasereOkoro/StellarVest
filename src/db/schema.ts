@@ -22,6 +22,12 @@ export const investorProfiles = pgTable("investor_profiles", {
   fullName: text("full_name"),
   kycStatus: kycStatus("kyc_status").notNull().default("registered"),
   kycRejectionReason: text("kyc_rejection_reason"),
+  // KYC intake fields (B-050). Residency drives which documents/fields apply.
+  residency: text("residency"), // "nigeria" | "diaspora"
+  nin: text("nin"), // Nigeria: NIN number
+  residentialAddress: text("residential_address"), // Nigeria
+  idType: text("id_type"), // diaspora: "nin" | "passport" | "national_id"
+  idNumber: text("id_number"), // diaspora: the chosen ID's number
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -30,6 +36,7 @@ export const investorProfiles = pgTable("investor_profiles", {
 export const kycDocuments = pgTable("kyc_documents", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id").notNull(),
+  kind: text("kind"), // photograph | nin_doc | utility_bill | id_doc (B-050; null = legacy)
   pathname: text("pathname").notNull(), // Blob pathname (used to fetch/sign later)
   url: text("url").notNull(),
   filename: text("filename").notNull(),

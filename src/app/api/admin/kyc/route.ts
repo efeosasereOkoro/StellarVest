@@ -21,6 +21,7 @@ export async function GET(req: Request) {
         .select({
           id: kycDocuments.id,
           userId: kycDocuments.userId,
+          kind: kycDocuments.kind,
           filename: kycDocuments.filename,
           uploadedAt: kycDocuments.uploadedAt,
         })
@@ -33,6 +34,11 @@ export async function GET(req: Request) {
     userId: p.userId,
     fullName: p.fullName,
     kycStatus: p.kycStatus,
+    residency: p.residency,
+    nin: p.nin,
+    residentialAddress: p.residentialAddress,
+    idType: p.idType,
+    idNumber: p.idNumber,
     documents: docs.filter((d) => d.userId === p.userId),
   }));
 
