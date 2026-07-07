@@ -19,7 +19,14 @@ type Startup = {
   rejectionReason: string | null;
 };
 type Doc = { id: string; kind: string; filename: string; uploadedAt: string };
-type Update = { id: string; title: string; body: string; createdAt: string };
+type Update = { id: string; title: string; body: string; status: string; rejectionReason: string | null; createdAt: string };
+
+// Founder-facing labels for an update's moderation status.
+const UPDATE_STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
+  pending: { tone: "pitch", label: "Pending review" },
+  approved: { tone: "venture", label: "Published" },
+  rejected: { tone: "ignition", label: "Needs changes" },
+};
 type TeamMember = { id: string; name: string; role: string; linkedin: string | null; phone: string | null; email: string | null };
 
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
@@ -367,12 +374,21 @@ export default function FounderPage() {
           </form>
           {updates.length > 0 && (
             <ul className="mt-4 divide-y divide-cosmic/10 border-t border-cosmic/10">
-              {updates.map((u) => (
-                <li key={u.id} className="py-2.5">
-                  <p className="text-sm font-medium text-cosmic">{u.title}</p>
-                  <p className="mt-1 text-sm text-cosmic/70">{u.body}</p>
-                </li>
-              ))}
+              {updates.map((u) => {
+                const us = UPDATE_STATUS[u.status] ?? UPDATE_STATUS.pending;
+                return (
+                  <li key={u.id} className="py-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-cosmic">{u.title}</p>
+                      <Badge tone={us.tone}>{us.label}</Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-cosmic/70">{u.body}</p>
+                    {u.status === "rejected" && u.rejectionReason && (
+                      <p className="mt-1 text-sm text-ignition-ink">Reviewer note: {u.rejectionReason}</p>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </Card>

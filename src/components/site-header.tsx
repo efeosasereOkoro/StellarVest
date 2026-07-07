@@ -15,6 +15,7 @@ function AdminIcon({ href }: { href: string }) {
     "/admin/kyc": (<><circle cx="10" cy="8" r="3" /><path d="M4 19c0-3 2.7-5 6-5" /><path d="m14.5 14 2 2 3.5-3.5" /></>),
     "/admin/structures": (<><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" /></>),
     "/admin/deals": (<><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></>),
+    "/admin/updates": (<><path d="M4 5h16v11H7l-3 3z" /><path d="M8 9h8M8 12h5" /></>),
     "/admin/contributions": (<><path d="M12 3v12" /><path d="m7 11 5 5 5-5" /><path d="M5 21h14" /></>),
     "/admin/settings": (<><line x1="4" y1="8" x2="20" y2="8" /><circle cx="9" cy="8" r="2" /><line x1="4" y1="16" x2="20" y2="16" /><circle cx="15" cy="16" r="2" /></>),
     "/admin/audit": (<><rect x="6" y="4" width="12" height="16" rx="2" /><path d="M9.5 4h5v2.5h-5z" /><path d="m9 13.5 2 2 4-4" /></>),

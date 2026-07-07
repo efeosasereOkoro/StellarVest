@@ -1,26 +1,28 @@
 import { NextResponse } from "next/server";
-import { and, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { startupUpdates, startups } from "@/db/schema";
-import { getVerifiedInvestor } from "@/lib/investor";
+import { getAdminUser } from "@/lib/auth-server";
 
-// Verified investors see updates from approved startups (E11-S4).
-// MVP: broadcast to all verified investors (deals aren't investor-scoped — B-009).
+// All founder updates for the moderation queue (B-049), newest first, with the
+// startup they belong to. The page surfaces pending ones for action.
 export async function GET(req: Request) {
-  const investor = await getVerifiedInvestor(req);
-  if (!investor) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  const admin = await getAdminUser(req);
+  if (!admin) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
   const rows = await db
     .select({
       id: startupUpdates.id,
       title: startupUpdates.title,
       body: startupUpdates.body,
+      status: startupUpdates.status,
+      rejectionReason: startupUpdates.rejectionReason,
       createdAt: startupUpdates.createdAt,
       startupName: startups.name,
+      founderEmail: startups.founderEmail,
     })
     .from(startupUpdates)
     .innerJoin(startups, eq(startups.id, startupUpdates.startupId))
-    .where(and(eq(startups.status, "approved"), eq(startupUpdates.status, "approved")))
     .orderBy(desc(startupUpdates.createdAt));
 
   return NextResponse.json({ updates: rows });

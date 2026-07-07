@@ -16,6 +16,7 @@ type Overview = {
   dealsUnderReview: number;
   startupsAwaitingReview: number;
   startupCount: number;
+  updatesAwaitingReview: number;
 };
 
 function Icon({ name }: { name: string }) {
@@ -24,6 +25,7 @@ function Icon({ name }: { name: string }) {
     deal: (<><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></>),
     startup: (<><path d="M5 16c-1.5 1.5-2 5-2 5s3.5-.5 5-2" /><path d="M9 12a12 12 0 0 1 8-8c2 0 3 1 3 3a12 12 0 0 1-8 8l-3-3z" /><circle cx="14.5" cy="9.5" r="1.5" /></>),
     funds: (<><path d="M3 9 12 4l9 5" /><path d="M5 9v9M19 9v9M9.5 9v9M14.5 9v9" /><path d="M3 20h18" /></>),
+    updates: (<><path d="M4 5h16v11H7l-3 3z" /><path d="M8 9h8M8 12h5" /></>),
     users: (<><circle cx="9" cy="8" r="3" /><path d="M3 20c0-3 3-5 6-5s6 2 6 5" /><path d="M16 6a3 3 0 0 1 0 6" /></>),
     layers: (<><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" /></>),
   };
@@ -64,6 +66,7 @@ export default function AdminHomePage() {
     { label: "KYC to review", value: o?.pendingKyc ?? 0, href: "/admin/kyc", icon: "kyc" },
     { label: "Deals awaiting committee", value: o?.dealsUnderReview ?? 0, href: "/admin/deals", icon: "deal" },
     { label: "Startups to review", value: o?.startupsAwaitingReview ?? 0, href: "/admin/startups", icon: "startup" },
+    { label: "Updates to review", value: o?.updatesAwaitingReview ?? 0, href: "/admin/updates", icon: "updates" },
     { label: "Funds to confirm", value: o?.awaitingFunds ?? 0, href: "/admin/contributions", icon: "funds" },
   ];
   const totalAttention = attention.reduce((s, a) => s + a.value, 0);
@@ -90,7 +93,7 @@ export default function AdminHomePage() {
         <h2 className="font-display text-lg font-semibold text-cosmic">Needs your attention</h2>
         <span className="text-sm text-cosmic/60">{totalAttention === 0 ? "All clear 🎉" : `${totalAttention} item${totalAttention === 1 ? "" : "s"} waiting`}</span>
       </div>
-      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {attention.map((a) => {
           const urgent = a.value > 0;
           return (

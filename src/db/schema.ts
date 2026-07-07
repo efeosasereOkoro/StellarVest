@@ -288,12 +288,20 @@ export const startupTeamMembers = pgTable("startup_team_members", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-// Post-investment updates posted by an approved founder.
+// Moderation lifecycle for a founder update (B-049). A founder posts → pending;
+// an admin approves (investors then see it) or rejects with a reason.
+export const updateStatus = pgEnum("update_status", ["pending", "approved", "rejected"]);
+
+// Post-investment updates posted by an approved founder. Gated: only approved
+// updates reach investors.
 export const startupUpdates = pgTable("startup_updates", {
   id: uuid("id").defaultRandom().primaryKey(),
   startupId: uuid("startup_id").notNull().references(() => startups.id),
   title: text("title").notNull(),
   body: text("body").notNull(),
+  status: updateStatus("status").notNull().default("pending"),
+  rejectionReason: text("rejection_reason"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
