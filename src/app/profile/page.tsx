@@ -151,6 +151,18 @@ export default function ProfilePage() {
           Your documents are stored privately and used only to verify your identity.
         </p>
 
+        <div className="mt-3 rounded-lg border border-cosmic/10 bg-frontier/30 p-3 text-sm text-cosmic/80">
+          <p className="font-medium text-cosmic">What to provide</p>
+          <p className="mt-1">
+            <span className="font-medium">In Nigeria:</span> a clear photograph, your NIN, your residential
+            address, and a utility bill as proof of that address.
+          </p>
+          <p className="mt-1">
+            <span className="font-medium">In the diaspora:</span> your NIN and an international passport
+            (or your country&rsquo;s highest-assurance ID).
+          </p>
+        </div>
+
         <form onSubmit={uploadDoc} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
             ref={fileRef}
