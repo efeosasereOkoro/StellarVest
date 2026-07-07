@@ -13,6 +13,7 @@ type Startup = {
   stage: string | null; status: string; founderEmail: string | null; rejectionReason: string | null;
 };
 type Doc = { id: string; kind: string; filename: string; uploadedAt: string };
+type TeamMember = { id: string; name: string; role: string; linkedin: string | null; phone: string | null; email: string | null };
 
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
   draft: { tone: "neutral", label: "Draft" },
@@ -37,6 +38,7 @@ export default function AdminStartupReviewPage() {
   const [state, setState] = useState<"loading" | "forbidden" | "notfound" | "ready">("loading");
   const [startup, setStartup] = useState<Startup | null>(null);
   const [docs, setDocs] = useState<Doc[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +51,7 @@ export default function AdminStartupReviewPage() {
     if (!data.startup) return setState("notfound");
     setStartup(data.startup);
     setDocs(data.documents ?? []);
+    setTeam(data.team ?? []);
     setState("ready");
   }
 
@@ -107,6 +110,30 @@ export default function AdminStartupReviewPage() {
           {startup.website && <p className="text-cosmic/60">{startup.website}</p>}
           {startup.stage && <p className="text-cosmic/60">Stage: {startup.stage}</p>}
         </div>
+      </Card>
+
+      <Card className="mt-4">
+        <p className="font-medium text-cosmic">Team</p>
+        {team.length === 0 ? (
+          <p className="mt-1 text-sm text-cosmic/70">No team members listed.</p>
+        ) : (
+          <ul className="mt-2 divide-y divide-cosmic/10 border-t border-cosmic/10">
+            {team.map((m) => (
+              <li key={m.id} className="py-2.5 text-sm">
+                <p className="font-medium text-cosmic">{m.name} <span className="font-normal text-cosmic/60">· {m.role}</span></p>
+                <p className="mt-0.5 text-cosmic/60">
+                  {[m.email, m.phone].filter(Boolean).join(" · ") || "—"}
+                  {m.linkedin && (
+                    <>
+                      {(m.email || m.phone) ? " · " : ""}
+                      <a href={m.linkedin} target="_blank" rel="noreferrer" className="text-ignition-ink underline">LinkedIn</a>
+                    </>
+                  )}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </Card>
 
       <Card className="mt-4">

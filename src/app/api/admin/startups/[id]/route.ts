@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { startups, startupDocuments } from "@/db/schema";
+import { startups, startupDocuments, startupTeamMembers } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, startupApprovedEmail, startupRejectedEmail } from "@/lib/email";
@@ -22,7 +22,13 @@ export async function GET(req: Request, { params }: Ctx) {
     .where(eq(startupDocuments.startupId, id))
     .orderBy(desc(startupDocuments.uploadedAt));
 
-  return NextResponse.json({ startup, documents });
+  const team = await db
+    .select()
+    .from(startupTeamMembers)
+    .where(eq(startupTeamMembers.startupId, id))
+    .orderBy(startupTeamMembers.createdAt);
+
+  return NextResponse.json({ startup, documents, team });
 }
 
 // Approve or reject a submitted startup.

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { startups, startupDocuments, startupUpdates } from "@/db/schema";
+import { startups, startupDocuments, startupUpdates, startupTeamMembers } from "@/db/schema";
 import { getAuthUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 
@@ -34,7 +34,13 @@ export async function GET(req: Request) {
     .where(eq(startupUpdates.startupId, startup.id))
     .orderBy(desc(startupUpdates.createdAt));
 
-  return NextResponse.json({ startup, documents, updates });
+  const team = await db
+    .select()
+    .from(startupTeamMembers)
+    .where(eq(startupTeamMembers.startupId, startup.id))
+    .orderBy(startupTeamMembers.createdAt);
+
+  return NextResponse.json({ startup, documents, updates, team });
 }
 
 // Create the founder's startup (one per founder).

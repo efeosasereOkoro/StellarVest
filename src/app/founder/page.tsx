@@ -20,6 +20,7 @@ type Startup = {
 };
 type Doc = { id: string; kind: string; filename: string; uploadedAt: string };
 type Update = { id: string; title: string; body: string; createdAt: string };
+type TeamMember = { id: string; name: string; role: string; linkedin: string | null; phone: string | null; email: string | null };
 
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
   draft: { tone: "neutral", label: "Draft" },
@@ -46,8 +47,17 @@ export default function FounderPage() {
   const [startup, setStartup] = useState<Startup | null>(null);
   const [docs, setDocs] = useState<Doc[]>([]);
   const [updates, setUpdates] = useState<Update[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Team member form (add / edit)
+  const [mId, setMId] = useState<string | null>(null);
+  const [mName, setMName] = useState("");
+  const [mRole, setMRole] = useState("");
+  const [mEmail, setMEmail] = useState("");
+  const [mPhone, setMPhone] = useState("");
+  const [mLinkedin, setMLinkedin] = useState("");
 
   // Profile form
   const [name, setName] = useState("");
@@ -66,6 +76,7 @@ export default function FounderPage() {
     setStartup(s);
     setDocs(data.documents ?? []);
     setUpdates(data.updates ?? []);
+    setTeam(data.team ?? []);
     if (s) {
       setName(s.name);
       setDescription(s.description ?? "");
@@ -140,6 +151,41 @@ export default function FounderPage() {
     else setError((await res.json().catch(() => ({}))).error ?? "Couldn't post.");
   }
 
+  function resetMember() {
+    setMId(null); setMName(""); setMRole(""); setMEmail(""); setMPhone(""); setMLinkedin("");
+  }
+
+  function editMember(m: TeamMember) {
+    setMId(m.id); setMName(m.name); setMRole(m.role);
+    setMEmail(m.email ?? ""); setMPhone(m.phone ?? ""); setMLinkedin(m.linkedin ?? "");
+  }
+
+  async function saveMember(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    const res = await fetch(
+      mId ? `/api/founder/startup/team/${mId}` : "/api/founder/startup/team",
+      {
+        method: mId ? "PATCH" : "POST",
+        headers: await authHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ name: mName, role: mRole, email: mEmail, phone: mPhone, linkedin: mLinkedin }),
+      },
+    );
+    setBusy(false);
+    if (res.ok) { resetMember(); await load(); }
+    else setError((await res.json().catch(() => ({}))).error ?? "Couldn't save team member.");
+  }
+
+  async function deleteMember(memberId: string) {
+    setBusy(true);
+    setError(null);
+    const res = await fetch(`/api/founder/startup/team/${memberId}`, { method: "DELETE", headers: await authHeaders() });
+    setBusy(false);
+    if (res.ok) { if (mId === memberId) resetMember(); await load(); }
+    else setError((await res.json().catch(() => ({}))).error ?? "Couldn't remove.");
+  }
+
   if (isPending || !session || !loaded) {
     return <main className="flex flex-1 items-center justify-center text-sm text-cosmic/70">Loading…</main>;
   }
@@ -187,6 +233,53 @@ export default function FounderPage() {
           </div>
         )}
       </Card>
+
+      {/* Team */}
+      {startup && (
+        <Card className="mt-4">
+          <p className="font-medium text-cosmic">Team</p>
+          <p className="mt-1 text-sm text-cosmic/70">The people behind {startup.name}, shown to the StarSector8 review team.</p>
+          {team.length > 0 && (
+            <ul className="mt-3 divide-y divide-cosmic/10 border-t border-cosmic/10">
+              {team.map((m) => (
+                <li key={m.id} className="flex items-start justify-between gap-3 py-2.5">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-cosmic">
+                      {m.name} <span className="font-normal text-cosmic/60">· {m.role}</span>
+                    </p>
+                    <p className="mt-0.5 truncate text-sm text-cosmic/60">
+                      {[m.email, m.phone].filter(Boolean).join(" · ")}
+                      {m.linkedin && (
+                        <>
+                          {(m.email || m.phone) ? " · " : ""}
+                          <a href={m.linkedin} target="_blank" rel="noreferrer" className="text-ignition-ink underline">LinkedIn</a>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-3 text-sm">
+                    <button onClick={() => editMember(m)} className="font-medium text-ignition-ink underline">Edit</button>
+                    <button onClick={() => deleteMember(m.id)} disabled={busy} className="font-medium text-danger underline">Remove</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          <form onSubmit={saveMember} className="mt-4 space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Name" value={mName} onChange={(e) => setMName(e.target.value)} required />
+              <Field label="Role" value={mRole} onChange={(e) => setMRole(e.target.value)} placeholder="e.g. CEO, CTO" required />
+              <Field label="Email" type="email" value={mEmail} onChange={(e) => setMEmail(e.target.value)} />
+              <Field label="Phone" value={mPhone} onChange={(e) => setMPhone(e.target.value)} />
+            </div>
+            <Field label="LinkedIn (optional)" value={mLinkedin} onChange={(e) => setMLinkedin(e.target.value)} placeholder="https://linkedin.com/in/…" />
+            <div className="flex gap-3">
+              <Button type="submit" disabled={busy}>{mId ? "Save changes" : "Add team member"}</Button>
+              {mId && <Button type="button" variant="outline" onClick={resetMember}>Cancel</Button>}
+            </div>
+          </form>
+        </Card>
+      )}
 
       {/* Documents */}
       {startup && (

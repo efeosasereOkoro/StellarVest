@@ -273,6 +273,21 @@ export const startupDocuments = pgTable("startup_documents", {
   uploadedAt: timestamp("uploaded_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Team members a founder lists on their startup (D8 / B-048). Name + role are
+// required; LinkedIn is optional; phone/email are captured but nullable so a
+// partial entry never blocks. Shown on the founder dashboard + startup detail.
+export const startupTeamMembers = pgTable("startup_team_members", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  startupId: uuid("startup_id").notNull().references(() => startups.id),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  linkedin: text("linkedin"),
+  phone: text("phone"),
+  email: text("email"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 // Post-investment updates posted by an approved founder.
 export const startupUpdates = pgTable("startup_updates", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -295,3 +310,4 @@ export type Disbursement = typeof disbursements.$inferSelect;
 export type Startup = typeof startups.$inferSelect;
 export type StartupDocument = typeof startupDocuments.$inferSelect;
 export type StartupUpdate = typeof startupUpdates.$inferSelect;
+export type StartupTeamMember = typeof startupTeamMembers.$inferSelect;
