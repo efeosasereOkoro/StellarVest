@@ -233,6 +233,10 @@ export default function FounderPage() {
       {startup?.status === "approved" && (
         <Card className="mt-4">
           <p className="font-medium text-cosmic">Investor updates</p>
+          <p className="mt-1 text-sm text-cosmic/70">
+            Please post a comprehensive update at least once a quarter, and whenever you hit a
+            significant milestone. Updates are reviewed by StarSector8 before investors see them.
+          </p>
           <form onSubmit={postUpdate} className="mt-3 space-y-3">
             <Field label="Title" value={updTitle} onChange={(e) => setUpdTitle(e.target.value)} required />
             <label className="block">
