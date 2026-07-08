@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmButton } from "@/components/ui/confirm-button";
+import { naira, unitsLabel } from "@/lib/money";
 
 type Member = { userId: string; fullName: string | null; kycStatus: string | null };
 type Assignable = { userId: string; fullName: string | null };
@@ -15,7 +16,6 @@ type Cohort = { id: string; name: string };
 type Alloc = { id: string; startupCohortId: string; startupName: string | null; percentage: number };
 type StartupCohort = { id: string; name: string };
 
-const money = (v: string) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(v));
 
 async function authHeaders(extra: Record<string, string> = {}) {
   const token = await getToken();
@@ -255,7 +255,7 @@ export default function CohortPage() {
         </div>
         <p className="mt-1 text-sm text-cosmic/70">Split this cohort&apos;s pool across one or more portfolios (must total ≤ 100%).</p>
         <p className="mt-2 text-sm text-cosmic/70">
-          Confirmed contributions from members: <span className="font-semibold text-cosmic">{money(poolTotal)}</span>
+          Confirmed contributions: <span className="font-semibold text-cosmic">{naira(poolTotal)}</span> <span className="text-cosmic/60">· {unitsLabel(poolTotal)}</span>
         </p>
 
         {allocations.length > 0 && (

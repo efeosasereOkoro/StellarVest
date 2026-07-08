@@ -5,11 +5,9 @@ import { contributions, deals, investorCohorts } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, fundsConfirmedEmail } from "@/lib/email";
+import { naira, unitsLabel } from "@/lib/money";
 
 type Ctx = { params: Promise<{ id: string }> };
-
-const money = (amount: string, currency = "USD") =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency }).format(Number(amount));
 
 // Admin confirms (paid -> confirmed) or cancels a contribution.
 export async function PATCH(req: Request, { params }: Ctx) {
@@ -65,7 +63,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
   // Tell the investor their funds are confirmed (no-ops if email unconfigured).
   if (action === "confirm" && row.investorEmail) {
-    const mail = fundsConfirmedEmail(row.cohortName ?? row.startupName ?? "your cohort", money(row.amount, row.currency));
+    const mail = fundsConfirmedEmail(row.cohortName ?? row.startupName ?? "your cohort", `${naira(row.amount)} (${unitsLabel(row.amount)})`);
     await sendEmail({ to: row.investorEmail, ...mail });
   }
 

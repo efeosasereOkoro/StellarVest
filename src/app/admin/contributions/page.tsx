@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Badge } from "@/components/ui/badge";
+import { naira, unitsLabel } from "@/lib/money";
 
 type Contribution = {
   id: string;
@@ -20,9 +21,6 @@ type Contribution = {
   reference: string;
   status: string;
 };
-
-const money = (amount: string, currency = "USD") =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency }).format(Number(amount));
 
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
   pledged: { tone: "neutral", label: "Pledged" },
@@ -110,7 +108,7 @@ export default function AdminContributionsPage() {
                     <p className="font-medium text-cosmic">—</p>
                   )}
                   <p className="mt-0.5 text-sm text-cosmic/70">
-                    {c.investorEmail ?? "—"} · {money(c.amount, c.currency)} · ref <span className="font-mono">{c.reference}</span>
+                    {c.investorEmail ?? "—"} · {naira(c.amount)} ({unitsLabel(c.amount)}) · ref <span className="font-mono">{c.reference}</span>
                   </p>
                 </div>
                 <Badge tone={s.tone} className="shrink-0">{s.label}</Badge>
@@ -123,7 +121,7 @@ export default function AdminContributionsPage() {
                       disabled={busyId === c.id}
                       onConfirm={() => act(c.id, "confirm")}
                       title="Confirm funds received?"
-                      message={`This marks ${c.investorEmail ?? "the investor"}'s ${money(c.amount, c.currency)} contribution to ${label} as confirmed and emails them. Do this only once the transfer has cleared.`}
+                      message={`This marks ${c.investorEmail ?? "the investor"}'s ${naira(c.amount)} contribution to ${label} as confirmed and emails them. Do this only once the transfer has cleared.`}
                       confirmLabel="Confirm funds"
                     >
                       Confirm funds received
@@ -134,7 +132,7 @@ export default function AdminContributionsPage() {
                     disabled={busyId === c.id}
                     onConfirm={() => act(c.id, "cancel")}
                     title="Cancel this contribution?"
-                    message={`This cancels ${c.investorEmail ?? "the investor"}'s ${money(c.amount, c.currency)} contribution to ${label}.`}
+                    message={`This cancels ${c.investorEmail ?? "the investor"}'s ${naira(c.amount)} contribution to ${label}.`}
                     confirmLabel="Cancel contribution"
                   >
                     Cancel

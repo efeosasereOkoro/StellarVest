@@ -6,6 +6,7 @@ import { getVerifiedInvestor } from "@/lib/investor";
 import { getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, newContributionEmail, contributionReceiptEmail } from "@/lib/email";
+import { naira, unitsLabel } from "@/lib/money";
 
 // The cohort a verified investor belongs to (first membership — MVP assumes one).
 async function cohortFor(userId: string) {
@@ -80,6 +81,7 @@ export async function POST(req: Request) {
       userId: investor.id,
       investorEmail: investor.email,
       amount: amount.toFixed(2),
+      currency: "NGN",
       reference,
       status: "pledged",
     })
@@ -94,7 +96,7 @@ export async function POST(req: Request) {
     metadata: { amount: amount.toFixed(2), reference },
   });
 
-  const amountLabel = `$${amount.toFixed(2)}`;
+  const amountLabel = `${naira(amount)} (${unitsLabel(amount)})`;
   const adminMail = newContributionEmail(cohort.name, investor.email ?? "an investor", amountLabel, reference);
   await Promise.all([
     ...getAdminEmails().map((to) => sendEmail({ to, ...adminMail })),

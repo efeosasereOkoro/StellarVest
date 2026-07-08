@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { naira, unitsLabel } from "@/lib/money";
 
 type Contribution = {
   id: string;
@@ -24,8 +25,6 @@ type Data = {
   escrowInstructions: string;
   totals: { confirmed: string; pending: string };
 };
-
-const money = (v: string) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(v));
 
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
   pledged: { tone: "pitch", label: "Pledged" },
@@ -67,7 +66,7 @@ export default function ContributePage() {
     e.preventDefault();
     const n = Number(amount);
     if (!Number.isFinite(n) || n < 1) {
-      setAmountError("Enter an amount of at least $1.");
+      setAmountError("Enter an amount of at least ₦1.");
       return;
     }
     setBusy(true);
@@ -137,11 +136,13 @@ export default function ContributePage() {
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-lg bg-frontier/40 p-3">
                 <p className="text-xs text-cosmic/60">Confirmed</p>
-                <p className="font-display text-lg font-semibold text-cosmic">{money(data.totals.confirmed)}</p>
+                <p className="font-display text-lg font-semibold text-cosmic">{naira(data.totals.confirmed)}</p>
+                <p className="text-xs text-cosmic/60">{unitsLabel(data.totals.confirmed)}</p>
               </div>
               <div className="rounded-lg bg-pitch/40 p-3">
                 <p className="text-xs text-cosmic/60">Pending</p>
-                <p className="font-display text-lg font-semibold text-cosmic">{money(data.totals.pending)}</p>
+                <p className="font-display text-lg font-semibold text-cosmic">{naira(data.totals.pending)}</p>
+                <p className="text-xs text-cosmic/60">{unitsLabel(data.totals.pending)}</p>
               </div>
             </div>
           </Card>
@@ -149,13 +150,18 @@ export default function ContributePage() {
           <Card className="mt-4">
             <p className="font-medium text-cosmic">Make a contribution</p>
             <form onSubmit={contribute} className="mt-3 space-y-3">
-              <Field
-                label="Amount (USD)"
-                type="number" min={1} step="1" inputMode="decimal"
-                value={amount}
-                error={amountError ?? undefined}
-                onChange={(e) => { setAmount(e.target.value); setAmountError(null); }}
-              />
+              <div>
+                <Field
+                  label="Amount (₦)"
+                  type="number" min={1} step="1" inputMode="decimal"
+                  value={amount}
+                  error={amountError ?? undefined}
+                  onChange={(e) => { setAmount(e.target.value); setAmountError(null); }}
+                />
+                {amount && Number(amount) >= 1 && (
+                  <p className="mt-1 text-xs text-cosmic/60">= {unitsLabel(amount)} (₦1,000 = 1 unit)</p>
+                )}
+              </div>
               <Button type="submit" disabled={busy}>Pledge contribution</Button>
             </form>
           </Card>
@@ -183,7 +189,7 @@ export default function ContributePage() {
                   return (
                     <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                       <div className="min-w-0">
-                        <p className="font-medium text-cosmic">{money(c.amount)}</p>
+                        <p className="font-medium text-cosmic">{naira(c.amount)} <span className="font-normal text-cosmic/50">· {unitsLabel(c.amount)}</span></p>
                         <p className="text-cosmic/60">Ref {c.reference} · {new Date(c.createdAt).toLocaleDateString()}</p>
                       </div>
                       <div className="flex items-center gap-3">

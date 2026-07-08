@@ -200,7 +200,7 @@ export const contributions = pgTable("contributions", {
   userId: text("user_id").notNull(),
   investorEmail: text("investor_email"),
   amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
-  currency: text("currency").notNull().default("USD"),
+  currency: text("currency").notNull().default("NGN"),
   // Human-friendly reference the investor quotes on the bank transfer so the
   // escrow operator can match the payment.
   reference: text("reference").notNull(),
@@ -228,7 +228,7 @@ export const disbursements = pgTable("disbursements", {
   id: uuid("id").defaultRandom().primaryKey(),
   startupCohortId: uuid("startup_cohort_id").notNull().references(() => startupCohorts.id),
   amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
-  currency: text("currency").notNull().default("USD"),
+  currency: text("currency").notNull().default("NGN"),
   note: text("note"),
   recordedByEmail: text("recorded_by_email"),
   disbursedAt: timestamp("disbursed_at", { withTimezone: true }).notNull().defaultNow(),

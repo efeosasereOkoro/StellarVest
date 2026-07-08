@@ -9,11 +9,10 @@ import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmButton } from "@/components/ui/confirm-button";
+import { naira } from "@/lib/money";
 
 type Cohort = { id: string; name: string; hasPool: boolean; memberCount: number };
 type Portfolio = { id: string; name: string; disbursedTotal: string };
-
-const money = (v: string) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(v));
 
 async function authHeaders(extra: Record<string, string> = {}) {
   const token = await getToken();
@@ -187,7 +186,7 @@ export default function StructuresPage() {
                   <>
                     <div>
                       <p className="font-medium text-cosmic">{pf.name}</p>
-                      <p className="mt-0.5 text-sm text-cosmic/70">Disbursed: <span className="font-semibold text-cosmic">{money(pf.disbursedTotal)}</span></p>
+                      <p className="mt-0.5 text-sm text-cosmic/70">Disbursed: <span className="font-semibold text-cosmic">{naira(pf.disbursedTotal)}</span></p>
                     </div>
                     <span className="flex shrink-0 gap-3 text-sm">
                       <button onClick={() => startEdit(`pf:${pf.id}`, pf.name)} className="font-medium text-cosmic underline">Rename</button>
@@ -201,7 +200,7 @@ export default function StructuresPage() {
               {/* Record a disbursement (E7-S3) */}
               <div className="mt-3 flex flex-col gap-2 border-t border-cosmic/10 pt-3 sm:flex-row sm:items-center">
                 <div className="relative w-full sm:max-w-[10rem]">
-                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-cosmic/60">$</span>
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-cosmic/60">₦</span>
                   <input type="number" min="1" step="1" inputMode="decimal" placeholder="Amount" aria-label={`Disbursement amount for ${pf.name}`}
                     value={disbAmount[pf.id] ?? ""} onChange={(e) => setDisbAmount((m) => ({ ...m, [pf.id]: e.target.value }))}
                     className="w-full rounded-lg border border-cosmic/15 bg-pioneer py-2 pl-7 pr-3 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30" />
