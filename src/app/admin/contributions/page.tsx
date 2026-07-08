@@ -11,8 +11,9 @@ import { Badge } from "@/components/ui/badge";
 
 type Contribution = {
   id: string;
-  dealId: string;
-  startupName: string;
+  dealId: string | null;
+  startupName: string | null;
+  cohortName: string | null;
   investorEmail: string | null;
   amount: string;
   currency: string;
@@ -96,11 +97,18 @@ export default function AdminContributionsPage() {
         {items.length === 0 && <p className="text-cosmic/70">No contributions yet.</p>}
         {items.map((c) => {
           const s = STATUS[c.status] ?? STATUS.pledged;
+          const label = c.cohortName ?? c.startupName ?? "—";
           return (
             <Card key={c.id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <Link href={`/admin/deals/${c.dealId}`} className="font-medium text-cosmic underline">{c.startupName}</Link>
+                  {c.cohortName ? (
+                    <p className="font-medium text-cosmic">{c.cohortName} <span className="text-xs font-normal text-cosmic/50">· cohort</span></p>
+                  ) : c.dealId ? (
+                    <Link href={`/admin/deals/${c.dealId}`} className="font-medium text-cosmic underline">{c.startupName}</Link>
+                  ) : (
+                    <p className="font-medium text-cosmic">—</p>
+                  )}
                   <p className="mt-0.5 text-sm text-cosmic/70">
                     {c.investorEmail ?? "—"} · {money(c.amount, c.currency)} · ref <span className="font-mono">{c.reference}</span>
                   </p>
@@ -115,7 +123,7 @@ export default function AdminContributionsPage() {
                       disabled={busyId === c.id}
                       onConfirm={() => act(c.id, "confirm")}
                       title="Confirm funds received?"
-                      message={`This marks ${c.investorEmail ?? "the investor"}'s ${money(c.amount, c.currency)} contribution to ${c.startupName} as confirmed and emails them. Do this only once the transfer has cleared.`}
+                      message={`This marks ${c.investorEmail ?? "the investor"}'s ${money(c.amount, c.currency)} contribution to ${label} as confirmed and emails them. Do this only once the transfer has cleared.`}
                       confirmLabel="Confirm funds"
                     >
                       Confirm funds received
@@ -126,7 +134,7 @@ export default function AdminContributionsPage() {
                     disabled={busyId === c.id}
                     onConfirm={() => act(c.id, "cancel")}
                     title="Cancel this contribution?"
-                    message={`This cancels ${c.investorEmail ?? "the investor"}'s ${money(c.amount, c.currency)} contribution to ${c.startupName}.`}
+                    message={`This cancels ${c.investorEmail ?? "the investor"}'s ${money(c.amount, c.currency)} contribution to ${label}.`}
                     confirmLabel="Cancel contribution"
                   >
                     Cancel

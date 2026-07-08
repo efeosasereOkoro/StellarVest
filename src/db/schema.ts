@@ -198,26 +198,25 @@ export const contributionStatus = pgEnum("contribution_status", [
   "cancelled", // withdrawn before confirmation
 ]);
 
-export const contributions = pgTable(
-  "contributions",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    dealId: uuid("deal_id").notNull().references(() => deals.id),
-    userId: text("user_id").notNull(),
-    investorEmail: text("investor_email"),
-    amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
-    currency: text("currency").notNull().default("USD"),
-    // Human-friendly reference the investor quotes on the bank transfer so the
-    // escrow operator can match the payment.
-    reference: text("reference").notNull(),
-    status: contributionStatus("status").notNull().default("pledged"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-    paidAt: timestamp("paid_at", { withTimezone: true }),
-  },
-  // One contribution per investor per deal.
-  (t) => [unique().on(t.dealId, t.userId)],
-);
+export const contributions = pgTable("contributions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  // B1: contributions now target the investor's cohort pool (a ledger of many
+  // contributions over time). `dealId` is legacy (old per-deal pledges) and kept
+  // nullable for those rows; new contributions set `investorCohortId`.
+  dealId: uuid("deal_id").references(() => deals.id),
+  investorCohortId: uuid("investor_cohort_id").references(() => investorCohorts.id),
+  userId: text("user_id").notNull(),
+  investorEmail: text("investor_email"),
+  amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("USD"),
+  // Human-friendly reference the investor quotes on the bank transfer so the
+  // escrow operator can match the payment.
+  reference: text("reference").notNull(),
+  status: contributionStatus("status").notNull().default("pledged"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
+});
 
 // ---- Platform settings (E7) ----
 

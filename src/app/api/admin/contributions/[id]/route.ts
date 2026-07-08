@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { contributions, deals } from "@/db/schema";
+import { contributions, deals, investorCohorts } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, fundsConfirmedEmail } from "@/lib/email";
@@ -31,9 +31,11 @@ export async function PATCH(req: Request, { params }: Ctx) {
       currency: contributions.currency,
       investorEmail: contributions.investorEmail,
       startupName: deals.startupName,
+      cohortName: investorCohorts.name,
     })
     .from(contributions)
-    .innerJoin(deals, eq(deals.id, contributions.dealId))
+    .leftJoin(deals, eq(deals.id, contributions.dealId))
+    .leftJoin(investorCohorts, eq(investorCohorts.id, contributions.investorCohortId))
     .where(eq(contributions.id, id));
   if (!row) return NextResponse.json({ error: "not found" }, { status: 404 });
 
@@ -63,7 +65,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
   // Tell the investor their funds are confirmed (no-ops if email unconfigured).
   if (action === "confirm" && row.investorEmail) {
-    const mail = fundsConfirmedEmail(row.startupName, money(row.amount, row.currency));
+    const mail = fundsConfirmedEmail(row.cohortName ?? row.startupName ?? "your cohort", money(row.amount, row.currency));
     await sendEmail({ to: row.investorEmail, ...mail });
   }
 

@@ -148,6 +148,32 @@ export function pledgeReceiptEmail(dealName: string, dealId: string, amountLabel
   };
 }
 
+// --- Cohort contributions (B1) ---
+
+export function newContributionEmail(cohortName: string, investorEmail: string, amountLabel: string, reference: string): { subject: string; html: string } {
+  return {
+    subject: `New contribution: ${amountLabel} to ${cohortName}`,
+    html: layout(
+      "New contribution pledged",
+      `<p><strong>${escapeHtml(investorEmail)}</strong> pledged <strong>${escapeHtml(amountLabel)}</strong> to the <strong>${escapeHtml(cohortName)}</strong> cohort.</p>
+       <p>Reference: <strong>${escapeHtml(reference)}</strong>. You&rsquo;ll be able to confirm the funds once the transfer is received.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/admin/contributions`, "Review contributions")}</p>`,
+    ),
+  };
+}
+
+export function contributionReceiptEmail(cohortName: string, amountLabel: string, reference: string): { subject: string; html: string } {
+  return {
+    subject: `Your contribution to ${cohortName} — next steps`,
+    html: layout(
+      "Contribution recorded",
+      `<p>We&rsquo;ve recorded your contribution of <strong>${escapeHtml(amountLabel)}</strong> to the <strong>${escapeHtml(cohortName)}</strong> cohort.</p>
+       <p>To complete it, transfer the funds to the StarSector8 escrow account quoting your reference <strong>${escapeHtml(reference)}</strong>, then mark the payment as sent.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/contribute`, "View your contributions")}</p>`,
+    ),
+  };
+}
+
 export function dealPublishedEmail(dealName: string, dealId: string): { subject: string; html: string } {
   return {
     subject: `New investment opportunity: ${dealName}`,

@@ -127,6 +127,13 @@
       "when": 1783436673222,
       "tag": "0017_graceful_black_bolt",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1783505840082,
+      "tag": "0018_nice_spencer_smythe",
+      "breakpoints": true
     }
   ]
 }

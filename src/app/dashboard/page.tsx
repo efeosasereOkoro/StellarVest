@@ -39,8 +39,8 @@ const KYC: Record<
   verified: {
     tone: "venture",
     title: "You're verified",
-    body: "Your account is verified. Browse the latest investment opportunities.",
-    cta: { label: "Browse deals", href: "/deals" },
+    body: "Your account is verified. Contribute to your cohort and start investing.",
+    cta: { label: "Contribute", href: "/contribute" },
   },
   rejected: {
     tone: "ignition",
@@ -153,15 +153,15 @@ export default function DashboardPage() {
 
       {role !== "founder" && kyc === "verified" && (
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Link href="/portfolio" className="block">
+          <Link href="/contribute" className="block">
             <Card className="h-full transition-colors hover:border-cosmic/25">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-frontier text-deep-frontier">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
                   <path d="M5 4h14v16l-3-2-2 2-2-2-2 2-3-2z" /><path d="M9 9h6M9 13h6" />
                 </svg>
               </span>
-              <p className="mt-3 font-medium text-cosmic">Your contributions</p>
-              <p className="mt-0.5 text-sm text-cosmic/70">Track your pledges through to confirmation.</p>
+              <p className="mt-3 font-medium text-cosmic">Contribute &amp; track</p>
+              <p className="mt-0.5 text-sm text-cosmic/70">Add to your cohort&rsquo;s pool and follow each contribution to confirmation.</p>
             </Card>
           </Link>
           <Link href="/updates" className="block">
