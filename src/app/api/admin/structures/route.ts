@@ -7,6 +7,7 @@ import {
   startupCohorts,
   cohortMembers,
   disbursements,
+  portfolioStartups,
 } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 
@@ -16,12 +17,13 @@ export async function GET(req: Request) {
   const admin = await getAdminUser(req);
   if (!admin) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
-  const [cohorts, pools, members, startups, disb] = await Promise.all([
+  const [cohorts, pools, members, startups, disb, pfStartups] = await Promise.all([
     db.select().from(investorCohorts),
     db.select().from(investmentPools),
     db.select({ cohortId: cohortMembers.investorCohortId }).from(cohortMembers),
     db.select().from(startupCohorts),
     db.select({ scId: disbursements.startupCohortId, total: sum(disbursements.amount) }).from(disbursements).groupBy(disbursements.startupCohortId),
+    db.select({ scId: portfolioStartups.startupCohortId }).from(portfolioStartups),
   ]);
 
   return NextResponse.json({
@@ -35,6 +37,11 @@ export async function GET(req: Request) {
       })),
     startupCohorts: startups
       .sort((a, b) => +a.createdAt - +b.createdAt)
-      .map((sc) => ({ id: sc.id, name: sc.name, disbursedTotal: disb.find((d) => d.scId === sc.id)?.total ?? "0" })),
+      .map((sc) => ({
+        id: sc.id,
+        name: sc.name,
+        disbursedTotal: disb.find((d) => d.scId === sc.id)?.total ?? "0",
+        startupCount: pfStartups.filter((p) => p.scId === sc.id).length,
+      })),
   });
 }

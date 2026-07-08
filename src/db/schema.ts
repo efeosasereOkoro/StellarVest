@@ -305,6 +305,20 @@ export const startupUpdates = pgTable("startup_updates", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Which approved startups sit inside a portfolio (startup cohort) — B-054.
+// A portfolio is a group of startups; this is that membership (many-to-many:
+// a startup could be in more than one portfolio).
+export const portfolioStartups = pgTable(
+  "portfolio_startups",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    startupCohortId: uuid("startup_cohort_id").notNull().references(() => startupCohorts.id),
+    startupId: uuid("startup_id").notNull().references(() => startups.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique().on(t.startupCohortId, t.startupId)],
+);
+
 export type InvestorCohort = typeof investorCohorts.$inferSelect;
 export type StartupCohort = typeof startupCohorts.$inferSelect;
 export type Allocation = typeof allocations.$inferSelect;

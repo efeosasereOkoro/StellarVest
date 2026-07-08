@@ -12,7 +12,7 @@ import { ConfirmButton } from "@/components/ui/confirm-button";
 import { naira } from "@/lib/money";
 
 type Cohort = { id: string; name: string; hasPool: boolean; memberCount: number };
-type Portfolio = { id: string; name: string; disbursedTotal: string };
+type Portfolio = { id: string; name: string; disbursedTotal: string; startupCount: number };
 
 async function authHeaders(extra: Record<string, string> = {}) {
   const token = await getToken();
@@ -187,6 +187,9 @@ export default function StructuresPage() {
                     <div>
                       <p className="font-medium text-cosmic">{pf.name}</p>
                       <p className="mt-0.5 text-sm text-cosmic/70">Disbursed: <span className="font-semibold text-cosmic">{naira(pf.disbursedTotal)}</span></p>
+                      <Link href={`/admin/startup-cohorts/${pf.id}`} className="mt-0.5 inline-block text-sm font-medium text-ignition-ink underline">
+                        {pf.startupCount} {pf.startupCount === 1 ? "startup" : "startups"} · Manage
+                      </Link>
                     </div>
                     <span className="flex shrink-0 gap-3 text-sm">
                       <button onClick={() => startEdit(`pf:${pf.id}`, pf.name)} className="font-medium text-cosmic underline">Rename</button>

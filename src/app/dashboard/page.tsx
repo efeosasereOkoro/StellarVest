@@ -152,7 +152,7 @@ export default function DashboardPage() {
       )}
 
       {role !== "founder" && kyc === "verified" && (
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Link href="/contribute" className="block">
             <Card className="h-full transition-colors hover:border-cosmic/25">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-frontier text-deep-frontier">
@@ -162,6 +162,17 @@ export default function DashboardPage() {
               </span>
               <p className="mt-3 font-medium text-cosmic">Contribute &amp; track</p>
               <p className="mt-0.5 text-sm text-cosmic/70">Add to your cohort&rsquo;s pool and follow each contribution to confirmation.</p>
+            </Card>
+          </Link>
+          <Link href="/portfolio" className="block">
+            <Card className="h-full transition-colors hover:border-cosmic/25">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-venture/40 text-deep-frontier">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" />
+                </svg>
+              </span>
+              <p className="mt-3 font-medium text-cosmic">Your portfolio</p>
+              <p className="mt-0.5 text-sm text-cosmic/70">See the portfolios your cohort invests in and the startups inside.</p>
             </Card>
           </Link>
           <Link href="/updates" className="block">
