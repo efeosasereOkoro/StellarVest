@@ -159,6 +159,11 @@ export default function ContributePage() {
               Minimum <span className="font-medium text-cosmic">{naira(data.minimum)}</span> ({unitsLabel(data.minimum)})
               {data.residency === "diaspora" ? " for diaspora investors" : data.residency === "nigeria" ? " for Nigeria-based investors" : ""}.
             </p>
+            {data.residency === "diaspora" && (
+              <p className="mt-1 text-sm text-cosmic/70">
+                Based abroad? You can fund this from your local currency — arrange the transfer with your bank. Contributions are recorded and held in naira.
+              </p>
+            )}
             <form onSubmit={contribute} className="mt-3 space-y-3">
               <div>
                 <Field
