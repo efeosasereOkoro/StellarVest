@@ -24,6 +24,8 @@ type Data = {
   contributions: Contribution[];
   escrowInstructions: string;
   totals: { confirmed: string; pending: string };
+  residency: string | null;
+  minimum: number;
 };
 
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
@@ -67,6 +69,10 @@ export default function ContributePage() {
     const n = Number(amount);
     if (!Number.isFinite(n) || n < 1) {
       setAmountError("Enter an amount of at least ₦1.");
+      return;
+    }
+    if (data && n < data.minimum) {
+      setAmountError(`The minimum contribution is ${naira(data.minimum)} (${unitsLabel(data.minimum)}).`);
       return;
     }
     setBusy(true);
@@ -149,11 +155,15 @@ export default function ContributePage() {
 
           <Card className="mt-4">
             <p className="font-medium text-cosmic">Make a contribution</p>
+            <p className="mt-1 text-sm text-cosmic/70">
+              Minimum <span className="font-medium text-cosmic">{naira(data.minimum)}</span> ({unitsLabel(data.minimum)})
+              {data.residency === "diaspora" ? " for diaspora investors" : data.residency === "nigeria" ? " for Nigeria-based investors" : ""}.
+            </p>
             <form onSubmit={contribute} className="mt-3 space-y-3">
               <div>
                 <Field
                   label="Amount (₦)"
-                  type="number" min={1} step="1" inputMode="decimal"
+                  type="number" min={data.minimum} step="1" inputMode="decimal"
                   value={amount}
                   error={amountError ?? undefined}
                   onChange={(e) => { setAmount(e.target.value); setAmountError(null); }}

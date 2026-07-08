@@ -38,3 +38,14 @@ export const DOC_KIND_LABEL: Record<string, string> = {
 export function isResidency(v: unknown): v is Residency {
   return v === "nigeria" || v === "diaspora";
 }
+
+// Minimum contribution per residency, in naira (B3). Hard-enforced. Residency
+// comes from KYC (B-050); unknown residency falls back to the Nigeria minimum.
+export const MINIMUM_NGN: Record<Residency, number> = {
+  nigeria: 100000,
+  diaspora: 150000,
+};
+
+export function minimumFor(residency: string | null | undefined): number {
+  return residency === "diaspora" ? MINIMUM_NGN.diaspora : MINIMUM_NGN.nigeria;
+}
