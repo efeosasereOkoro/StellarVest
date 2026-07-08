@@ -9,7 +9,6 @@ import { Card } from "@/components/ui/card";
 type Overview = {
   pendingKyc: number;
   verifiedInvestors: number;
-  syndicateCount: number;
   cohortCount: number;
   publishedDeals: number;
   awaitingFunds: number;
@@ -76,7 +75,6 @@ export default function AdminHomePage() {
     { label: "Verified investors", value: o?.verifiedInvestors ?? 0, href: "/admin/kyc", icon: "users", chip: "bg-frontier text-deep-frontier" },
     { label: "Published deals", value: o?.publishedDeals ?? 0, href: "/admin/deals", icon: "deal", chip: "bg-pitch text-deep-pitch" },
     { label: "Startups", value: o?.startupCount ?? 0, href: "/admin/startups", icon: "startup", chip: "bg-ignition/15 text-ignition-ink" },
-    { label: "Syndicates", value: o?.syndicateCount ?? 0, href: "/admin/structures", icon: "layers", chip: "bg-frontier text-deep-frontier" },
     { label: "Investor cohorts", value: o?.cohortCount ?? 0, href: "/admin/structures", icon: "users", chip: "bg-pitch text-deep-pitch" },
   ];
 

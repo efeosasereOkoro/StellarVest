@@ -11,7 +11,7 @@ import { ConfirmButton } from "@/components/ui/confirm-button";
 
 type Member = { userId: string; fullName: string | null; kycStatus: string | null };
 type Assignable = { userId: string; fullName: string | null };
-type Cohort = { id: string; name: string; syndicate: string | null };
+type Cohort = { id: string; name: string };
 type Alloc = { id: string; startupCohortId: string; startupName: string | null; percentage: number };
 type StartupCohort = { id: string; name: string };
 
@@ -207,7 +207,6 @@ export default function CohortPage() {
           </>
         )}
       </div>
-      {cohort.syndicate && !renaming && <p className="mt-1 text-cosmic/60">{cohort.syndicate}</p>}
       {pageError && <p className="mt-2 text-sm text-danger">{pageError}</p>}
 
       {/* Members */}

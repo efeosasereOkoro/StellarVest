@@ -79,18 +79,10 @@ export type UserAccount = typeof userAccounts.$inferSelect;
 
 // ---- Investment structures (E3) ----
 
-// Top-level structure managed by StarSector8.
-export const syndicates = pgTable("syndicates", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: text("name").notNull(),
-  description: text("description"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-// A group of investors under a syndicate.
+// A cohort of investors — the top-level pooling unit. (The former "syndicate"
+// parent layer was removed: a cohort IS the group of investors, per the model.)
 export const investorCohorts = pgTable("investor_cohorts", {
   id: uuid("id").defaultRandom().primaryKey(),
-  syndicateId: uuid("syndicate_id").notNull().references(() => syndicates.id),
   name: text("name").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -313,7 +305,6 @@ export const startupUpdates = pgTable("startup_updates", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export type Syndicate = typeof syndicates.$inferSelect;
 export type InvestorCohort = typeof investorCohorts.$inferSelect;
 export type StartupCohort = typeof startupCohorts.$inferSelect;
 export type Allocation = typeof allocations.$inferSelect;

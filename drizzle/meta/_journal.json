@@ -134,6 +134,13 @@
       "when": 1783505840082,
       "tag": "0018_nice_spencer_smythe",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1783510129847,
+      "tag": "0019_striped_luke_cage",
+      "breakpoints": true
     }
   ]
 }

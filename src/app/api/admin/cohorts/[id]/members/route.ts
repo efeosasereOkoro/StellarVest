@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, eq, sum } from "drizzle-orm";
 import { db } from "@/db";
-import { cohortMembers, investorCohorts, investorProfiles, syndicates, contributions } from "@/db/schema";
+import { cohortMembers, investorCohorts, investorProfiles, contributions } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 
@@ -18,9 +18,8 @@ export async function GET(req: Request, { params }: Ctx) {
   const { id } = await params;
 
   const [cohort] = await db
-    .select({ id: investorCohorts.id, name: investorCohorts.name, syndicate: syndicates.name })
+    .select({ id: investorCohorts.id, name: investorCohorts.name })
     .from(investorCohorts)
-    .leftJoin(syndicates, eq(syndicates.id, investorCohorts.syndicateId))
     .where(eq(investorCohorts.id, id));
   if (!cohort) return NextResponse.json({ error: "not found" }, { status: 404 });
 

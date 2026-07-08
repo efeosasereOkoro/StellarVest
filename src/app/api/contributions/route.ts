@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { contributions, cohortMembers, investorCohorts, syndicates, platformSettings } from "@/db/schema";
+import { contributions, cohortMembers, investorCohorts, platformSettings } from "@/db/schema";
 import { getVerifiedInvestor } from "@/lib/investor";
 import { getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
@@ -10,10 +10,9 @@ import { sendEmail, newContributionEmail, contributionReceiptEmail } from "@/lib
 // The cohort a verified investor belongs to (first membership — MVP assumes one).
 async function cohortFor(userId: string) {
   const [row] = await db
-    .select({ id: cohortMembers.investorCohortId, name: investorCohorts.name, syndicate: syndicates.name })
+    .select({ id: cohortMembers.investorCohortId, name: investorCohorts.name })
     .from(cohortMembers)
     .innerJoin(investorCohorts, eq(investorCohorts.id, cohortMembers.investorCohortId))
-    .leftJoin(syndicates, eq(syndicates.id, investorCohorts.syndicateId))
     .where(eq(cohortMembers.userId, userId))
     .limit(1);
   return row ?? null;

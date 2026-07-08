@@ -17,7 +17,7 @@ type Contribution = {
   status: "pledged" | "paid" | "confirmed" | "cancelled";
   createdAt: string;
 };
-type Cohort = { id: string; name: string; syndicate: string | null };
+type Cohort = { id: string; name: string };
 type Data = {
   cohort: Cohort | null;
   contributions: Contribution[];
@@ -134,7 +134,6 @@ export default function ContributePage() {
           <Card className="mt-6">
             <p className="text-sm text-cosmic/70">Your cohort</p>
             <p className="font-display text-xl font-semibold text-cosmic">{data.cohort.name}</p>
-            {data.cohort.syndicate && <p className="text-sm text-cosmic/60">{data.cohort.syndicate}</p>}
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-lg bg-frontier/40 p-3">
                 <p className="text-xs text-cosmic/60">Confirmed</p>
