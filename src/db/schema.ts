@@ -103,6 +103,8 @@ export const investmentPools = pgTable("investment_pools", {
 });
 
 // A group of startups that pooled capital is deployed into.
+// Shown in the UI as a "portfolio" (B-052a terminology); a cohort's pool can be
+// allocated across several of these via `allocations` (many-to-many).
 export const startupCohorts = pgTable("startup_cohorts", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),

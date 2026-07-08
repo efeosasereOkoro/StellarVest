@@ -50,7 +50,7 @@ export async function POST(req: Request, { params }: Ctx) {
   const startupCohortId = String(body.startupCohortId ?? "");
   const percentage = Number(body.percentage);
   if (!startupCohortId || !Number.isInteger(percentage) || percentage < 1 || percentage > 100) {
-    return NextResponse.json({ error: "Pick a startup cohort and a whole percentage from 1 to 100." }, { status: 400 });
+    return NextResponse.json({ error: "Pick a portfolio and a whole percentage from 1 to 100." }, { status: 400 });
   }
 
   const existing = await db

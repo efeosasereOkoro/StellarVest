@@ -135,7 +135,7 @@ export default function StructuresPage() {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Investment structures</h1>
-      <p className="mt-1 text-sm text-cosmic/70">Set up syndicates and investor cohorts, and allocate each pool to startup cohorts.</p>
+      <p className="mt-1 text-sm text-cosmic/70">Set up syndicates and investor cohorts, and allocate each cohort&rsquo;s pool across one or more portfolios.</p>
       {error && <p className="mt-3 text-sm text-danger">{error}</p>}
 
       {/* Syndicates */}
@@ -198,14 +198,14 @@ export default function StructuresPage() {
         </div>
       </section>
 
-      {/* Startup cohorts */}
+      {/* Portfolios (a group of startups a cohort's pool is deployed into) */}
       <section className="mt-10">
-        <h2 className="font-display text-xl font-semibold">Startup cohorts</h2>
-        <p className="mt-1 text-sm text-cosmic/70">Buckets that a pool is allocated to and disbursed against — <span className="text-cosmic">not</span> the founder-submitted startup profiles. These are how you split and deploy capital.</p>
+        <h2 className="font-display text-xl font-semibold">Portfolios</h2>
+        <p className="mt-1 text-sm text-cosmic/70">Groups of startups a cohort&rsquo;s pool is deployed into — a cohort can be allocated across several portfolios. These are capital-deployment buckets, <span className="text-cosmic">not</span> the founder-submitted startup profiles.</p>
 
         {/* Create — distinct dashed/tinted "add" box */}
         <div className="mt-3 rounded-2xl border border-dashed border-cosmic/25 bg-cosmic/[0.025] p-5">
-          <p className="text-sm font-semibold text-cosmic">+ New startup cohort</p>
+          <p className="text-sm font-semibold text-cosmic">+ New portfolio</p>
           <form onSubmit={createStartup} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
               <Field label="Name" value={startupName} onChange={(e) => setStartupName(e.target.value)} required />
@@ -214,9 +214,9 @@ export default function StructuresPage() {
           </form>
         </div>
 
-        <p className="mt-7 text-xs font-semibold uppercase tracking-wide text-cosmic/50">Your startup cohorts ({startups.length})</p>
+        <p className="mt-7 text-xs font-semibold uppercase tracking-wide text-cosmic/50">Your portfolios ({startups.length})</p>
         <div className="mt-3 space-y-4">
-          {startups.length === 0 && <p className="text-cosmic/70">No startup cohorts yet.</p>}
+          {startups.length === 0 && <p className="text-cosmic/70">No portfolios yet.</p>}
           {startups.map((sc) => (
             <Card key={sc.id}>
               <div className="flex items-start justify-between gap-3">
@@ -229,7 +229,7 @@ export default function StructuresPage() {
                     <span className="flex shrink-0 gap-3 text-sm">
                       <button onClick={() => startEdit(`st:${sc.id}`, sc.name)} className="font-medium text-cosmic underline">Rename</button>
                       <ConfirmButton variant="outline" disabled={busy} onConfirm={() => remove(`/api/admin/startup-cohorts/${sc.id}`)}
-                        title="Delete startup cohort?" message={`Delete "${sc.name}"? Only possible if nothing is allocated to it.`} confirmLabel="Delete">Delete</ConfirmButton>
+                        title="Delete portfolio?" message={`Delete "${sc.name}"? Only possible if nothing is allocated to it.`} confirmLabel="Delete">Delete</ConfirmButton>
                     </span>
                   </>
                 )}

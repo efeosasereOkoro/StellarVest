@@ -254,7 +254,7 @@ export default function CohortPage() {
           <p className="font-medium text-cosmic">Pool allocation</p>
           <Badge tone={remaining === 0 ? "venture" : "pitch"}>{totalAllocated}% allocated · {remaining}% left</Badge>
         </div>
-        <p className="mt-1 text-sm text-cosmic/70">Split this cohort&apos;s pool across startup cohorts (must total ≤ 100%).</p>
+        <p className="mt-1 text-sm text-cosmic/70">Split this cohort&apos;s pool across one or more portfolios (must total ≤ 100%).</p>
         <p className="mt-2 text-sm text-cosmic/70">
           Confirmed contributions from members: <span className="font-semibold text-cosmic">{money(poolTotal)}</span>
         </p>
@@ -290,13 +290,13 @@ export default function CohortPage() {
         )}
 
         {startupCohorts.length === 0 ? (
-          <p className="mt-3 text-sm text-cosmic/70">Create a startup cohort first (Structures page).</p>
+          <p className="mt-3 text-sm text-cosmic/70">Create a portfolio first (Structures page).</p>
         ) : unallocated.length === 0 ? (
-          <p className="mt-3 text-sm text-cosmic/70">Every startup cohort is allocated. Edit a percentage above or remove one to free it up.</p>
+          <p className="mt-3 text-sm text-cosmic/70">Every portfolio is allocated. Edit a percentage above or remove one to free it up.</p>
         ) : (
           <form onSubmit={addAllocation} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <select value={allocStartup} onChange={(e) => setAllocStartup(e.target.value)} required className={inputCls}>
-              <option value="">Startup cohort…</option>
+              <option value="">Portfolio…</option>
               {unallocated.map((sc) => (
                 <option key={sc.id} value={sc.id}>{sc.name}</option>
               ))}
