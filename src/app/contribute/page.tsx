@@ -193,7 +193,7 @@ export default function ContributePage() {
               <div>
                 <Field
                   label="Amount (₦)"
-                  type="number" min={data.minimum} step="1" inputMode="decimal"
+                  type="number" min={1} step="1" inputMode="decimal"
                   value={amount}
                   error={amountError ?? undefined}
                   onChange={(e) => { setAmount(e.target.value); setAmountError(null); }}

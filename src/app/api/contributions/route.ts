@@ -35,18 +35,23 @@ export async function GET(req: Request) {
 
   const cohort = await cohortFor(investor.id);
 
-  const ledger = await db
-    .select({
-      id: contributions.id,
-      amount: contributions.amount,
-      currency: contributions.currency,
-      reference: contributions.reference,
-      status: contributions.status,
-      createdAt: contributions.createdAt,
-    })
-    .from(contributions)
-    .where(eq(contributions.userId, investor.id))
-    .orderBy(desc(contributions.createdAt));
+  // The cohort hub shows only contributions to this cohort — legacy per-deal
+  // pledges (pre-B1, no cohort) don't belong here, and counting them would make
+  // the ledger/totals/ownership inconsistent with the cohort pool.
+  const ledger = cohort
+    ? await db
+        .select({
+          id: contributions.id,
+          amount: contributions.amount,
+          currency: contributions.currency,
+          reference: contributions.reference,
+          status: contributions.status,
+          createdAt: contributions.createdAt,
+        })
+        .from(contributions)
+        .where(and(eq(contributions.userId, investor.id), eq(contributions.investorCohortId, cohort.id)))
+        .orderBy(desc(contributions.createdAt))
+    : [];
 
   const confirmed = ledger.filter((c) => c.status === "confirmed").reduce((s, c) => s + Number(c.amount), 0);
   const pending = ledger.filter((c) => c.status === "pledged" || c.status === "paid").reduce((s, c) => s + Number(c.amount), 0);
