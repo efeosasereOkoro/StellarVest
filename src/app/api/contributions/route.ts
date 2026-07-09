@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, sum } from "drizzle-orm";
 import { db } from "@/db";
 import { contributions, cohortMembers, investorCohorts, investorProfiles, platformSettings } from "@/db/schema";
 import { getVerifiedInvestor } from "@/lib/investor";
 import { getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, newContributionEmail, contributionReceiptEmail } from "@/lib/email";
-import { naira, unitsLabel } from "@/lib/money";
+import { naira, unitsLabel, toUnits } from "@/lib/money";
 import { minimumFor } from "@/lib/kyc";
+import { lockInStatus } from "@/lib/lockin";
 
 // The investor's residency-based minimum contribution (naira).
 async function minimumForUser(userId: string) {
@@ -57,6 +58,24 @@ export async function GET(req: Request) {
 
   const { residency, minimum } = await minimumForUser(investor.id);
 
+  // Ownership (B-056): the investor's confirmed units, and their share of the
+  // cohort pool's confirmed units.
+  const confirmedRows = ledger.filter((c) => c.status === "confirmed");
+  const myUnits = toUnits(confirmed);
+  const firstConfirmedAt = confirmedRows.length
+    ? confirmedRows.reduce((min, c) => (c.createdAt < min ? c.createdAt : min), confirmedRows[0].createdAt)
+    : null;
+
+  let poolUnits = 0;
+  if (cohort) {
+    const [poolRow] = await db
+      .select({ total: sum(contributions.amount) })
+      .from(contributions)
+      .where(and(eq(contributions.investorCohortId, cohort.id), eq(contributions.status, "confirmed")));
+    poolUnits = toUnits(poolRow?.total ?? 0);
+  }
+  const ownershipPct = poolUnits > 0 ? (myUnits / poolUnits) * 100 : 0;
+
   return NextResponse.json({
     cohort,
     contributions: ledger,
@@ -64,6 +83,8 @@ export async function GET(req: Request) {
     totals: { confirmed: confirmed.toFixed(2), pending: pending.toFixed(2) },
     residency,
     minimum,
+    ownership: { units: myUnits, poolUnits, pct: ownershipPct },
+    lockIn: lockInStatus(firstConfirmedAt),
   });
 }
 

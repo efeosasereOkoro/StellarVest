@@ -26,6 +26,13 @@ type Data = {
   totals: { confirmed: string; pending: string };
   residency: string | null;
   minimum: number;
+  ownership: { units: number; poolUnits: number; pct: number };
+  lockIn: { started: boolean; unlockDate: string | null; eligible: boolean; months: number };
+};
+
+const fmtUnits = (u: number) => {
+  const s = Number.isInteger(u) ? String(u) : u.toFixed(2).replace(/\.?0+$/, "");
+  return `${s} ${u === 1 ? "unit" : "units"}`;
 };
 
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
@@ -151,6 +158,24 @@ export default function ContributePage() {
                 <p className="text-xs text-cosmic/60">{unitsLabel(data.totals.pending)}</p>
               </div>
             </div>
+          </Card>
+
+          <Card className="mt-4">
+            <p className="font-medium text-cosmic">Your ownership</p>
+            {data.ownership.units > 0 ? (
+              <p className="mt-1 text-sm text-cosmic/70">
+                You hold <span className="font-semibold text-cosmic">{fmtUnits(data.ownership.units)}</span> — <span className="font-semibold text-cosmic">{data.ownership.pct.toFixed(1)}%</span> of the {data.cohort.name} pool.
+              </p>
+            ) : (
+              <p className="mt-1 text-sm text-cosmic/70">Once your contributions are confirmed, your unit holding and share of the cohort pool show here.</p>
+            )}
+            <p className="mt-2 text-sm text-cosmic/70">
+              {!data.lockIn.started
+                ? `Direct startup investment unlocks ${data.lockIn.months} months after your first confirmed contribution.`
+                : data.lockIn.eligible
+                  ? "You're now eligible to invest directly in a startup."
+                  : `You'll be eligible to invest directly in a startup from ${new Date(data.lockIn.unlockDate!).toLocaleDateString()}.`}
+            </p>
           </Card>
 
           <Card className="mt-4">
