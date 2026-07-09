@@ -7,6 +7,7 @@ import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 
 type Update = { title: string; body: string; createdAt: string };
+type TeamMember = { name: string; role: string; linkedin: string | null };
 type Startup = {
   id: string;
   name: string;
@@ -14,6 +15,7 @@ type Startup = {
   description: string | null;
   website: string | null;
   updates: Update[];
+  team: TeamMember[];
 };
 
 async function authHeaders(extra: Record<string, string> = {}) {
@@ -85,6 +87,21 @@ export default function PortfolioDetailPage() {
                     <p className="mt-1 text-sm">
                       <a href={s.website} target="_blank" rel="noreferrer" className="font-medium text-ignition-ink underline">{s.website}</a>
                     </p>
+                  )}
+                  {s.team.length > 0 && (
+                    <>
+                      <p className="mt-3 text-sm font-medium text-cosmic/80">Team</p>
+                      <ul className="mt-1 space-y-1">
+                        {s.team.map((m, i) => (
+                          <li key={i} className="text-sm text-cosmic/70">
+                            <span className="font-medium text-cosmic">{m.name}</span> · {m.role}
+                            {m.linkedin && (
+                              <> · <a href={m.linkedin} target="_blank" rel="noreferrer" className="font-medium text-ignition-ink underline">LinkedIn</a></>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
                   )}
                   <p className="mt-3 text-sm font-medium text-cosmic/80">Updates</p>
                   {s.updates.length === 0 ? (

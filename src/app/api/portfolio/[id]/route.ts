@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { cohortMembers, investmentPools, allocations, startupCohorts, portfolioStartups, startups, startupUpdates } from "@/db/schema";
+import { cohortMembers, investmentPools, allocations, startupCohorts, portfolioStartups, startups, startupUpdates, startupTeamMembers } from "@/db/schema";
 import { getVerifiedInvestor } from "@/lib/investor";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -39,7 +39,20 @@ export async function GET(req: Request, { params }: Ctx) {
         .orderBy(desc(startupUpdates.createdAt))
     : [];
 
-  const startupsOut = members.map((m) => ({ ...m, updates: updates.filter((u) => u.startupId === m.id) }));
+  // Team members — public profile info only (name/role/LinkedIn); phone + email
+  // are internal contact details and are not exposed to investors.
+  const team = memberIds.length
+    ? await db
+        .select({ startupId: startupTeamMembers.startupId, name: startupTeamMembers.name, role: startupTeamMembers.role, linkedin: startupTeamMembers.linkedin })
+        .from(startupTeamMembers)
+        .where(inArray(startupTeamMembers.startupId, memberIds))
+    : [];
+
+  const startupsOut = members.map((m) => ({
+    ...m,
+    updates: updates.filter((u) => u.startupId === m.id),
+    team: team.filter((t) => t.startupId === m.id),
+  }));
 
   return NextResponse.json({ portfolio, startups: startupsOut });
 }
