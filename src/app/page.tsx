@@ -72,13 +72,13 @@ const TRUST = [
   {
     box: "bg-frontier text-deep-frontier",
     t: "Identity verified",
-    d: "Every investor completes KYC before participating.",
+    d: "Mandatory KYC for every investor.",
     icon: (<><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z" /><path d="m9 12 2 2 4-4" /></>),
   },
   {
     box: "bg-pitch text-deep-pitch",
     t: "Documents kept private",
-    d: "IDs and diligence files sit in access-controlled storage — never public.",
+    d: "IDs and diligence files sit in access-controlled storage — never public (aligned with GDPR & NDPR).",
     icon: (<><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></>),
   },
   {
@@ -89,7 +89,7 @@ const TRUST = [
   },
   {
     box: "bg-frontier text-deep-frontier",
-    t: "We never hold your money",
+    t: "End-to-end secure channel for your money",
     d: "Funds move bank-to-bank through escrow; the platform only records the steps.",
     icon: (<><path d="M3 9 12 4l9 5" /><path d="M5 9v9M19 9v9M9.5 9v9M14.5 9v9" /><path d="M3 20h18" /></>),
   },
@@ -98,7 +98,7 @@ const TRUST = [
 const STEPS = [
   { n: "1", t: "Create your account", d: "Sign up and verify your email in about a minute." },
   { n: "2", t: "Get verified", d: "Upload your ID; the StarSector8 team completes your KYC review." },
-  { n: "3", t: "Join a cohort", d: "Your capital is pooled and deployed into vetted startups." },
+  { n: "3", t: "Join an investment cohort", d: "Your capital is pooled and deployed into vetted startups." },
 ];
 
 export default function Home() {
@@ -128,7 +128,7 @@ export default function Home() {
             <span className="inline-flex items-center rounded-full bg-ignition px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-pioneer">
               Alpha
             </span>
-            <span>New platform, in active development — features may change.</span>
+            <span>StellarVest platform — in active development, features may change.</span>
           </div>
 
           {/* nav */}
@@ -162,13 +162,13 @@ export default function Home() {
                 className="mt-[22px] max-w-[520px] text-[clamp(1.05rem,1.5vw,1.22rem)] text-pioneer/75"
                 style={{ textWrap: "pretty" }}
               >
-                Pool your capital into managed cohorts and deploy it into vetted early-stage startups —
-                transparent, held in escrow, and audited end to end.
+                Pooling Nigerian local and diaspora capital into managed investment cohorts, and deploying it
+                into vetted early-stage startups — with transparency, audit accountability, and trust built in.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <a href="/signup" className="inline-flex items-center gap-2 whitespace-nowrap rounded-[11px] bg-venture px-7 py-[15px] text-[16px] font-semibold text-cosmic transition hover:brightness-95">
-                  Start investing
+                  Start Investing
                   <ArrowIcon />
                 </a>
                 <a href="/login" className="inline-flex items-center whitespace-nowrap rounded-[11px] border border-white/30 px-[26px] py-[15px] text-[16px] font-semibold text-pioneer transition-colors hover:bg-white/10">
@@ -257,7 +257,7 @@ export default function Home() {
               Getting started
             </p>
             <h2 className="font-display text-[clamp(1.9rem,3.6vw,2.7rem)] font-bold leading-[1.1] tracking-[-0.02em] text-cosmic">
-              Your first investment, in three steps.
+              Your investment, in three steps.
             </h2>
           </div>
 
@@ -285,7 +285,7 @@ export default function Home() {
                 For founders
               </p>
               <h2 className="font-display text-[clamp(1.7rem,3vw,2.3rem)] font-bold leading-[1.1] tracking-[-0.02em] text-cosmic">
-                Raising capital?
+                Are you building for resilience and raising capital?
               </h2>
               <p className="mt-3 max-w-[560px] text-[1.05rem] text-cosmic/[0.72]" style={{ textWrap: "pretty" }}>
                 List your startup, share your pitch and due-diligence documents, and submit to be considered
