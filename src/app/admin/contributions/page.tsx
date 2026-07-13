@@ -22,7 +22,7 @@ type Contribution = {
   status: string;
 };
 
-type PerCohort = { name: string; amount: string };
+type PerCohort = { id: string | null; name: string; amount: string };
 type Summary = { confirmed: string; pending: string; contributors: number; perCohort: PerCohort[] };
 
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
@@ -121,8 +121,12 @@ export default function AdminContributionsPage() {
               <p className="text-sm font-medium text-cosmic">Confirmed by cohort</p>
               <ul className="mt-2 divide-y divide-cosmic/10 border-t border-cosmic/10">
                 {summary.perCohort.map((p) => (
-                  <li key={p.name} className="flex items-center justify-between gap-3 py-2 text-sm">
-                    <span className="min-w-0 truncate text-cosmic">{p.name}</span>
+                  <li key={p.id ?? p.name} className="flex items-center justify-between gap-3 py-2 text-sm">
+                    {p.id ? (
+                      <Link href={`/admin/cohorts/${p.id}`} className="min-w-0 truncate font-medium text-cosmic underline">{p.name}</Link>
+                    ) : (
+                      <span className="min-w-0 truncate text-cosmic">{p.name}</span>
+                    )}
                     <span className="shrink-0 text-cosmic/70">{naira(p.amount)} · {unitsLabel(p.amount)}</span>
                   </li>
                 ))}

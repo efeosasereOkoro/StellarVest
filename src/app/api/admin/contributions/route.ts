@@ -17,6 +17,7 @@ export async function GET(req: Request) {
       userId: contributions.userId,
       dealId: contributions.dealId,
       startupName: deals.startupName,
+      cohortId: contributions.investorCohortId,
       cohortName: investorCohorts.name,
       investorEmail: contributions.investorEmail,
       amount: contributions.amount,
@@ -36,13 +37,20 @@ export async function GET(req: Request) {
   const pending = rows.filter((r) => r.status === "pledged" || r.status === "paid");
   const sumN = (arr: typeof rows) => arr.reduce((s, r) => s + Number(r.amount), 0);
 
-  const perCohortMap: Record<string, number> = {};
+  const perCohortMap: Record<string, { id: string | null; name: string; amount: number }> = {};
   for (const r of confirmed) {
-    const key = r.cohortName ?? (r.startupName ? `${r.startupName} (per-deal)` : "Unassigned");
-    perCohortMap[key] = (perCohortMap[key] ?? 0) + Number(r.amount);
+    const key = r.cohortId ?? (r.startupName ? `deal:${r.startupName}` : "unassigned");
+    if (!perCohortMap[key]) {
+      perCohortMap[key] = {
+        id: r.cohortId ?? null,
+        name: r.cohortName ?? (r.startupName ? `${r.startupName} (per-deal)` : "Unassigned"),
+        amount: 0,
+      };
+    }
+    perCohortMap[key].amount += Number(r.amount);
   }
-  const perCohort = Object.entries(perCohortMap)
-    .map(([name, amount]) => ({ name, amount: amount.toFixed(2) }))
+  const perCohort = Object.values(perCohortMap)
+    .map((x) => ({ id: x.id, name: x.name, amount: x.amount.toFixed(2) }))
     .sort((a, b) => Number(b.amount) - Number(a.amount));
 
   const summary = {
