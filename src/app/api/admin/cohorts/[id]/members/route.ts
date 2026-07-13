@@ -23,7 +23,7 @@ export async function GET(req: Request, { params }: Ctx) {
     .where(eq(investorCohorts.id, id));
   if (!cohort) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  const members = await db
+  const rawMembers = await db
     .select({
       userId: cohortMembers.userId,
       fullName: investorProfiles.fullName,
@@ -38,15 +38,19 @@ export async function GET(req: Request, { params }: Ctx) {
     .from(investorProfiles)
     .where(eq(investorProfiles.kycStatus, "verified"));
 
-  const memberIds = new Set(members.map((m) => m.userId));
+  const memberIds = new Set(rawMembers.map((m) => m.userId));
   const assignable = verified.filter((v) => !memberIds.has(v.userId));
 
-  // Pool total = confirmed contributions made directly to this cohort (B1).
-  const [poolRow] = await db
-    .select({ total: sum(contributions.amount) })
+  // Confirmed contribution per member (to this cohort) + the pool total.
+  const byMember = await db
+    .select({ userId: contributions.userId, total: sum(contributions.amount) })
     .from(contributions)
-    .where(and(eq(contributions.investorCohortId, id), eq(contributions.status, "confirmed")));
-  const poolTotal = poolRow?.total ?? "0";
+    .where(and(eq(contributions.investorCohortId, id), eq(contributions.status, "confirmed")))
+    .groupBy(contributions.userId);
+  const contribFor = (userId: string) => byMember.find((b) => b.userId === userId)?.total ?? "0";
+
+  const members = rawMembers.map((m) => ({ ...m, contributed: contribFor(m.userId) }));
+  const poolTotal = byMember.reduce((s, b) => s + Number(b.total ?? 0), 0).toFixed(2);
 
   return NextResponse.json({ cohort, members, assignable, poolTotal });
 }

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ConfirmButton } from "@/components/ui/confirm-button";
 import { naira, unitsLabel } from "@/lib/money";
 
-type Member = { userId: string; fullName: string | null; kycStatus: string | null };
+type Member = { userId: string; fullName: string | null; kycStatus: string | null; contributed: string };
 type Assignable = { userId: string; fullName: string | null };
 type Cohort = { id: string; name: string };
 type Alloc = { id: string; startupCohortId: string; startupName: string | null; percentage: number };
@@ -218,7 +218,10 @@ export default function CohortPage() {
           <ul className="mt-3 divide-y divide-cosmic/10 border-t border-cosmic/10">
             {members.map((m) => (
               <li key={m.userId} className="flex items-center justify-between gap-3 py-2.5">
-                <span className="min-w-0 truncate text-cosmic">{m.fullName ?? m.userId}</span>
+                <span className="min-w-0">
+                  <span className="block truncate text-cosmic">{m.fullName ?? m.userId}</span>
+                  <span className="block text-sm text-cosmic/60">Contributed {naira(m.contributed)} · {unitsLabel(m.contributed)}</span>
+                </span>
                 <span className="flex shrink-0 items-center gap-3">
                   {m.kycStatus && <Badge tone={m.kycStatus === "verified" ? "venture" : "neutral"}>{m.kycStatus}</Badge>}
                   <button onClick={() => removeMember(m.userId)} disabled={busy} className="font-medium text-danger underline">Remove</button>
