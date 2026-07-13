@@ -22,6 +22,9 @@ type Contribution = {
   status: string;
 };
 
+type PerCohort = { name: string; amount: string };
+type Summary = { confirmed: string; pending: string; contributors: number; perCohort: PerCohort[] };
+
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
   pledged: { tone: "neutral", label: "Pledged" },
   paid: { tone: "pitch", label: "Payment reported" },
@@ -39,6 +42,7 @@ export default function AdminContributionsPage() {
   const { data: session, isPending } = useSession();
   const [state, setState] = useState<"loading" | "forbidden" | "ready">("loading");
   const [items, setItems] = useState<Contribution[]>([]);
+  const [summary, setSummary] = useState<Summary | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,6 +51,7 @@ export default function AdminContributionsPage() {
     if (res.status === 403) return setState("forbidden");
     const data = await res.json().catch(() => ({}));
     setItems(data.contributions ?? []);
+    setSummary(data.summary ?? null);
     setState("ready");
   }
 
@@ -90,6 +95,42 @@ export default function AdminContributionsPage() {
         {awaiting > 0 ? `${awaiting} awaiting confirmation` : "Nothing awaiting confirmation"} · {items.length} total
       </p>
       {error && <p className="mt-3 text-sm text-danger">{error}</p>}
+
+      {/* Totals (B-061) — confirmed only; pending shown separately */}
+      {summary && (
+        <div className="mt-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <Card className="border-venture/40 bg-frontier/30">
+              <p className="text-xs font-medium uppercase tracking-wide text-cosmic/60">Confirmed</p>
+              <p className="mt-1 font-display text-2xl font-semibold text-cosmic">{naira(summary.confirmed)}</p>
+              <p className="mt-0.5 text-sm text-cosmic/70">{unitsLabel(summary.confirmed)}</p>
+            </Card>
+            <Card className="bg-pitch/30">
+              <p className="text-xs font-medium uppercase tracking-wide text-cosmic/60">Pending</p>
+              <p className="mt-1 font-display text-2xl font-semibold text-cosmic">{naira(summary.pending)}</p>
+              <p className="mt-0.5 text-sm text-cosmic/70">{unitsLabel(summary.pending)} · not counted in confirmed</p>
+            </Card>
+            <Card>
+              <p className="text-xs font-medium uppercase tracking-wide text-cosmic/60">Contributors</p>
+              <p className="mt-1 font-display text-2xl font-semibold text-cosmic">{summary.contributors}</p>
+              <p className="mt-0.5 text-sm text-cosmic/70">≥ 1 confirmed contribution</p>
+            </Card>
+          </div>
+          {summary.perCohort.length > 0 && (
+            <Card className="mt-4">
+              <p className="text-sm font-medium text-cosmic">Confirmed by cohort</p>
+              <ul className="mt-2 divide-y divide-cosmic/10 border-t border-cosmic/10">
+                {summary.perCohort.map((p) => (
+                  <li key={p.name} className="flex items-center justify-between gap-3 py-2 text-sm">
+                    <span className="min-w-0 truncate text-cosmic">{p.name}</span>
+                    <span className="shrink-0 text-cosmic/70">{naira(p.amount)} · {unitsLabel(p.amount)}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+        </div>
+      )}
 
       <div className="mt-6 space-y-3">
         {items.length === 0 && <p className="text-cosmic/70">No contributions yet.</p>}

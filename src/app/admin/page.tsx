@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
+import { naira, unitsLabel } from "@/lib/money";
 
 type Overview = {
   pendingKyc: number;
@@ -16,6 +17,8 @@ type Overview = {
   startupsAwaitingReview: number;
   startupCount: number;
   updatesAwaitingReview: number;
+  confirmedContributions: string;
+  contributors: number;
 };
 
 function Icon({ name }: { name: string }) {
@@ -106,6 +109,25 @@ export default function AdminHomePage() {
             </Link>
           );
         })}
+      </div>
+
+      {/* Contributions summary (B-061) — confirmed only; full detail on the Contributions page */}
+      <h2 className="mt-10 font-display text-lg font-semibold text-cosmic">Contributions</h2>
+      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Link href="/admin/contributions" className="block">
+          <Card className="h-full transition-colors hover:border-cosmic/25">
+            <p className="text-xs font-medium uppercase tracking-wide text-cosmic/60">Confirmed contributions</p>
+            <p className="mt-1 font-display text-3xl font-semibold tracking-tight text-cosmic">{naira(o?.confirmedContributions ?? "0")}</p>
+            <p className="mt-0.5 text-sm text-cosmic/70">{unitsLabel(o?.confirmedContributions ?? "0")} · full detail on Contributions</p>
+          </Card>
+        </Link>
+        <Link href="/admin/contributions" className="block">
+          <Card className="h-full transition-colors hover:border-cosmic/25">
+            <p className="text-xs font-medium uppercase tracking-wide text-cosmic/60">Total contributors</p>
+            <p className="mt-1 font-display text-3xl font-semibold tracking-tight text-cosmic">{o?.contributors ?? 0}</p>
+            <p className="mt-0.5 text-sm text-cosmic/70">investors with a confirmed contribution</p>
+          </Card>
+        </Link>
       </div>
 
       {/* At a glance */}

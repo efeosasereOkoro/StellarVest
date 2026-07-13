@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { count, eq, inArray } from "drizzle-orm";
+import { count, countDistinct, eq, inArray, sum } from "drizzle-orm";
 import { db } from "@/db";
 import { investorProfiles, investorCohorts, deals, contributions, startups, startupUpdates } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
@@ -12,7 +12,7 @@ export async function GET(req: Request) {
   const [
     pendingKyc, verifiedInvestors, cohortCount,
     publishedDeals, awaitingFunds, dealsUnderReview, startupsAwaitingReview, startupCount,
-    updatesAwaitingReview,
+    updatesAwaitingReview, confirmedTotal, contributorCount,
   ] = await Promise.all([
     db.select({ c: count() }).from(investorProfiles).where(eq(investorProfiles.kycStatus, "submitted")),
     db.select({ c: count() }).from(investorProfiles).where(eq(investorProfiles.kycStatus, "verified")),
@@ -23,6 +23,8 @@ export async function GET(req: Request) {
     db.select({ c: count() }).from(startups).where(inArray(startups.status, ["submitted", "under_review"])),
     db.select({ c: count() }).from(startups),
     db.select({ c: count() }).from(startupUpdates).where(eq(startupUpdates.status, "pending")),
+    db.select({ total: sum(contributions.amount) }).from(contributions).where(eq(contributions.status, "confirmed")),
+    db.select({ c: countDistinct(contributions.userId) }).from(contributions).where(eq(contributions.status, "confirmed")),
   ]);
 
   return NextResponse.json({
@@ -35,5 +37,7 @@ export async function GET(req: Request) {
     startupsAwaitingReview: startupsAwaitingReview[0]?.c ?? 0,
     startupCount: startupCount[0]?.c ?? 0,
     updatesAwaitingReview: updatesAwaitingReview[0]?.c ?? 0,
+    confirmedContributions: confirmedTotal[0]?.total ?? "0",
+    contributors: contributorCount[0]?.c ?? 0,
   });
 }
