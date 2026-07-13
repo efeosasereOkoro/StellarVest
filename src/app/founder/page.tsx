@@ -35,6 +35,7 @@ const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral
   submitted: { tone: "pitch", label: "Submitted" },
   under_review: { tone: "pitch", label: "Under review" },
   approved: { tone: "venture", label: "Approved" },
+  queried: { tone: "ignition", label: "Changes requested" },
   rejected: { tone: "ignition", label: "Action needed" },
 };
 const KIND_LABEL: Record<string, string> = { pitch: "Pitch deck", dd: "Due diligence", kyc: "Founder ID/KYC", other: "Other" };
@@ -221,7 +222,7 @@ export default function FounderPage() {
     return <main className="flex flex-1 items-center justify-center text-sm text-cosmic/70">Loading…</main>;
   }
 
-  const editable = !startup || ["draft", "rejected"].includes(startup.status);
+  const editable = !startup || ["draft", "rejected", "queried"].includes(startup.status);
   const s = startup ? STATUS[startup.status] ?? STATUS.draft : null;
 
   return (
@@ -234,10 +235,11 @@ export default function FounderPage() {
       {!startup && <p className="mt-1 text-sm text-cosmic/70">Tell StarSector8 about your startup to be considered for investment.</p>}
       {error && <p className="mt-3 text-sm text-danger">{error}</p>}
 
-      {startup?.status === "rejected" && startup.rejectionReason && (
+      {(startup?.status === "queried" || startup?.status === "rejected") && startup.rejectionReason && (
         <Card className="mt-4 border-danger/30 bg-ignition/10">
-          <p className="text-sm font-medium text-cosmic">Reviewer feedback</p>
+          <p className="text-sm font-medium text-cosmic">{startup.status === "queried" ? "Reviewer questions" : "Reviewer feedback"}</p>
           <p className="mt-1 text-sm text-cosmic/80">{startup.rejectionReason}</p>
+          <p className="mt-2 text-sm text-cosmic/70">Update your details or documents below, then resubmit.</p>
         </Card>
       )}
 

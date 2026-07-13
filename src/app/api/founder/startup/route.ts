@@ -5,7 +5,7 @@ import { startups, startupDocuments, startupUpdates, startupTeamMembers } from "
 import { getAuthUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 
-const EDITABLE = ["draft", "rejected"];
+const EDITABLE = ["draft", "rejected", "queried"];
 
 async function requireUser(req: Request) {
   if (!req.headers.get("authorization")) return { error: "missing token" as const };

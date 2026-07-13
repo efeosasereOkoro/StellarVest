@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
   const [startup] = await db.select().from(startups).where(eq(startups.founderUserId, user.id));
   if (!startup) return NextResponse.json({ error: "not found" }, { status: 404 });
-  if (!["draft", "rejected"].includes(startup.status)) {
+  if (!["draft", "rejected", "queried"].includes(startup.status)) {
     return NextResponse.json({ error: "This startup has already been submitted." }, { status: 400 });
   }
 

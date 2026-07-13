@@ -14,6 +14,7 @@ const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral
   submitted: { tone: "pitch", label: "Submitted" },
   under_review: { tone: "pitch", label: "Under review" },
   approved: { tone: "venture", label: "Approved" },
+  queried: { tone: "ignition", label: "Queried" },
   rejected: { tone: "ignition", label: "Rejected" },
 };
 
@@ -48,7 +49,7 @@ export default function AdminStartupsPage() {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Founder submissions</h1>
-      <p className="mt-1 text-sm text-cosmic/70">Review startups founders have submitted, then approve or reject them.</p>
+      <p className="mt-1 text-sm text-cosmic/70">Review startups founders have submitted, then approve them or send back a query.</p>
       <p className="mt-1 text-sm text-cosmic/60">{awaiting > 0 ? `${awaiting} awaiting review` : "Nothing awaiting review"} · {startups.length} total</p>
 
       <div className="mt-6 space-y-3">

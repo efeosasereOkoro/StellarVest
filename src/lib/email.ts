@@ -220,6 +220,19 @@ export function startupRejectedEmail(startupName: string, reason: string): { sub
   };
 }
 
+export function startupQueriedEmail(startupName: string, note: string): { subject: string; html: string } {
+  return {
+    subject: `A few questions on ${startupName}`,
+    html: layout(
+      "We have a few questions",
+      `<p>Thanks for submitting <strong>${escapeHtml(startupName)}</strong>. Before we can approve it, the StarSector8 team has a query:</p>
+       <p style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin:12px 0"><strong>${escapeHtml(note)}</strong></p>
+       <p>Please update your details or documents and resubmit — no need to start over.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/founder`, "Update & resubmit")}</p>`,
+    ),
+  };
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }

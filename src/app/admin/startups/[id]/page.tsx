@@ -20,6 +20,7 @@ const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral
   submitted: { tone: "pitch", label: "Submitted" },
   under_review: { tone: "pitch", label: "Under review" },
   approved: { tone: "venture", label: "Approved" },
+  queried: { tone: "ignition", label: "Queried" },
   rejected: { tone: "ignition", label: "Rejected" },
 };
 const KIND_LABEL: Record<string, string> = { pitch: "Pitch deck", dd: "Due diligence", kyc: "Founder ID/KYC", other: "Other" };
@@ -67,7 +68,7 @@ export default function AdminStartupReviewPage() {
     if (res.ok) window.open(URL.createObjectURL(await res.blob()), "_blank");
   }
 
-  async function decide(action: "approve" | "reject") {
+  async function decide(action: "approve" | "query") {
     setBusy(true);
     setError(null);
     const res = await fetch(`/api/admin/startups/${id}`, {
@@ -154,16 +155,16 @@ export default function AdminStartupReviewPage() {
 
       <Card className="mt-4">
         <p className="font-medium text-cosmic">Review decision</p>
-        {startup.status === "rejected" && startup.rejectionReason && (
-          <p className="mt-1 text-sm text-cosmic/70">Last rejection reason: {startup.rejectionReason}</p>
+        {(startup.status === "queried" || startup.status === "rejected") && startup.rejectionReason && (
+          <p className="mt-1 text-sm text-cosmic/70">Last review note: {startup.rejectionReason}</p>
         )}
         {reviewable ? (
           <div className="mt-3 space-y-3">
-            <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2} placeholder="Reason (required to reject)" aria-label="Rejection reason"
+            <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2} placeholder="Note / questions (required to query)" aria-label="Note for the founder"
               className="w-full rounded-lg border border-cosmic/15 bg-pioneer px-3 py-2 text-sm outline-none focus:border-venture focus:ring-2 focus:ring-venture/30" />
             <div className="flex gap-3">
               <Button variant="accent" disabled={busy} onClick={() => decide("approve")}>Approve</Button>
-              <Button variant="outline" disabled={busy} onClick={() => decide("reject")}>Reject</Button>
+              <Button variant="outline" disabled={busy} onClick={() => decide("query")}>Query</Button>
             </div>
           </div>
         ) : (

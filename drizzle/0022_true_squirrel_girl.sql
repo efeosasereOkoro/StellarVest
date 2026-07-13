@@ -1,0 +1,1 @@
+ALTER TYPE "public"."startup_status" ADD VALUE 'queried' BEFORE 'rejected';

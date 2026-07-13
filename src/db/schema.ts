@@ -242,7 +242,8 @@ export const startupStatus = pgEnum("startup_status", [
   "submitted", // sent for review
   "under_review", // admin is reviewing
   "approved", // listed
-  "rejected", // sent back with a reason
+  "queried", // sent back with questions; founder revises & resubmits (walkthrough-2 Q2)
+  "rejected", // hard reject — reserved for when external startups can self-onboard
 ]);
 
 // One startup per founder (MVP). Owned by the founder's auth user id.
