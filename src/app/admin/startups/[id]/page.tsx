@@ -7,6 +7,7 @@ import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DocViewer } from "@/components/doc-viewer";
 
 type Startup = {
   id: string; name: string; description: string | null; website: string | null;
@@ -43,6 +44,7 @@ export default function AdminStartupReviewPage() {
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<{ id: string; filename: string; watermark: string } | null>(null);
 
   async function load() {
     const res = await fetch(`/api/admin/startups/${id}`, { headers: await authHeaders() });
@@ -63,9 +65,8 @@ export default function AdminStartupReviewPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPending, session, id]);
 
-  async function viewDoc(docId: string) {
-    const res = await fetch(`/api/admin/startups/document?id=${docId}`, { headers: await authHeaders() });
-    if (res.ok) window.open(URL.createObjectURL(await res.blob()), "_blank");
+  function viewDoc(docId: string, filename: string) {
+    setViewing({ id: docId, filename, watermark: `${session?.user?.email ?? "reviewer"} · ${new Date().toLocaleString()}` });
   }
 
   async function decide(action: "approve" | "query") {
@@ -146,7 +147,7 @@ export default function AdminStartupReviewPage() {
             {docs.map((d) => (
               <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
                 <span className="min-w-0 truncate text-cosmic"><span className="text-cosmic/60">{KIND_LABEL[d.kind] ?? d.kind}:</span> {d.filename}</span>
-                <button onClick={() => viewDoc(d.id)} aria-label={`View ${d.filename}`} className="shrink-0 font-medium text-ignition-ink underline">View</button>
+                <button onClick={() => viewDoc(d.id, d.filename)} aria-label={`View ${d.filename}`} className="shrink-0 font-medium text-ignition-ink underline">View</button>
               </li>
             ))}
           </ul>
@@ -172,6 +173,19 @@ export default function AdminStartupReviewPage() {
         )}
         {error && <p className="mt-3 text-sm text-danger">{error}</p>}
       </Card>
+
+      <DocViewer
+        open={!!viewing}
+        onClose={() => setViewing(null)}
+        title={viewing?.filename ?? ""}
+        watermark={viewing?.watermark ?? ""}
+        docKey={viewing?.id ?? null}
+        loadBlob={async () => {
+          if (!viewing) return null;
+          const res = await fetch(`/api/admin/startups/document?id=${viewing.id}`, { headers: await authHeaders() });
+          return res.ok ? res.blob() : null;
+        }}
+      />
     </main>
   );
 }

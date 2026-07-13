@@ -6,6 +6,7 @@ import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DocViewer } from "@/components/doc-viewer";
 import { DOC_KIND_LABEL, ID_TYPES } from "@/lib/kyc";
 
 type Doc = { id: string; kind: string | null; filename: string; uploadedAt: string };
@@ -39,6 +40,7 @@ export default function AdminKycPage() {
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<{ id: string; filename: string; watermark: string } | null>(null);
 
   useEffect(() => {
     if (isPending) return;
@@ -55,10 +57,8 @@ export default function AdminKycPage() {
     })();
   }, [isPending, session, router]);
 
-  async function viewDoc(id: string) {
-    const res = await fetch(`/api/admin/kyc/document?id=${id}`, { headers: await authHeaders() });
-    if (!res.ok) return;
-    window.open(URL.createObjectURL(await res.blob()), "_blank");
+  function viewDoc(id: string, filename: string) {
+    setViewing({ id, filename, watermark: `${session?.user?.email ?? "reviewer"} · ${new Date().toLocaleString()}` });
   }
 
   function start(userId: string, action: "verify" | "reject") {
@@ -154,7 +154,7 @@ export default function AdminKycPage() {
                             {d.kind && <span className="text-cosmic/60">{DOC_KIND_LABEL[d.kind] ?? d.kind}: </span>}
                             {d.filename}
                           </span>
-                          <button onClick={() => viewDoc(d.id)} className="shrink-0 font-medium text-ignition-ink underline">
+                          <button onClick={() => viewDoc(d.id, d.filename)} className="shrink-0 font-medium text-ignition-ink underline">
                             View
                           </button>
                         </li>
@@ -203,6 +203,19 @@ export default function AdminKycPage() {
           })}
         </div>
       )}
+
+      <DocViewer
+        open={!!viewing}
+        onClose={() => setViewing(null)}
+        title={viewing?.filename ?? ""}
+        watermark={viewing?.watermark ?? ""}
+        docKey={viewing?.id ?? null}
+        loadBlob={async () => {
+          if (!viewing) return null;
+          const res = await fetch(`/api/admin/kyc/document?id=${viewing.id}`, { headers: await authHeaders() });
+          return res.ok ? res.blob() : null;
+        }}
+      />
     </main>
   );
 }
