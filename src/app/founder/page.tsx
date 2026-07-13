@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { STARTUP_STAGES, stageHelp } from "@/lib/startup";
 
 type Startup = {
   id: string;
@@ -251,7 +252,16 @@ export default function FounderPage() {
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={inputCls} />
             </label>
             <Field label="Website" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://" />
-            <Field label="Stage" value={stage} onChange={(e) => setStage(e.target.value)} placeholder="e.g. Pre-seed, Seed" />
+            <label className="block">
+              <span className="mb-1 block text-sm font-medium text-cosmic/80">Stage</span>
+              <select value={stage} onChange={(e) => setStage(e.target.value)} className={inputCls}>
+                <option value="">Select a stage…</option>
+                {STARTUP_STAGES.map((s) => (
+                  <option key={s.value} value={s.value}>{s.value}</option>
+                ))}
+              </select>
+              {stageHelp(stage) && <p className="mt-1 text-xs text-cosmic/50">{stageHelp(stage)}</p>}
+            </label>
             <Button type="submit" disabled={busy}>{startup ? "Save profile" : "Create startup"}</Button>
           </form>
         ) : (
