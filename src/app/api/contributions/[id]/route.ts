@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { contributions } from "@/db/schema";
 import { getVerifiedInvestor } from "@/lib/investor";
 import { recordAudit } from "@/lib/audit";
+import { notifyAdmins } from "@/lib/notify";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -41,6 +42,13 @@ export async function PATCH(req: Request, { params }: Ctx) {
     actorId: res.investor.id, actorEmail: res.investor.email,
     action: "contribution.paid", targetType: "contribution", targetId: id,
     metadata: { reference: res.row.reference },
+  });
+
+  await notifyAdmins({
+    type: "contribution.paid",
+    title: "Payment reported",
+    body: `${res.investor.email ?? "An investor"} reported sending funds (ref ${res.row.reference}). Reconcile when it clears.`,
+    href: "/admin/contributions",
   });
   return NextResponse.json({ contribution: updated });
 }

@@ -5,6 +5,7 @@ import { startups, startupDocuments, startupTeamMembers } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, startupApprovedEmail, startupRejectedEmail, startupQueriedEmail } from "@/lib/email";
+import { notify } from "@/lib/notify";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -77,6 +78,14 @@ export async function PATCH(req: Request, { params }: Ctx) {
       : startupRejectedEmail(updated.name, reason);
     await sendEmail({ to: updated.founderEmail, ...mail });
   }
+
+  await notify({
+    userId: updated.founderUserId,
+    type: action === "approve" ? "startup.approved" : action === "query" ? "startup.queried" : "startup.rejected",
+    title: action === "approve" ? "Your startup is approved" : action === "query" ? "Changes requested on your startup" : "Your startup wasn't approved",
+    body: action === "approve" ? `${updated.name} is approved — you can now post updates to investors.` : `${updated.name}: ${reason}`,
+    href: "/founder",
+  });
 
   return NextResponse.json({ startup: updated });
 }

@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { startupUpdates } from "@/db/schema";
+import { startupUpdates, startups } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
+import { notify } from "@/lib/notify";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -25,7 +26,11 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "A reason is required to reject." }, { status: 400 });
   }
 
-  const [existing] = await db.select({ id: startupUpdates.id }).from(startupUpdates).where(eq(startupUpdates.id, id));
+  const [existing] = await db
+    .select({ id: startupUpdates.id, title: startupUpdates.title, founderUserId: startups.founderUserId, startupName: startups.name })
+    .from(startupUpdates)
+    .leftJoin(startups, eq(startups.id, startupUpdates.startupId))
+    .where(eq(startupUpdates.id, id));
   if (!existing) return NextResponse.json({ error: "not found" }, { status: 404 });
 
   const status = action === "approve" ? "approved" : "rejected";
@@ -43,6 +48,18 @@ export async function PATCH(req: Request, { params }: Ctx) {
     targetId: id,
     metadata: action === "reject" ? { reason } : undefined,
   });
+
+  if (existing.founderUserId) {
+    await notify({
+      userId: existing.founderUserId,
+      type: action === "approve" ? "update.approved" : "update.rejected",
+      title: action === "approve" ? "Your update is live" : "Your update needs changes",
+      body: action === "approve"
+        ? `“${existing.title}” is now visible to your investors.`
+        : `“${existing.title}” wasn't approved: ${reason}`,
+      href: "/founder",
+    });
+  }
 
   return NextResponse.json({ update });
 }

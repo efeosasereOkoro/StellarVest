@@ -320,6 +320,34 @@ export const portfolioStartups = pgTable(
   (t) => [unique().on(t.startupCohortId, t.startupId)],
 );
 
+// In-app notifications (B-008). A notification is addressed to a specific user
+// (recipientUserId) or broadcast to a role (recipientRole, e.g. "admin" — which
+// covers committee for now). Read state is per-user in notificationReads, so
+// broadcasts can be read independently by each recipient.
+export const notifications = pgTable("notifications", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  recipientUserId: text("recipient_user_id"),
+  recipientRole: text("recipient_role"),
+  type: text("type").notNull(),
+  title: text("title").notNull(),
+  body: text("body"),
+  href: text("href"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const notificationReads = pgTable(
+  "notification_reads",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    notificationId: uuid("notification_id").notNull().references(() => notifications.id),
+    userId: text("user_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique().on(t.notificationId, t.userId)],
+);
+
+export type Notification = typeof notifications.$inferSelect;
+
 export type InvestorCohort = typeof investorCohorts.$inferSelect;
 export type StartupCohort = typeof startupCohorts.$inferSelect;
 export type Allocation = typeof allocations.$inferSelect;

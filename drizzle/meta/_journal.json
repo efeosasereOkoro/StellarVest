@@ -162,6 +162,13 @@
       "when": 1783938614051,
       "tag": "0022_true_squirrel_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1783950431550,
+      "tag": "0023_fat_abomination",
+      "breakpoints": true
     }
   ]
 }

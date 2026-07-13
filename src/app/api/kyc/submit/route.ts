@@ -5,6 +5,7 @@ import { kycDocuments, investorProfiles } from "@/db/schema";
 import { getAuthUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, kycReceivedEmail } from "@/lib/email";
+import { notifyAdmins } from "@/lib/notify";
 import { KYC_DOCS, KYC_FIELDS, ID_TYPES, isResidency } from "@/lib/kyc";
 
 // Save the KYC intake fields, verify the required documents are present for the
@@ -82,6 +83,13 @@ export async function POST(req: Request) {
   });
 
   if (user.email) await sendEmail({ to: user.email, ...kycReceivedEmail() });
+
+  await notifyAdmins({
+    type: "kyc.submitted",
+    title: "New KYC submission",
+    body: `${user.email ?? "An investor"} submitted their KYC for review.`,
+    href: "/admin/kyc",
+  });
 
   return NextResponse.json({ kycStatus: "submitted" });
 }

@@ -6,6 +6,7 @@ import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, fundsConfirmedEmail } from "@/lib/email";
 import { naira, unitsLabel } from "@/lib/money";
+import { notify } from "@/lib/notify";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -24,6 +25,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const [row] = await db
     .select({
       id: contributions.id,
+      userId: contributions.userId,
       status: contributions.status,
       amount: contributions.amount,
       currency: contributions.currency,
@@ -65,6 +67,16 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (action === "confirm" && row.investorEmail) {
     const mail = fundsConfirmedEmail(row.cohortName ?? row.startupName ?? "your cohort", `${naira(row.amount)} (${unitsLabel(row.amount)})`);
     await sendEmail({ to: row.investorEmail, ...mail });
+  }
+
+  if (action === "confirm") {
+    await notify({
+      userId: row.userId,
+      type: "contribution.confirmed",
+      title: "Contribution confirmed",
+      body: `Your ${naira(row.amount)} (${unitsLabel(row.amount)}) contribution to ${row.cohortName ?? "your cohort"} is confirmed.`,
+      href: "/contribute",
+    });
   }
 
   return NextResponse.json({ contribution: updated });

@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { startups, startupUpdates } from "@/db/schema";
 import { getAuthUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
+import { notifyAdmins } from "@/lib/notify";
 
 // Approved founder posts an update to investors (E11-S4).
 export async function POST(req: Request) {
@@ -25,5 +26,12 @@ export async function POST(req: Request) {
   const [update] = await db.insert(startupUpdates).values({ startupId: startup.id, title, body: text }).returning();
 
   await recordAudit({ actorId: user.id, actorEmail: user.email, action: "startup.update_posted", targetType: "startup", targetId: startup.id });
+
+  await notifyAdmins({
+    type: "update.posted",
+    title: "Founder update awaiting review",
+    body: `${startup.name} posted “${title}” for moderation.`,
+    href: "/admin/updates",
+  });
   return NextResponse.json({ update });
 }

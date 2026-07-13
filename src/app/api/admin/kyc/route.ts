@@ -5,6 +5,7 @@ import { investorProfiles, kycDocuments } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, kycVerifiedEmail, kycRejectedEmail } from "@/lib/email";
+import { notify } from "@/lib/notify";
 
 export async function GET(req: Request) {
   const admin = await getAdminUser(req);
@@ -87,6 +88,14 @@ export async function POST(req: Request) {
     const mail = action === "verify" ? kycVerifiedEmail() : kycRejectedEmail(reason);
     await sendEmail({ to: updated.email, ...mail });
   }
+
+  await notify({
+    userId,
+    type: action === "verify" ? "kyc.verified" : "kyc.rejected",
+    title: action === "verify" ? "You're verified" : "KYC needs attention",
+    body: action === "verify" ? "Your identity is verified — you can now contribute." : `Your verification wasn't approved: ${reason}`,
+    href: action === "verify" ? "/contribute" : "/profile",
+  });
 
   return NextResponse.json({ updated });
 }

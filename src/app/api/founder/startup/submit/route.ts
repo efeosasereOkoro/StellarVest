@@ -5,6 +5,7 @@ import { startups, startupDocuments } from "@/db/schema";
 import { getAuthUser, getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, startupSubmittedEmail } from "@/lib/email";
+import { notifyAdmins } from "@/lib/notify";
 
 // Founder submits their startup for review (draft / rejected -> submitted).
 export async function POST(req: Request) {
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
   if (!["draft", "rejected", "queried"].includes(startup.status)) {
     return NextResponse.json({ error: "This startup has already been submitted." }, { status: 400 });
   }
+  const resubmission = startup.status === "rejected" || startup.status === "queried";
 
   const [{ c }] = await db.select({ c: count() }).from(startupDocuments).where(eq(startupDocuments.startupId, startup.id));
   if (c === 0) return NextResponse.json({ error: "Upload at least one document before submitting." }, { status: 400 });
@@ -28,6 +30,13 @@ export async function POST(req: Request) {
   // Notify admins (no-ops if email unconfigured).
   const mail = startupSubmittedEmail(startup.name);
   await Promise.all(getAdminEmails().map((to) => sendEmail({ to, ...mail })));
+
+  await notifyAdmins({
+    type: resubmission ? "startup.resubmitted" : "startup.submitted",
+    title: resubmission ? "Founder resubmission" : "New founder submission",
+    body: `${startup.name} ${resubmission ? "was resubmitted" : "was submitted"} for review.`,
+    href: "/admin/startups",
+  });
 
   return NextResponse.json({ ok: true });
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut, getToken } from "@/lib/auth-client";
 import { ADMIN_NAV, isAdminActive } from "@/lib/admin-nav";
+import { NotificationBell } from "@/components/notification-bell";
 
 const LINK = "rounded-lg px-3 py-2 font-medium hover:bg-cosmic/5";
 
@@ -166,11 +167,15 @@ export function SiteHeader() {
           Stellar<span className="text-ignition">Vest</span>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-2 text-sm sm:flex">{accountItems()}</nav>
+        <div className="flex items-center gap-1">
+          {/* Notifications bell — signed-in users, desktop + mobile */}
+          {!isPending && session && <NotificationBell />}
 
-        {/* Mobile toggle */}
-        {!isPending && (
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-2 text-sm sm:flex">{accountItems()}</nav>
+
+          {/* Mobile toggle */}
+          {!isPending && (
           <button
             type="button"
             aria-label="Menu"
@@ -193,7 +198,8 @@ export function SiteHeader() {
               )}
             </svg>
           </button>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Mobile dropdown — the single menu */}
