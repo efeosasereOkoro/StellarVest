@@ -47,7 +47,7 @@ export default function UpdatesPage() {
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
       <Link href="/dashboard" className="text-cosmic/60 underline">&larr; Dashboard</Link>
       <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Portfolio updates</h1>
-      <p className="mt-1 text-sm text-cosmic/70">Updates from startups on StellarVest.</p>
+      <p className="mt-1 text-sm text-cosmic/70">Updates from startups on StelarVest.</p>
 
       {updates.length === 0 ? (
         <Card className="mt-6"><p className="text-sm text-cosmic/70">No updates yet.</p></Card>

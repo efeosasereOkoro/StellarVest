@@ -164,7 +164,7 @@ export function SiteHeader() {
           className="font-display text-xl font-semibold tracking-tight text-cosmic"
           onClick={() => setOpen(false)}
         >
-          Stellar<span className="text-ignition">Vest</span>
+          Stelar<span className="text-ignition">Vest</span>
         </Link>
 
         <div className="flex items-center gap-1">

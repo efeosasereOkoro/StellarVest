@@ -16,7 +16,7 @@ const figtree = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: "StellarVest",
+  title: "StelarVest",
   description: "Syndicate-based investment platform for StarSector8.",
 };
 

@@ -1,4 +1,4 @@
-// StellarVest landing — faithful implementation of the "StellarVest Landing"
+// StelarVest landing — faithful implementation of the "StelarVest Landing"
 // design (Claude Design export). A cosmic-dark hero with an animated starfield
 // and orbital graphic, trust guarantees, a three-step how-it-works, a founders
 // band, and a dark closing CTA. Ported to the app's brand tokens
@@ -78,13 +78,13 @@ const TRUST = [
   {
     box: "bg-pitch text-deep-pitch",
     t: "Documents kept private",
-    d: "IDs and diligence files sit in access-controlled storage — never public (aligned with GDPR & NDPR).",
+    d: "IDs and diligence files sit in access-controlled storage — never public (based on GDPR & NDPR).",
     icon: (<><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></>),
   },
   {
     box: "bg-ignition/15 text-ignition-ink",
     t: "Every action audited",
-    d: "Governance decisions are written to a tamper-proof, append-only log.",
+    d: "Logins, document access, votes, and status changes are all written to a tamper-proof, append-only log.",
     icon: (<><rect x="6" y="4" width="12" height="16" rx="2" /><path d="M9 4h6v3H9z" /><path d="m9.5 13 2 2 3-3.5" /></>),
   },
   {
@@ -128,13 +128,13 @@ export default function Home() {
             <span className="inline-flex items-center rounded-full bg-ignition px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-pioneer">
               Alpha
             </span>
-            <span>StellarVest platform — in active development, features may change.</span>
+            <span>StelarVest platform — in active development, features may change.</span>
           </div>
 
           {/* nav */}
           <nav className="flex items-center justify-between gap-4 pb-1.5 pt-4">
             <a href="/" className="font-display text-[22px] font-bold tracking-[-0.02em] text-pioneer">
-              Stellar<span className="text-ignition">Vest</span>
+              Stelar<span className="text-ignition">Vest</span>
             </a>
             <div className="flex items-center gap-2">
               <a href="/login" className="hidden items-center whitespace-nowrap rounded-[10px] px-4 py-2.5 text-[15px] font-semibold text-pioneer/85 transition-colors hover:bg-white/10 sm:inline-flex">
@@ -162,8 +162,8 @@ export default function Home() {
                 className="mt-[22px] max-w-[520px] text-[clamp(1.05rem,1.5vw,1.22rem)] text-pioneer/75"
                 style={{ textWrap: "pretty" }}
               >
-                Pooling Nigerian local and diaspora capital into managed investment cohorts, and deploying it
-                into vetted early-stage startups — with transparency, audit accountability, and trust built in.
+                Pooling Nigerian local and diaspora capital into managed investment cohorts and deploying it
+                into vetted early-stage startups, with transparency, audit accountability and trust built in.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -221,7 +221,7 @@ export default function Home() {
       <section className="mx-auto w-full max-w-[1180px] px-6 pb-[clamp(48px,6vw,72px)] pt-[clamp(64px,9vw,120px)]">
         <div className="max-w-[640px]">
           <p className="mb-3 font-display text-[13px] font-semibold uppercase tracking-[0.2em] text-ignition-ink">
-            Why StellarVest
+            Why StelarVest
           </p>
           <h2 className="font-display text-[clamp(1.9rem,3.6vw,2.7rem)] font-bold leading-[1.1] tracking-[-0.02em] text-cosmic">
             Trust, engineered in.
@@ -288,7 +288,7 @@ export default function Home() {
                 Are you building for resilience and raising capital?
               </h2>
               <p className="mt-3 max-w-[560px] text-[1.05rem] text-cosmic/[0.72]" style={{ textWrap: "pretty" }}>
-                List your startup, share your pitch and due-diligence documents, and submit to be considered
+                List your startup, share your pitch and due-diligence documents and submit to be considered
                 for investment by StarSector8 — through the same secure, audited platform.
               </p>
             </div>
@@ -315,7 +315,7 @@ export default function Home() {
             Invest in the next generation of startups.
           </h2>
           <p className="mx-auto mt-[18px] max-w-[520px] text-[1.1rem] text-pitch/85" style={{ textWrap: "pretty" }}>
-            Join StarSector8&rsquo;s syndicate — verified, governed, and transparent from day zero.
+            Join StarSector8&rsquo;s syndicate — verified, governed and transparent from day zero.
           </p>
           <div className="mt-[34px] flex flex-wrap justify-center gap-3">
             <a href="/signup" className="inline-flex items-center gap-2 whitespace-nowrap rounded-[11px] bg-venture px-[30px] py-4 text-[16px] font-semibold text-cosmic transition hover:brightness-95">
@@ -340,7 +340,7 @@ export default function Home() {
         <div className="mx-auto flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-4 px-6 py-8 text-[15px] text-cosmic/70">
           <div className="flex items-center gap-3.5">
             <span className="font-display text-[17px] font-bold tracking-[-0.02em] text-cosmic">
-              Stellar<span className="text-ignition">Vest</span>
+              Stelar<span className="text-ignition">Vest</span>
             </span>
             <span>© 2026 StarSector8 (Alpha)</span>
           </div>

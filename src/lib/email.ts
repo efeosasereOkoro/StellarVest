@@ -3,7 +3,7 @@
 // Configured by env (set in Vercel + .env.local — never commit the key):
 //   BREVO_API_KEY    the Brevo API key
 //   EMAIL_FROM       a Brevo-verified sender address (e.g. support@starsector8.org)
-//   EMAIL_FROM_NAME  display name (defaults to "StellarVest")
+//   EMAIL_FROM_NAME  display name (defaults to "StelarVest")
 //
 // Like recordAudit, this NEVER throws and silently no-ops when unconfigured, so
 // a mail failure can never break the user-facing action that triggered it.
@@ -26,7 +26,7 @@ export async function sendEmail({ to, subject, html }: SendArgs): Promise<boolea
         accept: "application/json",
       },
       body: JSON.stringify({
-        sender: { email: from, name: process.env.EMAIL_FROM_NAME || "StellarVest" },
+        sender: { email: from, name: process.env.EMAIL_FROM_NAME || "StelarVest" },
         to: [{ email: to }],
         subject,
         htmlContent: html,
@@ -50,13 +50,13 @@ const APP_URL = (
 function layout(heading: string, bodyHtml: string): string {
   return `
   <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1b1b1b;line-height:1.6">
-    <div style="padding:20px 0;font-weight:700;font-size:18px;color:#1b1b1b">StellarVest</div>
+    <div style="padding:20px 0;font-weight:700;font-size:18px;color:#1b1b1b">StelarVest</div>
     <div style="border:1px solid #e6e6e6;border-radius:12px;padding:24px">
       <h1 style="font-size:20px;margin:0 0 12px">${heading}</h1>
       ${bodyHtml}
     </div>
     <p style="font-size:12px;color:#6b6b6b;margin-top:16px">
-      StellarVest is in alpha. Questions? <a href="mailto:support@starsector8.org" style="color:#c2410c">support@starsector8.org</a>
+      StelarVest is in alpha. Questions? <a href="mailto:support@starsector8.org" style="color:#c2410c">support@starsector8.org</a>
     </p>
   </div>`;
 }
@@ -69,7 +69,7 @@ function button(href: string, label: string): string {
 
 export function kycVerifiedEmail(): { subject: string; html: string } {
   return {
-    subject: "You're verified — start investing on StellarVest",
+    subject: "You're verified — start investing on StelarVest",
     html: layout(
       "Your identity is verified ✅",
       `<p>Good news — your identity has been verified. You can now browse investment opportunities and back deals.</p>
@@ -80,7 +80,7 @@ export function kycVerifiedEmail(): { subject: string; html: string } {
 
 export function kycRejectedEmail(reason: string): { subject: string; html: string } {
   return {
-    subject: "Action needed on your StellarVest verification",
+    subject: "Action needed on your StelarVest verification",
     html: layout(
       "We couldn't verify your documents",
       `<p>Unfortunately your verification didn't pass. Here's why:</p>
@@ -179,7 +179,7 @@ export function dealPublishedEmail(dealName: string, dealId: string): { subject:
     subject: `New investment opportunity: ${dealName}`,
     html: layout(
       "A new deal is open",
-      `<p><strong>${escapeHtml(dealName)}</strong> is now open for contributions on StellarVest.</p>
+      `<p><strong>${escapeHtml(dealName)}</strong> is now open for contributions on StelarVest.</p>
        <p style="margin:20px 0">${button(`${APP_URL}/deals/${dealId}`, "View the deal")}</p>`,
     ),
   };
@@ -198,7 +198,7 @@ export function startupSubmittedEmail(startupName: string): { subject: string; h
 
 export function startupApprovedEmail(startupName: string): { subject: string; html: string } {
   return {
-    subject: `${startupName} is approved on StellarVest`,
+    subject: `${startupName} is approved on StelarVest`,
     html: layout(
       "Your startup is approved ✅",
       `<p>Good news — <strong>${escapeHtml(startupName)}</strong> has been approved. You can now post updates to investors from your founder dashboard.</p>

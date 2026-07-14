@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Terms · StellarVest" };
+export const metadata = { title: "Terms · StelarVest" };
 
 export default function TermsPage() {
   return (
@@ -10,9 +10,9 @@ export default function TermsPage() {
 
       <div className="mt-8 space-y-6 text-cosmic/80">
         <section>
-          <h2 className="font-display text-xl font-semibold text-cosmic">1. About StellarVest</h2>
+          <h2 className="font-display text-xl font-semibold text-cosmic">1. About StelarVest</h2>
           <p className="mt-2">
-            StellarVest is a syndicate-based investment platform operated by StarSector8. It lets
+            StelarVest is a syndicate-based investment platform operated by StarSector8. It lets
             verified investors join cohorts whose capital is pooled and deployed into early-stage
             startups under StarSector8&apos;s governance.
           </p>
@@ -28,7 +28,7 @@ export default function TermsPage() {
           <h2 className="font-display text-xl font-semibold text-cosmic">3. Verification &amp; funds</h2>
           <p className="mt-2">
             During the alpha, identity checks and the movement of funds are handled manually
-            (a &quot;concierge&quot; model). StellarVest records these steps; it does not itself hold or
+            (a &quot;concierge&quot; model). StelarVest records these steps; it does not itself hold or
             move money.
           </p>
         </section>
