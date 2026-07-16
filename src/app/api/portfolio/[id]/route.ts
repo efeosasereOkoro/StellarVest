@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { cohortMembers, investmentPools, allocations, startupCohorts, portfolioStartups, startups, startupUpdates, startupTeamMembers } from "@/db/schema";
+import { cohortMembers, investmentPools, allocations, startupCohorts, portfolioStartups, startups, startupUpdates, startupTeamMembers, founderProfiles } from "@/db/schema";
 import { getVerifiedInvestor } from "@/lib/investor";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -24,10 +24,21 @@ export async function GET(req: Request, { params }: Ctx) {
   const [portfolio] = await db.select({ id: startupCohorts.id, name: startupCohorts.name }).from(startupCohorts).where(eq(startupCohorts.id, id));
   if (!portfolio) return NextResponse.json({ error: "not found" }, { status: 404 });
 
+  // Founder identity is public-safe info only (name + LinkedIn — B-065/B-066);
+  // phone and address stay internal, same policy as team contact details.
   const members = await db
-    .select({ id: startups.id, name: startups.name, stage: startups.stage, description: startups.description, website: startups.website })
+    .select({
+      id: startups.id,
+      name: startups.name,
+      stage: startups.stage,
+      description: startups.description,
+      website: startups.website,
+      founderName: founderProfiles.fullName,
+      founderLinkedin: founderProfiles.linkedin,
+    })
     .from(portfolioStartups)
     .innerJoin(startups, eq(startups.id, portfolioStartups.startupId))
+    .leftJoin(founderProfiles, eq(founderProfiles.userId, startups.founderUserId))
     .where(eq(portfolioStartups.startupCohortId, id));
 
   const memberIds = members.map((m) => m.id);

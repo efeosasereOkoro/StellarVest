@@ -1,0 +1,1 @@
+ALTER TABLE "startups" ADD COLUMN "founder_linkedin" text;

@@ -169,6 +169,20 @@
       "when": 1783950431550,
       "tag": "0023_fat_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1784205396765,
+      "tag": "0024_cheerful_magneto",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1784206612333,
+      "tag": "0025_chief_cammi",
+      "breakpoints": true
     }
   ]
 }

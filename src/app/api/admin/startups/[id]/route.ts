@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { startups, startupDocuments, startupTeamMembers } from "@/db/schema";
+import { startups, startupDocuments, startupTeamMembers, founderProfiles } from "@/db/schema";
 import { getAdminUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, startupApprovedEmail, startupRejectedEmail, startupQueriedEmail } from "@/lib/email";
@@ -29,7 +29,20 @@ export async function GET(req: Request, { params }: Ctx) {
     .where(eq(startupTeamMembers.startupId, id))
     .orderBy(startupTeamMembers.createdAt);
 
-  return NextResponse.json({ startup, documents, team });
+  // The person operating the startup (B-065) — null for startups created
+  // before the founder-profile step existed.
+  const [founderProfile] = await db
+    .select({
+      fullName: founderProfiles.fullName,
+      email: founderProfiles.email,
+      phone: founderProfiles.phone,
+      linkedin: founderProfiles.linkedin,
+      residentialAddress: founderProfiles.residentialAddress,
+    })
+    .from(founderProfiles)
+    .where(eq(founderProfiles.userId, startup.founderUserId));
+
+  return NextResponse.json({ startup, documents, team, founderProfile: founderProfile ?? null });
 }
 
 // Review a submitted startup: approve, query (send back with questions), or

@@ -16,6 +16,7 @@ type Startup = {
 };
 type Doc = { id: string; kind: string; filename: string; uploadedAt: string };
 type TeamMember = { id: string; name: string; role: string; linkedin: string | null; phone: string | null; email: string | null };
+type FounderProfile = { fullName: string; email: string | null; phone: string; linkedin: string; residentialAddress: string | null };
 
 const STATUS: Record<string, { tone: "venture" | "pitch" | "ignition" | "neutral"; label: string }> = {
   draft: { tone: "neutral", label: "Draft" },
@@ -42,6 +43,7 @@ export default function AdminStartupReviewPage() {
   const [startup, setStartup] = useState<Startup | null>(null);
   const [docs, setDocs] = useState<Doc[]>([]);
   const [team, setTeam] = useState<TeamMember[]>([]);
+  const [founder, setFounder] = useState<FounderProfile | null>(null);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +58,7 @@ export default function AdminStartupReviewPage() {
     setStartup(data.startup);
     setDocs(data.documents ?? []);
     setTeam(data.team ?? []);
+    setFounder(data.founderProfile ?? null);
     setState("ready");
   }
 
@@ -113,6 +116,21 @@ export default function AdminStartupReviewPage() {
           {startup.website && <p className="text-cosmic/60"><ExternalLink href={startup.website} /></p>}
           {startup.stage && <p className="text-cosmic/60">Stage: {startup.stage}</p>}
         </div>
+      </Card>
+
+      {/* The person operating the startup (B-065). */}
+      <Card className="mt-4">
+        <p className="font-medium text-cosmic">Founder</p>
+        {!founder ? (
+          <p className="mt-1 text-sm text-cosmic/70">No founder profile yet (created before founder profiles existed — required on their next submission).</p>
+        ) : (
+          <div className="mt-2 space-y-1 text-sm text-cosmic/80">
+            <p className="font-medium text-cosmic">{founder.fullName}</p>
+            <p className="text-cosmic/60">{[founder.email, founder.phone].filter(Boolean).join(" · ")}</p>
+            <p className="text-cosmic/60"><ExternalLink href={founder.linkedin}>LinkedIn profile</ExternalLink></p>
+            {founder.residentialAddress && <p className="text-cosmic/60">{founder.residentialAddress}</p>}
+          </div>
+        )}
       </Card>
 
       <Card className="mt-4">

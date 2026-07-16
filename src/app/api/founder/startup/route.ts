@@ -1,11 +1,28 @@
 import { NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { startups, startupDocuments, startupUpdates, startupTeamMembers } from "@/db/schema";
+import { startups, startupDocuments, startupUpdates, startupTeamMembers, founderProfiles } from "@/db/schema";
 import { getAuthUser } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 
 const EDITABLE = ["draft", "rejected", "queried"];
+
+// Validate the profile body; returns field-keyed errors the client shows
+// inline (same pattern as the team-member form — B-048).
+function profileErrors(body: Record<string, unknown>): { errors: Record<string, string> } | { values: { name: string; description: string | null; website: string | null; stage: string | null } } {
+  const errors: Record<string, string> = {};
+  const name = String(body.name ?? "").trim();
+  if (!name) errors.name = "Startup name is required.";
+  if (Object.keys(errors).length) return { errors };
+  return {
+    values: {
+      name,
+      description: String(body.description ?? "").trim() || null,
+      website: String(body.website ?? "").trim() || null,
+      stage: String(body.stage ?? "").trim() || null,
+    },
+  };
+}
 
 async function requireUser(req: Request) {
   if (!req.headers.get("authorization")) return { error: "missing token" as const };
@@ -51,19 +68,22 @@ export async function POST(req: Request) {
   const [existing] = await db.select({ id: startups.id }).from(startups).where(eq(startups.founderUserId, auth.user.id));
   if (existing) return NextResponse.json({ error: "You already have a startup." }, { status: 400 });
 
+  // Founder profile comes first (B-065) — the person is identified before the venture.
+  const [fp] = await db.select({ id: founderProfiles.id }).from(founderProfiles).where(eq(founderProfiles.userId, auth.user.id));
+  if (!fp) return NextResponse.json({ error: "Complete your founder profile before creating your startup." }, { status: 400 });
+
   const body = await req.json().catch(() => ({}));
-  const name = String(body.name ?? "").trim();
-  if (!name) return NextResponse.json({ error: "Startup name is required." }, { status: 400 });
+  const checked = profileErrors(body);
+  if ("errors" in checked) {
+    return NextResponse.json({ error: "Some required details are missing.", fields: checked.errors }, { status: 400 });
+  }
 
   const [startup] = await db
     .insert(startups)
     .values({
       founderUserId: auth.user.id,
       founderEmail: auth.user.email ?? null,
-      name,
-      description: String(body.description ?? "").trim() || null,
-      website: String(body.website ?? "").trim() || null,
-      stage: String(body.stage ?? "").trim() || null,
+      ...checked.values,
     })
     .returning();
 
@@ -83,18 +103,14 @@ export async function PATCH(req: Request) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const name = String(body.name ?? "").trim();
-  if (!name) return NextResponse.json({ error: "Startup name is required." }, { status: 400 });
+  const checked = profileErrors(body);
+  if ("errors" in checked) {
+    return NextResponse.json({ error: "Some required details are missing.", fields: checked.errors }, { status: 400 });
+  }
 
   const [updated] = await db
     .update(startups)
-    .set({
-      name,
-      description: String(body.description ?? "").trim() || null,
-      website: String(body.website ?? "").trim() || null,
-      stage: String(body.stage ?? "").trim() || null,
-      updatedAt: new Date(),
-    })
+    .set({ ...checked.values, updatedAt: new Date() })
     .where(eq(startups.id, startup.id))
     .returning();
 

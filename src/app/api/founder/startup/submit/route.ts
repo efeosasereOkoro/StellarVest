@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { eq, count } from "drizzle-orm";
 import { db } from "@/db";
-import { startups, startupDocuments } from "@/db/schema";
+import { startups, startupDocuments, founderProfiles } from "@/db/schema";
 import { getAuthUser, getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail, startupSubmittedEmail } from "@/lib/email";
 import { notifyAdmins } from "@/lib/notify";
+import { isLinkedinUrl } from "@/lib/startup";
 
 // Founder submits their startup for review (draft / rejected -> submitted).
 export async function POST(req: Request) {
@@ -19,6 +20,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "This startup has already been submitted." }, { status: 400 });
   }
   const resubmission = startup.status === "rejected" || startup.status === "queried";
+
+  // A complete founder profile (incl. valid LinkedIn — B-065/B-066) is
+  // required before review; also catches startups created before the
+  // founder-profile step existed.
+  const [fp] = await db.select().from(founderProfiles).where(eq(founderProfiles.userId, user.id));
+  if (!fp || !isLinkedinUrl(fp.linkedin)) {
+    return NextResponse.json({ error: "Complete your founder profile (including your LinkedIn) before submitting for review." }, { status: 400 });
+  }
 
   const [{ c }] = await db.select({ c: count() }).from(startupDocuments).where(eq(startupDocuments.startupId, startup.id));
   if (c === 0) return NextResponse.json({ error: "Upload at least one document before submitting." }, { status: 400 });

@@ -9,8 +9,9 @@ import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "@/components/ui/external-link";
-import { STARTUP_STAGES, stageHelp } from "@/lib/startup";
+import { STARTUP_STAGES, stageHelp, isLinkedinUrl } from "@/lib/startup";
 
+type FounderProfile = { fullName: string; phone: string; linkedin: string; residentialAddress: string | null };
 type Startup = {
   id: string;
   name: string;
@@ -70,18 +71,32 @@ export default function FounderPage() {
   const [mLinkedin, setMLinkedin] = useState("");
   const [mErr, setMErr] = useState<Record<string, string>>({});
 
-  // Profile form
+  // Founder profile (B-065) — completed before the startup profile.
+  const [fpExists, setFpExists] = useState(false);
+  const [fpName, setFpName] = useState("");
+  const [fpPhone, setFpPhone] = useState("");
+  const [fpLinkedin, setFpLinkedin] = useState("");
+  const [fpAddress, setFpAddress] = useState("");
+  const [fpErr, setFpErr] = useState<Record<string, string>>({});
+  const [fpSaved, setFpSaved] = useState(false);
+
+  // Startup profile form
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [website, setWebsite] = useState("");
   const [stage, setStage] = useState("");
+  const [pErr, setPErr] = useState<Record<string, string>>({});
   const [docKind, setDocKind] = useState("pitch");
   // Update form
   const [updTitle, setUpdTitle] = useState("");
   const [updBody, setUpdBody] = useState("");
 
   async function load() {
-    const res = await fetch("/api/founder/startup", { headers: await authHeaders() });
+    const headers = await authHeaders();
+    const [res, fpRes] = await Promise.all([
+      fetch("/api/founder/startup", { headers }),
+      fetch("/api/founder/profile", { headers }),
+    ]);
     const data = await res.json().catch(() => ({}));
     const s: Startup | null = data.startup ?? null;
     setStartup(s);
@@ -94,7 +109,46 @@ export default function FounderPage() {
       setWebsite(s.website ?? "");
       setStage(s.stage ?? "");
     }
+    const fp: FounderProfile | null = (await fpRes.json().catch(() => ({}))).profile ?? null;
+    setFpExists(!!fp);
+    if (fp) {
+      setFpName(fp.fullName);
+      setFpPhone(fp.phone);
+      setFpLinkedin(fp.linkedin);
+      setFpAddress(fp.residentialAddress ?? "");
+    }
     setLoaded(true);
+  }
+
+  // Save the founder profile (B-065/B-066) — inline field errors, LinkedIn
+  // must be a valid linkedin.com URL.
+  async function saveFounderProfile(e: React.FormEvent) {
+    e.preventDefault();
+    setFpSaved(false);
+    const errs: Record<string, string> = {};
+    if (!fpName.trim()) errs.fullName = "Your full name is required.";
+    if (!fpPhone.trim()) errs.phone = "Your phone number is required.";
+    if (!fpLinkedin.trim()) errs.linkedin = "Your LinkedIn profile is required.";
+    else if (!isLinkedinUrl(fpLinkedin)) errs.linkedin = "Enter a valid LinkedIn URL (e.g. https://linkedin.com/in/your-name).";
+    setFpErr(errs);
+    if (Object.keys(errs).length) return;
+
+    setBusy(true);
+    setError(null);
+    const res = await fetch("/api/founder/profile", {
+      method: "POST",
+      headers: await authHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ fullName: fpName, phone: fpPhone, linkedin: fpLinkedin, residentialAddress: fpAddress }),
+    });
+    setBusy(false);
+    if (res.ok) {
+      setFpExists(true);
+      setFpSaved(true);
+    } else {
+      const d = await res.json().catch(() => ({}));
+      if (d.fields) setFpErr(d.fields);
+      else setError(d.error ?? "Couldn't save your founder profile.");
+    }
   }
 
   useEffect(() => {
@@ -106,6 +160,12 @@ export default function FounderPage() {
 
   async function saveProfile(e: React.FormEvent) {
     e.preventDefault();
+    // Inline validation first — same pattern as the team form (B-048).
+    const errs: Record<string, string> = {};
+    if (!name.trim()) errs.name = "Startup name is required.";
+    setPErr(errs);
+    if (Object.keys(errs).length) return;
+
     setBusy(true);
     setError(null);
     const method = startup ? "PATCH" : "POST";
@@ -116,7 +176,11 @@ export default function FounderPage() {
     });
     setBusy(false);
     if (res.ok) await load();
-    else setError((await res.json().catch(() => ({}))).error ?? "Couldn't save.");
+    else {
+      const d = await res.json().catch(() => ({}));
+      if (d.fields) setPErr(d.fields); // server backstop → same inline errors
+      setError(d.error ?? "Couldn't save.");
+    }
   }
 
   async function uploadDoc(e: React.FormEvent) {
@@ -244,12 +308,43 @@ export default function FounderPage() {
         </Card>
       )}
 
-      {/* Profile */}
+      {/* Founder profile (B-065) — the person first, then the venture. */}
       <Card className="mt-6">
+        <div className="flex items-center justify-between">
+          <p className="font-medium text-cosmic">Founder profile</p>
+          {fpExists && <Badge tone="venture">complete</Badge>}
+        </div>
+        <p className="mt-1 text-sm text-cosmic/70">
+          The person operating the startup — shown to the StarSector8 review team{fpExists ? "." : " before you create your startup profile."}
+        </p>
+        <form onSubmit={saveFounderProfile} className="mt-3 space-y-3">
+          <Field label="Full name" value={fpName} error={fpErr.fullName}
+            onChange={(e) => { setFpName(e.target.value); setFpErr((p) => ({ ...p, fullName: "" })); }} />
+          <Field label="Phone" value={fpPhone} error={fpErr.phone} type="tel"
+            onChange={(e) => { setFpPhone(e.target.value); setFpErr((p) => ({ ...p, phone: "" })); }} />
+          <Field label="LinkedIn profile" value={fpLinkedin} error={fpErr.linkedin}
+            placeholder="https://linkedin.com/in/your-name"
+            onChange={(e) => { setFpLinkedin(e.target.value); setFpErr((p) => ({ ...p, linkedin: "" })); }} />
+          <Field label="Residential address (optional)" value={fpAddress}
+            onChange={(e) => setFpAddress(e.target.value)} />
+          {fpSaved && <p className="text-sm text-deep-frontier">Founder profile saved.</p>}
+          <Button type="submit" disabled={busy}>{fpExists ? "Save founder profile" : "Save & continue"}</Button>
+        </form>
+      </Card>
+
+      {/* Startup profile — unlocked once the founder profile exists. */}
+      {!fpExists && !startup ? (
+        <Card className="mt-4 border-cosmic/10 bg-cosmic/[0.03]">
+          <p className="font-medium text-cosmic/70">Startup profile</p>
+          <p className="mt-1 text-sm text-cosmic/60">Complete your founder profile above to create your startup profile.</p>
+        </Card>
+      ) : (
+      <Card className="mt-4">
         <p className="font-medium text-cosmic">Startup profile</p>
         {editable ? (
           <form onSubmit={saveProfile} className="mt-3 space-y-3">
-            <Field label="Startup name" value={name} onChange={(e) => setName(e.target.value)} required />
+            <Field label="Startup name" value={name} error={pErr.name}
+              onChange={(e) => { setName(e.target.value); setPErr((p) => ({ ...p, name: "" })); }} />
             <label className="block">
               <span className="mb-1 block text-sm font-medium text-cosmic/80">Description</span>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={inputCls} />
@@ -276,6 +371,7 @@ export default function FounderPage() {
           </div>
         )}
       </Card>
+      )}
 
       {/* Team */}
       {startup && (

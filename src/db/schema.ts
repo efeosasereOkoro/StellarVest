@@ -246,6 +246,26 @@ export const startupStatus = pgEnum("startup_status", [
   "rejected", // hard reject — reserved for when external startups can self-onboard
 ]);
 
+// The person operating the startup (B-065, review-3 §1). Completed BEFORE the
+// startup profile — investors and reviewers need to know who runs the venture.
+// LinkedIn is mandatory for trust/investor confidence (B-066, review-3 §2).
+// Verification beyond profile completeness (ID documents) stays with the
+// startup-documents flow (kind "kyc"); a dedicated founder-KYC review queue is
+// a future decision with the PM.
+export const founderProfiles = pgTable("founder_profiles", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull().unique(),
+  email: text("email"),
+  fullName: text("full_name").notNull(),
+  phone: text("phone").notNull(),
+  linkedin: text("linkedin").notNull(),
+  residentialAddress: text("residential_address"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type FounderProfile = typeof founderProfiles.$inferSelect;
+
 // One startup per founder (MVP). Owned by the founder's auth user id.
 export const startups = pgTable("startups", {
   id: uuid("id").defaultRandom().primaryKey(),

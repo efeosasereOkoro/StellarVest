@@ -14,6 +14,8 @@ type Startup = {
   stage: string | null;
   description: string | null;
   website: string | null;
+  founderName: string | null;
+  founderLinkedin: string | null;
   updates: Update[];
   team: TeamMember[];
 };
@@ -86,6 +88,14 @@ export default function PortfolioDetailPage() {
                   {s.website && (
                     <p className="mt-1 text-sm">
                       <a href={s.website} target="_blank" rel="noreferrer" className="font-medium text-ignition-ink underline">{s.website}</a>
+                    </p>
+                  )}
+                  {s.founderName && (
+                    <p className="mt-2 text-sm text-cosmic/70">
+                      <span className="font-medium text-cosmic/80">Founder:</span> <span className="font-medium text-cosmic">{s.founderName}</span>
+                      {s.founderLinkedin && (
+                        <> · <a href={s.founderLinkedin.startsWith("http") ? s.founderLinkedin : `https://${s.founderLinkedin}`} target="_blank" rel="noreferrer" className="font-medium text-ignition-ink underline">LinkedIn</a></>
+                      )}
                     </p>
                   )}
                   {s.team.length > 0 && (
