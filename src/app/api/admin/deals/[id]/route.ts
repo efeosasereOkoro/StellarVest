@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { deals, dealDocuments, committeeReviews, investorProfiles, contributions, startupDocuments } from "@/db/schema";
 import { getAdminUser, getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
+import { notifyAdmins } from "@/lib/notify";
 import { sendEmail, dealNeedsReviewEmail, dealPublishedEmail } from "@/lib/email";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -93,6 +94,12 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (t.to === "under_review") {
     const mail = dealNeedsReviewEmail(updated.startupName, id);
     await Promise.all(getAdminEmails().map((to) => sendEmail({ to, ...mail })));
+    await notifyAdmins({
+      type: "deal.review_requested",
+      title: "Deal awaiting committee",
+      body: `${updated.startupName} was submitted for committee review.`,
+      href: `/admin/deals/${id}`,
+    });
   }
 
   // Announce a newly published deal to verified investors.

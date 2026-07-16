@@ -5,6 +5,7 @@ import { deals, contributions } from "@/db/schema";
 import { getVerifiedInvestor } from "@/lib/investor";
 import { getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
+import { notifyAdmins } from "@/lib/notify";
 import { sendEmail, newPledgeEmail, pledgeReceiptEmail } from "@/lib/email";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -72,6 +73,13 @@ export async function POST(req: Request, { params }: Ctx) {
       ? sendEmail({ to: investor.email, ...pledgeReceiptEmail(deal.startupName, id, amountLabel, reference) })
       : Promise.resolve(false),
   ]);
+
+  await notifyAdmins({
+    type: "contribution.pledged",
+    title: "New pledge",
+    body: `${investor.email ?? "An investor"} pledged ${amountLabel} to ${deal.startupName} (ref ${reference}).`,
+    href: "/admin/contributions",
+  });
 
   return NextResponse.json({ contribution });
 }

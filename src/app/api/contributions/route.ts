@@ -5,6 +5,7 @@ import { contributions, cohortMembers, investorCohorts, investorProfiles, platfo
 import { getVerifiedInvestor } from "@/lib/investor";
 import { getAdminEmails } from "@/lib/auth-server";
 import { recordAudit } from "@/lib/audit";
+import { notifyAdmins } from "@/lib/notify";
 import { sendEmail, newContributionEmail, contributionReceiptEmail } from "@/lib/email";
 import { naira, unitsLabel, toUnits } from "@/lib/money";
 import { minimumFor } from "@/lib/kyc";
@@ -145,6 +146,13 @@ export async function POST(req: Request) {
     ...getAdminEmails().map((to) => sendEmail({ to, ...adminMail })),
     investor.email ? sendEmail({ to: investor.email, ...contributionReceiptEmail(cohort.name, amountLabel, reference) }) : Promise.resolve(false),
   ]);
+
+  await notifyAdmins({
+    type: "contribution.pledged",
+    title: "New pledge",
+    body: `${investor.email ?? "An investor"} pledged ${amountLabel} to ${cohort.name} (ref ${reference}).`,
+    href: "/admin/contributions",
+  });
 
   return NextResponse.json({ contribution });
 }

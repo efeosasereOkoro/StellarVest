@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { notifications } from "@/db/schema";
+import { slackAdmin } from "@/lib/slack";
 
 type NotifyInput = {
   userId?: string | null; // personal recipient
@@ -28,6 +29,8 @@ export async function notify(n: NotifyInput): Promise<void> {
 }
 
 // Broadcast to the admin audience (covers committee for now — walkthrough-2).
-export function notifyAdmins(n: Omit<NotifyInput, "userId" | "role">): Promise<void> {
-  return notify({ ...n, role: "admin" });
+// Mirrors to the StarSector8 Slack channel (B-063) — every admin event lands
+// in-app AND in Slack from this one place.
+export async function notifyAdmins(n: Omit<NotifyInput, "userId" | "role">): Promise<void> {
+  await Promise.all([notify({ ...n, role: "admin" }), slackAdmin(n)]);
 }
