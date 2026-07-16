@@ -36,11 +36,13 @@ const KYC: Record<
     body: "Your documents are under review. Your status updates here once it's done — no need to do anything.",
     cta: { label: "View profile", href: "/profile" },
   },
+  // Verified has no CTA — the contributions card below is the single place to
+  // contribute & track (B-072), so the status card only reports status.
   verified: {
     tone: "venture",
     title: "You're verified",
-    body: "Your account is verified. Contribute to your cohort and start investing.",
-    cta: { label: "Contribute", href: "/contribute" },
+    body: "Your account is verified — you're ready to invest.",
+    cta: null,
   },
   rejected: {
     tone: "ignition",
@@ -134,36 +136,45 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      {role !== "founder" && kyc === "verified" && hasContributions && (
+      {/* The single contribute-and-track section (B-072) — status card above
+          carries no CTA and the nav grid below links elsewhere only. */}
+      {role !== "founder" && kyc === "verified" && (
         <Card className="mt-4 border-venture/40 bg-frontier/30">
-          <p className="text-xs font-medium uppercase tracking-wide text-cosmic/60">Total contributed</p>
-          <p className="mt-1 font-display text-3xl font-semibold text-cosmic">
-            {confirmedEntries.length
-              ? confirmedEntries.map(([c, n]) => money(c, n)).join(" · ")
-              : money(pendingEntries[0][0], 0)}
-          </p>
-          {pendingEntries.length > 0 && (
-            <p className="mt-1 text-sm text-cosmic/70">
-              + {pendingEntries.map(([c, n]) => money(c, n)).join(" · ")} pending confirmation
-            </p>
-          )}
-          <p className="mt-1 text-xs text-cosmic/50">Confirmed across all your contributions.</p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-cosmic/60">Your contributions</p>
+              {hasContributions ? (
+                <>
+                  <p className="mt-1 font-display text-3xl font-semibold text-cosmic">
+                    {confirmedEntries.length
+                      ? confirmedEntries.map(([c, n]) => money(c, n)).join(" · ")
+                      : money(pendingEntries[0][0], 0)}
+                  </p>
+                  {pendingEntries.length > 0 && (
+                    <p className="mt-1 text-sm text-cosmic/70">
+                      + {pendingEntries.map(([c, n]) => money(c, n)).join(" · ")} pending confirmation
+                    </p>
+                  )}
+                  <p className="mt-1 text-xs text-cosmic/50">Confirmed across all your contributions.</p>
+                </>
+              ) : (
+                <p className="mt-1 text-sm text-cosmic/70">
+                  You haven&rsquo;t contributed yet. Add to your cohort&rsquo;s pool to start investing.
+                </p>
+              )}
+            </div>
+            <Link
+              href="/contribute"
+              className="inline-flex w-full shrink-0 items-center justify-center rounded-lg bg-cosmic px-4 py-2.5 text-sm font-medium text-pioneer hover:bg-cosmic/90 sm:w-auto"
+            >
+              Contribute &amp; track
+            </Link>
+          </div>
         </Card>
       )}
 
       {role !== "founder" && kyc === "verified" && (
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Link href="/contribute" className="block">
-            <Card className="h-full transition-colors hover:border-cosmic/25">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-frontier text-deep-frontier">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-                  <path d="M5 4h14v16l-3-2-2 2-2-2-2 2-3-2z" /><path d="M9 9h6M9 13h6" />
-                </svg>
-              </span>
-              <p className="mt-3 font-medium text-cosmic">Contribute &amp; track</p>
-              <p className="mt-0.5 text-sm text-cosmic/70">Add to your cohort&rsquo;s pool and follow each contribution to confirmation.</p>
-            </Card>
-          </Link>
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Link href="/portfolio" className="block">
             <Card className="h-full transition-colors hover:border-cosmic/25">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-venture/40 text-deep-frontier">
