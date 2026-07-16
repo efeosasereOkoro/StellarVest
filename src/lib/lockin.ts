@@ -7,6 +7,12 @@
 // 24 is indicative per the PM; change it here in one place.
 export const LOCK_IN_MONTHS = 24;
 
+// B-071 (review-3 §8): the eligibility rules aren't finalised, so the lock-in
+// message (and its fixed date) is hidden from investors. Flip to true once the
+// committee confirms the policy — the status is still computed and returned by
+// the API either way.
+export const SHOW_LOCK_IN_MESSAGE = false;
+
 export type LockIn = { started: boolean; unlockDate: string | null; eligible: boolean; months: number };
 
 export function lockInStatus(firstConfirmedAt: string | Date | null | undefined): LockIn {

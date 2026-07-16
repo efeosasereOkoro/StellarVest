@@ -9,6 +9,7 @@ import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { naira, unitsLabel } from "@/lib/money";
+import { SHOW_LOCK_IN_MESSAGE } from "@/lib/lockin";
 
 type Contribution = {
   id: string;
@@ -169,13 +170,15 @@ export default function ContributePage() {
             ) : (
               <p className="mt-1 text-sm text-cosmic/70">Once your contributions are confirmed, your unit holding and share of the cohort pool show here.</p>
             )}
-            <p className="mt-2 text-sm text-cosmic/70">
-              {!data.lockIn.started
-                ? `Direct startup investment unlocks ${data.lockIn.months} months after your first confirmed contribution.`
-                : data.lockIn.eligible
-                  ? "You're now eligible to invest directly in a startup."
-                  : `You'll be eligible to invest directly in a startup from ${new Date(data.lockIn.unlockDate!).toLocaleDateString()}.`}
-            </p>
+            {SHOW_LOCK_IN_MESSAGE && (
+              <p className="mt-2 text-sm text-cosmic/70">
+                {!data.lockIn.started
+                  ? `Direct startup investment unlocks ${data.lockIn.months} months after your first confirmed contribution.`
+                  : data.lockIn.eligible
+                    ? "You're now eligible to invest directly in a startup."
+                    : `You'll be eligible to invest directly in a startup from ${new Date(data.lockIn.unlockDate!).toLocaleDateString()}.`}
+              </p>
+            )}
           </Card>
 
           <Card className="mt-4">
