@@ -14,7 +14,7 @@ export function ExternalLink({ href, children, className = "" }: { href: string;
       href={toHref(href)}
       target="_blank"
       rel="noreferrer"
-      className={`font-medium text-ignition-ink underline ${className}`}
+      className={`break-all font-medium text-ignition-ink underline ${className}`}
     >
       {children ?? href}
     </a>
