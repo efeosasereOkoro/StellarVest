@@ -4,9 +4,73 @@ import { useEffect, useRef, useState } from "react";
 
 // In-app, view-only document viewer for reviewers (B-062). Renders the doc
 // inline (image or PDF), overlays a repeating watermark of the reviewer's
-// identity + timestamp, disables download/right-click, and hides the PDF
-// toolbar. Note: screenshots / determined extraction can't be blocked on the
-// web — the watermark makes any leak traceable.
+// identity + timestamp, disables download/right-click. Note: screenshots /
+// determined extraction can't be blocked on the web — the watermark makes any
+// leak traceable.
+//
+// PDFs render through pdf.js onto canvases (B-068): mobile browsers (iOS
+// Safari, Android Chrome) don't display PDFs inside iframes at all, and
+// canvases also drop the native PDF toolbar (print/download) everywhere.
+
+// Draw every page of a PDF blob onto stacked canvases, fitted to the
+// container width and sharpened for high-DPI screens.
+function PdfPages({ blob, onError }: { blob: Blob; onError: () => void }) {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [rendering, setRendering] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const pdfjs = await import("pdfjs-dist");
+        pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+          "pdfjs-dist/build/pdf.worker.min.mjs",
+          import.meta.url
+        ).toString();
+        const doc = await pdfjs.getDocument({ data: await blob.arrayBuffer() }).promise;
+        const host = hostRef.current;
+        if (cancelled || !host) return;
+        host.innerHTML = "";
+        const width = Math.max((host.clientWidth || 640) - 16, 280);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        for (let n = 1; n <= doc.numPages; n++) {
+          const page = await doc.getPage(n);
+          if (cancelled) return;
+          const scale = width / page.getViewport({ scale: 1 }).width;
+          const viewport = page.getViewport({ scale });
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.floor(viewport.width * dpr);
+          canvas.height = Math.floor(viewport.height * dpr);
+          canvas.style.width = `${Math.floor(viewport.width)}px`;
+          canvas.style.height = `${Math.floor(viewport.height)}px`;
+          canvas.className = "mx-auto mb-3 block max-w-full bg-white shadow-sm";
+          await page.render({
+            canvas,
+            viewport,
+            transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : undefined,
+          }).promise;
+          if (cancelled) return;
+          host.appendChild(canvas);
+        }
+        if (!cancelled) setRendering(false);
+      } catch {
+        if (!cancelled) onError();
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blob]);
+
+  return (
+    <div className="p-2">
+      {rendering && <p className="p-8 text-center text-sm text-cosmic/60">Preparing pages…</p>}
+      <div ref={hostRef} />
+    </div>
+  );
+}
+
 export function DocViewer({
   open,
   onClose,
@@ -22,8 +86,8 @@ export function DocViewer({
   docKey: string | null;
   loadBlob: () => Promise<Blob | null>;
 }) {
+  const [blob, setBlob] = useState<Blob | null>(null);
   const [url, setUrl] = useState<string | null>(null);
-  const [type, setType] = useState("");
   const [error, setError] = useState<string | null>(null);
   const loadRef = useRef(loadBlob);
   loadRef.current = loadBlob;
@@ -33,14 +97,18 @@ export function DocViewer({
     let objUrl: string | null = null;
     let cancelled = false;
     setError(null);
+    setBlob(null);
     setUrl(null);
     (async () => {
-      const blob = await loadRef.current().catch(() => null);
+      const b = await loadRef.current().catch(() => null);
       if (cancelled) return;
-      if (!blob) return setError("Couldn't load the document.");
-      objUrl = URL.createObjectURL(blob);
-      setType(blob.type || "");
-      setUrl(objUrl);
+      if (!b) return setError("Couldn't load the document.");
+      setBlob(b);
+      // Images render via an object URL; PDFs consume the blob directly.
+      if (b.type.startsWith("image/")) {
+        objUrl = URL.createObjectURL(b);
+        setUrl(objUrl);
+      }
     })();
     return () => {
       cancelled = true;
@@ -57,11 +125,11 @@ export function DocViewer({
   }, [open, onClose]);
 
   if (!open) return null;
-  const isImage = type.startsWith("image/");
+  const isImage = blob?.type.startsWith("image/") ?? false;
   const noContext = (e: React.MouseEvent) => e.preventDefault();
 
-  // Tiled watermark cells.
-  const cells = Array.from({ length: 60 });
+  // Tiled watermark cells — enough to cover a long multi-page PDF stack.
+  const cells = Array.from({ length: 240 });
 
   return (
     <div
@@ -84,27 +152,31 @@ export function DocViewer({
           </button>
         </header>
 
-        <div className="relative flex-1 overflow-auto bg-cosmic/[0.03]" onContextMenu={noContext} style={{ userSelect: "none" }}>
-          {error ? (
-            <p className="p-8 text-center text-sm text-danger">{error}</p>
-          ) : !url ? (
-            <p className="p-8 text-center text-sm text-cosmic/60">Loading…</p>
-          ) : isImage ? (
-            <img src={url} alt={title} draggable={false} className="mx-auto block max-w-full select-none" />
-          ) : (
-            <iframe src={`${url}#toolbar=0&navpanes=0`} title={title} className="h-full w-full" />
-          )}
+        <div className="flex-1 overflow-auto bg-cosmic/[0.03]" onContextMenu={noContext} style={{ userSelect: "none" }}>
+          {/* relative wrapper grows with the content so the watermark tiles
+              cover the full scroll height, not just the first screenful */}
+          <div className="relative min-h-full w-full">
+            {error ? (
+              <p className="p-8 text-center text-sm text-danger">{error}</p>
+            ) : !blob ? (
+              <p className="p-8 text-center text-sm text-cosmic/60">Loading…</p>
+            ) : isImage ? (
+              url && <img src={url} alt={title} draggable={false} className="mx-auto block max-w-full select-none" />
+            ) : (
+              <PdfPages blob={blob} onError={() => setError("Couldn't display this PDF.")} />
+            )}
 
-          {/* Watermark overlay — reviewer identity + time, tiled + rotated. */}
-          {url && (
-            <div aria-hidden className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-16 gap-y-14 overflow-hidden p-6" style={{ transform: "rotate(-24deg) scale(1.4)", transformOrigin: "center" }}>
-              {cells.map((_, i) => (
-                <span key={i} className="whitespace-nowrap text-[11px] font-semibold text-cosmic" style={{ opacity: 0.1 }}>
-                  {watermark}
-                </span>
-              ))}
-            </div>
-          )}
+            {/* Watermark overlay — reviewer identity + time, tiled + rotated. */}
+            {blob && !error && (
+              <div aria-hidden className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-16 gap-y-14 overflow-hidden p-6" style={{ transform: "rotate(-24deg) scale(1.4)", transformOrigin: "center" }}>
+                {cells.map((_, i) => (
+                  <span key={i} className="whitespace-nowrap text-[11px] font-semibold text-cosmic" style={{ opacity: 0.1 }}>
+                    {watermark}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <footer className="border-t border-cosmic/10 px-4 py-2 text-center text-xs text-cosmic/60">
