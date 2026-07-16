@@ -22,6 +22,31 @@ const KYC_TONE: Record<string, "venture" | "pitch" | "ignition" | "neutral"> = {
 const selectCls =
   "w-full rounded-lg border bg-pioneer px-3 py-2 text-sm text-cosmic outline-none transition-colors focus:ring-2 focus:border-venture focus:ring-venture/30";
 
+// Draft of the KYC intake fields, per browser tab (B-070). Mobile browsers
+// can evict/reload the page while the user is off in the file picker or
+// camera, which used to wipe everything they'd typed. Files can't be
+// persisted — only the text fields and residency choice.
+const KYC_DRAFT_KEY = "sv-kyc-draft";
+type KycDraft = { residency?: string; nin?: string; address?: string; idType?: string; idNumber?: string };
+
+function readDraft(): KycDraft {
+  try {
+    return JSON.parse(sessionStorage.getItem(KYC_DRAFT_KEY) ?? "{}") as KycDraft;
+  } catch {
+    return {};
+  }
+}
+
+// Bring the first invalid control into view — on a phone the failed field is
+// often above/below the fold, which read as "the form just cleared".
+function focusFirstError() {
+  requestAnimationFrame(() => {
+    const el = document.querySelector<HTMLElement>('[aria-invalid="true"], [data-invalid="true"]');
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+    el?.focus?.({ preventScroll: true });
+  });
+}
+
 async function authHeaders(extra: Record<string, string> = {}) {
   const token = await getToken();
   return token ? { Authorization: `Bearer ${token}`, ...extra } : extra;
@@ -71,17 +96,31 @@ export default function ProfilePage() {
           setDocs(data.documents ?? []);
           setKyc(data.kycStatus ?? "registered");
           setRejectionReason(data.rejectionReason ?? null);
-          if (data.residency) setResidency(data.residency);
-          setNin(data.nin ?? "");
-          setAddress(data.residentialAddress ?? "");
-          setIdType(data.idType ?? "");
-          setIdNumber(data.idNumber ?? "");
+          // Server values first; the tab's unsaved draft fills whatever the
+          // server doesn't have yet (B-070 — survives mobile page reloads).
+          const draft = readDraft();
+          const r = data.residency ?? draft.residency;
+          if (r) setResidency(r as Residency);
+          setNin(data.nin ?? draft.nin ?? "");
+          setAddress(data.residentialAddress ?? draft.address ?? "");
+          setIdType(data.idType ?? draft.idType ?? "");
+          setIdNumber(data.idNumber ?? draft.idNumber ?? "");
         }
       } finally {
         setLoaded(true);
       }
     })();
   }, [isPending, session, router]);
+
+  // Keep the draft current as the user types (only while the form is editable).
+  useEffect(() => {
+    if (!loaded || !(kyc === "registered" || kyc === "rejected")) return;
+    try {
+      sessionStorage.setItem(KYC_DRAFT_KEY, JSON.stringify({ residency, nin, address, idType, idNumber }));
+    } catch {
+      /* storage full/unavailable — drafting is best-effort */
+    }
+  }, [loaded, kyc, residency, nin, address, idType, idNumber]);
 
   async function saveName(e: React.FormEvent) {
     e.preventDefault();
@@ -117,6 +156,7 @@ export default function ProfilePage() {
     if (!residency) {
       setErrors({ residency: "Choose where you're based." });
       setSubmitError("Please provide the highlighted item(s).");
+      focusFirstError();
       return;
     }
     const errs: Record<string, string> = {};
@@ -135,6 +175,7 @@ export default function ProfilePage() {
     if (Object.keys(errs).length) {
       setErrors(errs);
       setSubmitError("Please provide the highlighted item(s).");
+      focusFirstError();
       return;
     }
 
@@ -164,6 +205,15 @@ export default function ProfilePage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
+        // The server names exactly what's missing — surface it on the fields
+        // (same keys client-side: nin/residentialAddress/idType/idNumber + doc kinds).
+        const serverErrs: Record<string, string> = {};
+        for (const f of data.fields ?? []) serverErrs[f] = "This field is required.";
+        for (const kind of data.docs ?? []) serverErrs[kind] = "This document is required.";
+        if (Object.keys(serverErrs).length) {
+          setErrors(serverErrs);
+          focusFirstError();
+        }
         setSubmitError(data.error ?? "Couldn't submit. Please try again.");
         setSubmitting(false);
         return;
@@ -179,6 +229,12 @@ export default function ProfilePage() {
         setKyc("submitted");
       }
       setPicked({});
+      // Submitted successfully — the draft has served its purpose.
+      try {
+        sessionStorage.removeItem(KYC_DRAFT_KEY);
+      } catch {
+        /* ignore */
+      }
     } finally {
       setSubmitting(false);
     }
@@ -234,7 +290,7 @@ export default function ProfilePage() {
             {/* Residency */}
             <div>
               <span className="mb-1 block text-sm font-medium text-cosmic/80">Where are you based?</span>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Where are you based?">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Where are you based?" data-invalid={errors.residency ? "true" : undefined} tabIndex={errors.residency ? -1 : undefined}>
                 {[
                   { v: "nigeria", l: "I live in Nigeria" },
                   { v: "diaspora", l: "I live outside Nigeria" },
@@ -299,6 +355,7 @@ export default function ProfilePage() {
                         <input
                           ref={(el) => { fileRefs.current[d.kind] = el; }}
                           type="file"
+                          data-invalid={errors[d.kind] ? "true" : undefined}
                           accept="image/jpeg,image/png,image/webp,application/pdf"
                           onChange={(e) => { setPicked((p) => ({ ...p, [d.kind]: e.target.files?.[0]?.name ?? "" })); clearErr(d.kind); }}
                           className={`block w-full rounded-lg border text-sm text-cosmic/70 file:mr-3 file:rounded-lg file:border-0 file:bg-cosmic file:px-3 file:py-2 file:text-sm file:font-medium file:text-pioneer hover:file:bg-cosmic/90 ${
