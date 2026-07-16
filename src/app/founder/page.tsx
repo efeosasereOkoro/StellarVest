@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ExternalLink } from "@/components/ui/external-link";
 import { STARTUP_STAGES, stageHelp } from "@/lib/startup";
 
 type Startup = {
@@ -269,7 +270,7 @@ export default function FounderPage() {
         ) : (
           <div className="mt-2 space-y-1 text-sm text-cosmic/80">
             {startup.description && <p>{startup.description}</p>}
-            {startup.website && <p className="text-cosmic/60">{startup.website}</p>}
+            {startup.website && <p className="text-cosmic/60"><ExternalLink href={startup.website} /></p>}
             {startup.stage && <p className="text-cosmic/60">Stage: {startup.stage}</p>}
             <p className="text-cosmic/60">Profile is locked while {s?.label.toLowerCase()}.</p>
           </div>

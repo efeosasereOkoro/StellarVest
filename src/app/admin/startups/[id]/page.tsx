@@ -7,6 +7,7 @@ import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ExternalLink } from "@/components/ui/external-link";
 import { DocViewer } from "@/components/doc-viewer";
 
 type Startup = {
@@ -109,7 +110,7 @@ export default function AdminStartupReviewPage() {
         <p className="font-medium text-cosmic">Profile</p>
         <div className="mt-2 space-y-1 text-sm text-cosmic/80">
           {startup.description && <p>{startup.description}</p>}
-          {startup.website && <p className="text-cosmic/60">{startup.website}</p>}
+          {startup.website && <p className="text-cosmic/60"><ExternalLink href={startup.website} /></p>}
           {startup.stage && <p className="text-cosmic/60">Stage: {startup.stage}</p>}
         </div>
       </Card>

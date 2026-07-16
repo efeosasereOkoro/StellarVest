@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Badge } from "@/components/ui/badge";
+import { Linkify } from "@/components/ui/external-link";
 
 type Deal = { id: string; startupId: string | null; startupName: string; description: string | null; status: string; fundingGoal: string | null; valuation: string | null; terms: string | null };
 type Doc = { id: string; filename: string; uploadedAt: string };
@@ -165,7 +166,7 @@ export default function DealPage() {
         <h1 className="font-display text-3xl font-semibold tracking-tight">{deal.startupName}</h1>
         <Badge tone={s.tone}>{s.label}</Badge>
       </div>
-      {deal.description && <p className="mt-2 text-sm text-cosmic/70">{deal.description}</p>}
+      {deal.description && <p className="mt-2 text-sm text-cosmic/70"><Linkify text={deal.description} /></p>}
 
       {/* Workflow actions */}
       <Card className="mt-6">
@@ -234,7 +235,7 @@ export default function DealPage() {
           <dl className="mt-2 space-y-2 text-sm">
             {deal.fundingGoal && <div className="flex justify-between gap-3"><dt className="text-cosmic/70">Funding goal</dt><dd className="font-medium text-cosmic">{money(deal.fundingGoal)}</dd></div>}
             {deal.valuation && <div className="flex justify-between gap-3"><dt className="text-cosmic/70">Valuation</dt><dd className="font-medium text-cosmic">{deal.valuation}</dd></div>}
-            {deal.terms && <div><dt className="text-cosmic/70">Investment terms</dt><dd className="mt-0.5 whitespace-pre-wrap text-cosmic">{deal.terms}</dd></div>}
+            {deal.terms && <div><dt className="text-cosmic/70">Investment terms</dt><dd className="mt-0.5 whitespace-pre-wrap text-cosmic"><Linkify text={deal.terms} /></dd></div>}
           </dl>
         </Card>
       )}
