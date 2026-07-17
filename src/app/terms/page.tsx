@@ -7,6 +7,7 @@ export default function TermsPage() {
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Terms of Use</h1>
       <p className="mt-2 text-sm text-cosmic/70">Alpha draft — these terms will be finalised before launch.</p>
+      <p className="mt-1 text-sm text-cosmic/50">Last updated: 17 July 2026</p>
 
       <div className="mt-8 space-y-6 text-cosmic/80">
         <section>
