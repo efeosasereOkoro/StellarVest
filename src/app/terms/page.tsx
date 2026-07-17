@@ -12,9 +12,9 @@ export default function TermsPage() {
         <section>
           <h2 className="font-display text-xl font-semibold text-cosmic">1. About StelarVest</h2>
           <p className="mt-2">
-            StelarVest is a syndicate-based investment platform operated by StarSector8. It lets
-            verified investors join cohorts whose capital is pooled and deployed into early-stage
-            startups under StarSector8&apos;s governance.
+            StelarVest is a cohort-based investment platform operated by StarSector8. It lets
+            verified investors join investment cohorts whose capital is pooled and deployed into
+            vetted early-stage startups under StarSector8&apos;s governance.
           </p>
         </section>
         <section>
@@ -35,20 +35,27 @@ export default function TermsPage() {
         <section>
           <h2 className="font-display text-xl font-semibold text-cosmic">4. Contributions</h2>
           <p className="mt-2">
-            When you back a deal you indicate a contribution amount and receive a payment reference.
-            You then transfer the funds bank-to-bank to the escrow account StarSector8 provides,
-            quoting that reference, and mark the payment as sent. Your contribution is recorded as
-            confirmed once StarSector8 reconciles the transfer. A pledge is an indication of intent,
-            not a binding obligation, until funds are confirmed.
+            Contributions are made to your investment cohort&apos;s pool and are recorded in naira,
+            measured in units (₦1,000 = 1 unit). You can contribute repeatedly, subject to a
+            minimum per contribution that depends on where you&apos;re based; if you&apos;re outside
+            Nigeria you can fund a contribution from your local currency, and it is recorded in
+            naira. When you pledge, you receive a payment reference; you then transfer the funds
+            bank-to-bank to the escrow account StarSector8 provides, quoting that reference, and
+            mark the payment as sent. Your contribution is recorded as confirmed once StarSector8
+            reconciles the transfer. A pledge is an indication of intent, not a binding obligation,
+            until funds are confirmed. Your unit holding and share of the cohort pool are shown in
+            your account.
           </p>
         </section>
         <section>
           <h2 className="font-display text-xl font-semibold text-cosmic">5. Founders &amp; startups</h2>
           <p className="mt-2">
-            If you list a startup, you confirm you&apos;re authorised to do so and that the information and
-            documents you submit are accurate. StarSector8 reviews submissions at its discretion;
-            listing or submitting does <strong>not</strong> guarantee investment. You&apos;re responsible
-            for the updates you post to investors.
+            Before listing a startup you complete a founder profile identifying you as the person
+            operating it (including your LinkedIn profile). If you list a startup, you confirm
+            you&apos;re authorised to do so and that the information and documents you submit are
+            accurate. StarSector8 reviews submissions at its discretion; listing or submitting does{" "}
+            <strong>not</strong> guarantee investment. You&apos;re responsible for the updates you post
+            to investors; updates are reviewed by StarSector8 before they become visible.
           </p>
         </section>
         <section>
