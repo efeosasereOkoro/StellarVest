@@ -424,7 +424,23 @@ export default function FounderPage() {
                   Everyone on StelarVest is identity-verified. Upload a photograph and a government ID —
                   the StarSector8 team reviews them before you can submit your startup. Files: JPG, PNG, WebP, or PDF, max 4MB.
                 </p>
+                {/* Flow: photograph → which ID → its number → the ID itself. */}
                 <form onSubmit={submitVerification} className="mt-3 space-y-3">
+                  {[FOUNDER_DOCS[0]].map((d) => (
+                    <div key={d.kind}>
+                      <span className="mb-1 block text-sm font-medium text-cosmic/80">{d.label}</span>
+                      <input
+                        ref={(el) => { vFileRefs.current[d.kind] = el; }}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,application/pdf"
+                        onChange={() => setVErr((p) => ({ ...p, [d.kind]: "" }))}
+                        className={`block w-full rounded-lg border text-sm text-cosmic/70 file:mr-3 file:rounded-lg file:border-0 file:bg-cosmic file:px-3 file:py-2 file:text-sm file:font-medium file:text-pioneer hover:file:bg-cosmic/90 ${
+                          vErr[d.kind] ? "border-danger" : "border-cosmic/15"
+                        }`}
+                      />
+                      {vErr[d.kind] && <p className="mt-1 text-sm text-danger">{vErr[d.kind]}</p>}
+                    </div>
+                  ))}
                   <label className="block">
                     <span className="mb-1 block text-sm font-medium text-cosmic/80">ID type</span>
                     <select
@@ -440,7 +456,7 @@ export default function FounderPage() {
                   </label>
                   <Field label="ID number" value={vIdNumber} error={vErr.idNumber}
                     onChange={(e) => { setVIdNumber(e.target.value); setVErr((p) => ({ ...p, idNumber: "" })); }} />
-                  {FOUNDER_DOCS.map((d) => (
+                  {[FOUNDER_DOCS[1]].map((d) => (
                     <div key={d.kind}>
                       <span className="mb-1 block text-sm font-medium text-cosmic/80">{d.label}</span>
                       <input
