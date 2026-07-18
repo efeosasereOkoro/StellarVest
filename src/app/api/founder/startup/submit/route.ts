@@ -21,12 +21,18 @@ export async function POST(req: Request) {
   }
   const resubmission = startup.status === "rejected" || startup.status === "queried";
 
-  // A complete founder profile (incl. valid LinkedIn — B-065/B-066) is
-  // required before review; also catches startups created before the
-  // founder-profile step existed.
+  // A complete founder profile (incl. valid LinkedIn — B-065/B-066) AND a
+  // verified founder identity (B-074, D-019) are required before review; also
+  // catches startups created before these steps existed.
   const [fp] = await db.select().from(founderProfiles).where(eq(founderProfiles.userId, user.id));
   if (!fp || !isLinkedinUrl(fp.linkedin)) {
     return NextResponse.json({ error: "Complete your founder profile (including your LinkedIn) before submitting for review." }, { status: 400 });
+  }
+  if (fp.verificationStatus !== "verified") {
+    const msg = fp.verificationStatus === "submitted"
+      ? "Your identity verification is still under review — you can submit once it's approved."
+      : "Complete your identity verification (photograph + government ID) before submitting for review.";
+    return NextResponse.json({ error: msg }, { status: 400 });
   }
 
   const [{ c }] = await db.select({ c: count() }).from(startupDocuments).where(eq(startupDocuments.startupId, startup.id));

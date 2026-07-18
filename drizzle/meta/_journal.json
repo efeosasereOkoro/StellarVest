@@ -183,6 +183,13 @@
       "when": 1784206612333,
       "tag": "0025_chief_cammi",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1784359218667,
+      "tag": "0026_uneven_lifeguard",
+      "breakpoints": true
     }
   ]
 }

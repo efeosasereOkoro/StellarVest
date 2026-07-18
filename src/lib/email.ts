@@ -91,6 +91,30 @@ export function kycRejectedEmail(reason: string): { subject: string; html: strin
   };
 }
 
+export function founderVerifiedEmail(): { subject: string; html: string } {
+  return {
+    subject: "You're verified — submit your startup on StelarVest",
+    html: layout(
+      "Your identity is verified ✅",
+      `<p>Good news — your founder identity has been verified. You can now submit your startup to StarSector8 for review.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/founder`, "Go to your dashboard")}</p>`,
+    ),
+  };
+}
+
+export function founderRejectedEmail(reason: string): { subject: string; html: string } {
+  return {
+    subject: "Action needed on your StelarVest founder verification",
+    html: layout(
+      "We couldn't verify your documents",
+      `<p>Unfortunately your founder identity verification didn't pass. Here's why:</p>
+       <p style="background:#f6f6f6;border-radius:8px;padding:12px 14px;margin:12px 0"><strong>${escapeHtml(reason)}</strong></p>
+       <p>You can re-upload your documents and resubmit any time — there's no limit on resubmissions.</p>
+       <p style="margin:20px 0">${button(`${APP_URL}/founder`, "Review & resubmit")}</p>`,
+    ),
+  };
+}
+
 export function fundsConfirmedEmail(dealName: string, amountLabel: string): { subject: string; html: string } {
   return {
     subject: `Your contribution to ${dealName} is confirmed`,

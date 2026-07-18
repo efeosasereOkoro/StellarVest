@@ -260,6 +260,14 @@ export const founderProfiles = pgTable("founder_profiles", {
   phone: text("phone").notNull(),
   linkedin: text("linkedin").notNull(),
   residentialAddress: text("residential_address"),
+  // Identity verification (B-074, D-019 — CEO: verification for everyone).
+  // Photograph + government ID reviewed by the team, like investor KYC.
+  // incomplete → submitted → verified | rejected (free resubmission, D-012).
+  idType: text("id_type"),
+  idNumber: text("id_number"),
+  verificationStatus: text("verification_status").notNull().default("incomplete"),
+  rejectionReason: text("rejection_reason"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

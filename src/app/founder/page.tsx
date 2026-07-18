@@ -10,8 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "@/components/ui/external-link";
 import { STARTUP_STAGES, stageHelp, isLinkedinUrl } from "@/lib/startup";
+import { FOUNDER_DOCS, ID_TYPES } from "@/lib/kyc";
 
-type FounderProfile = { fullName: string; phone: string; linkedin: string; residentialAddress: string | null };
+type FounderProfile = {
+  fullName: string; phone: string; linkedin: string; residentialAddress: string | null;
+  idType: string | null; idNumber: string | null;
+  verificationStatus: string; rejectionReason: string | null;
+};
 type Startup = {
   id: string;
   name: string;
@@ -80,6 +85,16 @@ export default function FounderPage() {
   const [fpErr, setFpErr] = useState<Record<string, string>>({});
   const [fpSaved, setFpSaved] = useState(false);
 
+  // Identity verification (B-074) — photograph + government ID, reviewed by
+  // the team like investor KYC.
+  const [vStatus, setVStatus] = useState("incomplete");
+  const [vReason, setVReason] = useState<string | null>(null);
+  const [vIdType, setVIdType] = useState("");
+  const [vIdNumber, setVIdNumber] = useState("");
+  const [vErr, setVErr] = useState<Record<string, string>>({});
+  const [vBusy, setVBusy] = useState(false);
+  const vFileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
   // Startup profile form
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -116,8 +131,59 @@ export default function FounderPage() {
       setFpPhone(fp.phone);
       setFpLinkedin(fp.linkedin);
       setFpAddress(fp.residentialAddress ?? "");
+      setVStatus(fp.verificationStatus ?? "incomplete");
+      setVReason(fp.rejectionReason ?? null);
+      setVIdType(fp.idType ?? "");
+      setVIdNumber(fp.idNumber ?? "");
     }
     setLoaded(true);
+  }
+
+  // Submit identity verification: upload the two documents, then submit the
+  // set + ID details for review (B-074). Inline field errors throughout.
+  async function submitVerification(e: React.FormEvent) {
+    e.preventDefault();
+    const errs: Record<string, string> = {};
+    if (!vIdType) errs.idType = "Choose your ID type.";
+    if (!vIdNumber.trim()) errs.idNumber = "Your ID number is required.";
+    for (const d of FOUNDER_DOCS) {
+      if (!vFileRefs.current[d.kind]?.files?.[0]) errs[d.kind] = `${d.label} is required.`;
+    }
+    setVErr(errs);
+    if (Object.keys(errs).length) return;
+
+    setVBusy(true);
+    setError(null);
+    try {
+      for (const d of FOUNDER_DOCS) {
+        const file = vFileRefs.current[d.kind]?.files?.[0];
+        if (!file) continue;
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("kind", d.kind);
+        const up = await fetch("/api/kyc/document", { method: "POST", headers: await authHeaders(), body: fd });
+        if (!up.ok) {
+          const err = await up.json().catch(() => ({}));
+          setVErr({ [d.kind]: err.error ?? "Upload failed." });
+          return;
+        }
+      }
+      const res = await fetch("/api/founder/verification", {
+        method: "POST",
+        headers: await authHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ idType: vIdType, idNumber: vIdNumber }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (data.fields) setVErr(data.fields);
+        else setError(data.error ?? "Couldn't submit your verification.");
+        return;
+      }
+      setVStatus("submitted");
+      setVReason(null);
+    } finally {
+      setVBusy(false);
+    }
   }
 
   // Save the founder profile (B-065/B-066) — inline field errors, LinkedIn
@@ -330,6 +396,73 @@ export default function FounderPage() {
           {fpSaved && <p className="text-sm text-deep-frontier">Founder profile saved.</p>}
           <Button type="submit" disabled={busy}>{fpExists ? "Save founder profile" : "Save & continue"}</Button>
         </form>
+
+        {/* Identity verification (B-074) — required before submitting a startup. */}
+        {fpExists && (
+          <div className="mt-5 border-t border-cosmic/10 pt-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-cosmic">Identity verification</p>
+              <Badge tone={vStatus === "verified" ? "venture" : vStatus === "submitted" ? "pitch" : vStatus === "rejected" ? "ignition" : "neutral"}>
+                {vStatus === "incomplete" ? "required" : vStatus}
+              </Badge>
+            </div>
+
+            {vStatus === "verified" && (
+              <p className="mt-2 text-sm text-cosmic/70">Your identity is verified — you can submit your startup for review.</p>
+            )}
+            {vStatus === "submitted" && (
+              <p className="mt-2 text-sm text-cosmic/70">Your documents are under review. Your status updates here once the StarSector8 team completes it.</p>
+            )}
+            {(vStatus === "incomplete" || vStatus === "rejected") && (
+              <>
+                {vStatus === "rejected" && vReason && (
+                  <div className="mt-2 rounded-lg bg-ignition/10 p-3 text-sm text-ignition-ink">
+                    Your verification was rejected. Reason: {vReason}. Please review and resubmit.
+                  </div>
+                )}
+                <p className="mt-2 text-sm text-cosmic/70">
+                  Everyone on StelarVest is identity-verified. Upload a photograph and a government ID —
+                  the StarSector8 team reviews them before you can submit your startup. Files: JPG, PNG, WebP, or PDF, max 4MB.
+                </p>
+                <form onSubmit={submitVerification} className="mt-3 space-y-3">
+                  <label className="block">
+                    <span className="mb-1 block text-sm font-medium text-cosmic/80">ID type</span>
+                    <select
+                      value={vIdType}
+                      onChange={(e) => { setVIdType(e.target.value); setVErr((p) => ({ ...p, idType: "" })); }}
+                      aria-invalid={vErr.idType ? true : undefined}
+                      className={`${inputCls} ${vErr.idType ? "border-danger" : ""}`}
+                    >
+                      <option value="">Select…</option>
+                      {ID_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    </select>
+                    {vErr.idType && <span className="mt-1 block text-sm text-danger">{vErr.idType}</span>}
+                  </label>
+                  <Field label="ID number" value={vIdNumber} error={vErr.idNumber}
+                    onChange={(e) => { setVIdNumber(e.target.value); setVErr((p) => ({ ...p, idNumber: "" })); }} />
+                  {FOUNDER_DOCS.map((d) => (
+                    <div key={d.kind}>
+                      <span className="mb-1 block text-sm font-medium text-cosmic/80">{d.label}</span>
+                      <input
+                        ref={(el) => { vFileRefs.current[d.kind] = el; }}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,application/pdf"
+                        onChange={() => setVErr((p) => ({ ...p, [d.kind]: "" }))}
+                        className={`block w-full rounded-lg border text-sm text-cosmic/70 file:mr-3 file:rounded-lg file:border-0 file:bg-cosmic file:px-3 file:py-2 file:text-sm file:font-medium file:text-pioneer hover:file:bg-cosmic/90 ${
+                          vErr[d.kind] ? "border-danger" : "border-cosmic/15"
+                        }`}
+                      />
+                      {vErr[d.kind] && <p className="mt-1 text-sm text-danger">{vErr[d.kind]}</p>}
+                    </div>
+                  ))}
+                  <Button variant="accent" type="submit" disabled={vBusy}>
+                    {vBusy ? "Submitting…" : vStatus === "rejected" ? "Resubmit for verification" : "Submit for verification"}
+                  </Button>
+                </form>
+              </>
+            )}
+          </div>
+        )}
       </Card>
 
       {/* Startup profile — unlocked once the founder profile exists. */}

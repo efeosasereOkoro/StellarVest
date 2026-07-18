@@ -28,11 +28,21 @@ export const ID_TYPES = [
   { value: "national_id", label: "National ID" },
 ];
 
+// Founder identity verification (B-074, D-019) — same review model as
+// investor KYC: photograph + one government ID, tagged with founder-specific
+// kinds so a user who is both investor and founder never mixes documents.
+export const FOUNDER_DOCS: { kind: string; label: string }[] = [
+  { kind: "founder_photo", label: "Photograph" },
+  { kind: "founder_id", label: "Government ID (NIN slip/card, passport, or national ID)" },
+];
+
 export const DOC_KIND_LABEL: Record<string, string> = {
   photograph: "Photograph",
   nin_doc: "NIN slip/card",
   utility_bill: "Utility bill",
   id_doc: "ID document",
+  founder_photo: "Photograph",
+  founder_id: "Government ID",
 };
 
 export function isResidency(v: unknown): v is Residency {

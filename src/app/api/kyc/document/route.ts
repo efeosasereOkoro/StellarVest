@@ -7,7 +7,9 @@ import { getAuthUser } from "@/lib/auth-server";
 
 const MAX_BYTES = 4 * 1024 * 1024; // 4MB (Vercel request body limit ~4.5MB)
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-const KINDS = ["photograph", "nin_doc", "utility_bill", "id_doc"];
+// Investor kinds + founder identity-verification kinds (B-074) — the same
+// upload slot mechanics serve both audiences.
+const KINDS = ["photograph", "nin_doc", "utility_bill", "id_doc", "founder_photo", "founder_id"];
 
 // Upload one KYC document, tagged with its kind. One request per file keeps us
 // under Vercel's body limit. Replaces any earlier document of the same kind so

@@ -52,7 +52,9 @@ export default function TermsPage() {
           <h2 className="font-display text-xl font-semibold text-cosmic">5. Founders &amp; startups</h2>
           <p className="mt-2">
             Before listing a startup you complete a founder profile identifying you as the person
-            operating it (including your LinkedIn profile). If you list a startup, you confirm
+            operating it (including your LinkedIn profile), and complete identity verification —
+            like investors, founders are verified before their startup can be submitted for review.
+            If you list a startup, you confirm
             you&apos;re authorised to do so and that the information and documents you submit are
             accurate. StarSector8 reviews submissions at its discretion; listing or submitting does{" "}
             <strong>not</strong> guarantee investment. You&apos;re responsible for the updates you post
