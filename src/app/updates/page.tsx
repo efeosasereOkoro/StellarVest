@@ -35,7 +35,7 @@ export default function UpdatesPage() {
       <main className="mx-auto w-full max-w-xl flex-1 px-6 py-12">
         <h1 className="font-display text-3xl font-semibold tracking-tight">Portfolio updates</h1>
         <Card className="mt-6">
-          <p className="font-medium text-cosmic">Get verified first</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Get verified first</p>
           <p className="mt-1 text-sm text-cosmic/70">Updates from startups are available once your identity is verified.</p>
           <Link href="/profile" className="mt-4 inline-flex items-center justify-center rounded-lg bg-cosmic px-4 py-2.5 text-sm font-medium text-pioneer hover:bg-cosmic/90">Go to profile</Link>
         </Card>

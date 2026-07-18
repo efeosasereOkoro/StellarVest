@@ -170,7 +170,7 @@ export default function DealPage() {
 
       {/* Workflow actions */}
       <Card className="mt-6">
-        <p className="font-medium text-cosmic">Status</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Status</p>
         <div className="mt-3 flex flex-wrap gap-3">
           {deal.status === "draft" && <Button disabled={busy} onClick={() => doAction("send_to_committee")}>Send to committee</Button>}
           {deal.status === "under_review" && (
@@ -231,7 +231,7 @@ export default function DealPage() {
       {/* Deal terms */}
       {(deal.fundingGoal || deal.valuation || deal.terms) && (
         <Card className="mt-4">
-          <p className="font-medium text-cosmic">Deal terms</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Deal terms</p>
           <dl className="mt-2 space-y-2 text-sm">
             {deal.fundingGoal && <div className="flex justify-between gap-3"><dt className="text-cosmic/70">Funding goal</dt><dd className="font-medium text-cosmic">{money(deal.fundingGoal)}</dd></div>}
             {deal.valuation && <div className="flex justify-between gap-3"><dt className="text-cosmic/70">Valuation</dt><dd className="font-medium text-cosmic">{deal.valuation}</dd></div>}
@@ -243,7 +243,7 @@ export default function DealPage() {
       {/* Startup documents — pulled from the approved profile (single source of truth) */}
       {founderDocs.length > 0 && (
         <Card className="mt-4">
-          <p className="font-medium text-cosmic">Startup documents <span className="text-sm font-normal text-cosmic/50">(from the approved profile)</span></p>
+          <p className="font-display text-lg font-semibold text-cosmic">Startup documents <span className="text-sm font-normal text-cosmic/50">(from the approved profile)</span></p>
           <ul className="mt-2 space-y-1.5">
             {founderDocs.map((d) => (
               <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
@@ -257,7 +257,7 @@ export default function DealPage() {
 
       {/* Additional deal documents (optional supplements beyond the startup profile) */}
       <Card className="mt-4">
-        <p className="font-medium text-cosmic">Additional documents <span className="text-sm font-normal text-cosmic/50">(optional, specific to this deal)</span></p>
+        <p className="font-display text-lg font-semibold text-cosmic">Additional documents <span className="text-sm font-normal text-cosmic/50">(optional, specific to this deal)</span></p>
         {docs.length === 0 ? (
           <p className="mt-1 text-sm text-cosmic/70">No documents yet.</p>
         ) : (
@@ -281,7 +281,7 @@ export default function DealPage() {
 
       {/* Committee reviews */}
       <Card className="mt-4">
-        <p className="font-medium text-cosmic">Committee reviews</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Committee reviews</p>
         {reviews.length === 0 ? (
           <p className="mt-1 text-sm text-cosmic/70">No committee reviews yet.</p>
         ) : (

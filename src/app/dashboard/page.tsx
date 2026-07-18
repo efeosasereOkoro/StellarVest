@@ -104,7 +104,7 @@ export default function DashboardPage() {
         <Card className="mt-6 border-venture/40 bg-frontier/30">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-medium text-cosmic">You&rsquo;re set up as a founder</p>
+              <p className="font-display text-lg font-semibold text-cosmic">You&rsquo;re set up as a founder</p>
               <p className="mt-1 text-sm text-cosmic/70">Manage your startup profile, documents, and updates.</p>
             </div>
             <Link href="/founder" className="inline-flex w-full items-center justify-center rounded-lg bg-cosmic px-4 py-2.5 text-sm font-medium text-pioneer hover:bg-cosmic/90 sm:w-auto">
@@ -119,7 +119,7 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-cosmic">{s.title}</p>
+                <p className="font-display text-lg font-semibold text-cosmic">{s.title}</p>
                 <Badge tone={s.tone}>{kyc}</Badge>
               </div>
               <p className="mt-1 text-sm text-cosmic/70">{s.body}</p>

@@ -82,7 +82,7 @@ export default function AdminPortfolioPage() {
       {error && <p className="mt-3 text-sm text-danger">{error}</p>}
 
       <Card className="mt-6">
-        <p className="font-medium text-cosmic">Startups in this portfolio</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Startups in this portfolio</p>
         {members.length === 0 ? (
           <p className="mt-1 text-sm text-cosmic/70">No startups yet. Add approved startups below.</p>
         ) : (

@@ -170,7 +170,7 @@ export default function InvestorDealPage() {
       {/* Deal terms */}
       {(deal.fundingGoal || deal.valuation || deal.terms) && (
         <Card className="mt-6">
-          <p className="font-medium text-cosmic">Deal terms</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Deal terms</p>
           <dl className="mt-2 space-y-2 text-sm">
             {deal.fundingGoal && <div className="flex justify-between gap-3"><dt className="text-cosmic/70">Funding goal</dt><dd className="font-medium text-cosmic">{money(deal.fundingGoal)}</dd></div>}
             {deal.valuation && <div className="flex justify-between gap-3"><dt className="text-cosmic/70">Valuation</dt><dd className="font-medium text-cosmic">{deal.valuation}</dd></div>}
@@ -181,7 +181,7 @@ export default function InvestorDealPage() {
 
       {/* Contribution */}
       <Card className="mt-6">
-        <p className="font-medium text-cosmic">Your contribution</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Your contribution</p>
 
         {!active && (
           <form onSubmit={pledge} className="mt-3 space-y-3">
@@ -297,7 +297,7 @@ export default function InvestorDealPage() {
 
       {/* Deal Room — documents from the startup profile, plus any deal-specific extras */}
       <Card className="mt-4">
-        <p className="font-medium text-cosmic">Deal Room</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Deal Room</p>
         <p className="mt-1 text-sm text-cosmic/70">Due-diligence documents for this opportunity.</p>
         {founderDocs.length === 0 && docs.length === 0 ? (
           <p className="mt-3 text-sm text-cosmic/70">No documents have been shared yet.</p>

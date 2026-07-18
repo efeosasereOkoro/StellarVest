@@ -133,10 +133,11 @@ export default function AdminKycPage() {
         Awaiting verification: <span className="font-medium text-cosmic">{queue.length}</span> investor{queue.length === 1 ? "" : "s"} · <span className="font-medium text-cosmic">{founderQueue.length}</span> founder{founderQueue.length === 1 ? "" : "s"}
       </p>
 
+      <h2 className="mt-8 font-display text-xl font-semibold text-cosmic">Investor verification</h2>
       {queue.length === 0 ? (
-        <Card className="mt-6 text-sm text-cosmic/60">Nothing to review right now. 🎉</Card>
+        <Card className="mt-4 text-sm text-cosmic/60">No investor verifications waiting. 🎉</Card>
       ) : (
-        <div className="mt-6 space-y-4">
+        <div className="mt-4 space-y-4">
           {queue.map((inv) => {
             const isPendingRow = pending?.userId === inv.userId;
             return (

@@ -118,7 +118,7 @@ export default function ContributePage() {
         <Link href="/dashboard" className="text-cosmic/60 underline">&larr; Dashboard</Link>
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Contribute</h1>
         <Card className="mt-6">
-          <p className="text-sm font-medium text-cosmic">Get verified first</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Get verified first</p>
           <p className="mt-1 text-sm text-cosmic/70">You need to complete identity verification (KYC) before you can contribute.</p>
           <Link href="/profile" className="mt-3 inline-flex items-center justify-center rounded-lg bg-cosmic px-4 py-2.5 text-sm font-medium text-pioneer hover:bg-cosmic/90">Complete verification</Link>
         </Card>
@@ -137,7 +137,7 @@ export default function ContributePage() {
 
       {!data?.cohort ? (
         <Card className="mt-6">
-          <p className="text-sm font-medium text-cosmic">You&rsquo;ll be placed in a cohort soon</p>
+          <p className="font-display text-lg font-semibold text-cosmic">You&rsquo;ll be placed in a cohort soon</p>
           <p className="mt-1 text-sm text-cosmic/70">
             You&rsquo;re verified — StarSector8 will assign you to an investment cohort. Once you&rsquo;re in one, you can contribute here.
           </p>
@@ -162,7 +162,7 @@ export default function ContributePage() {
           </Card>
 
           <Card className="mt-4">
-            <p className="font-medium text-cosmic">Your ownership</p>
+            <p className="font-display text-lg font-semibold text-cosmic">Your ownership</p>
             {data.ownership.units > 0 ? (
               <p className="mt-1 text-sm text-cosmic/70">
                 You hold <span className="font-semibold text-cosmic">{fmtUnits(data.ownership.units)}</span> — <span className="font-semibold text-cosmic">{data.ownership.pct.toFixed(1)}%</span> of the {data.cohort.name} pool.
@@ -182,7 +182,7 @@ export default function ContributePage() {
           </Card>
 
           <Card className="mt-4">
-            <p className="font-medium text-cosmic">Make a contribution</p>
+            <p className="font-display text-lg font-semibold text-cosmic">Make a contribution</p>
             <p className="mt-1 text-sm text-cosmic/70">
               Minimum <span className="font-medium text-cosmic">{naira(data.minimum)}</span> ({unitsLabel(data.minimum)})
               {data.residency === "diaspora" ? " for diaspora investors" : data.residency === "nigeria" ? " for Nigeria-based investors" : ""}.
@@ -211,7 +211,7 @@ export default function ContributePage() {
 
           {hasPending && (
             <Card className="mt-4 border-venture/40 bg-frontier/30">
-              <p className="font-medium text-cosmic">How to fund</p>
+              <p className="font-display text-lg font-semibold text-cosmic">How to fund</p>
               <p className="mt-1 whitespace-pre-wrap text-sm text-cosmic/80">
                 {data.escrowInstructions?.trim()
                   ? data.escrowInstructions
@@ -222,7 +222,7 @@ export default function ContributePage() {
           )}
 
           <Card className="mt-4">
-            <p className="font-medium text-cosmic">Your contributions</p>
+            <p className="font-display text-lg font-semibold text-cosmic">Your contributions</p>
             {(data.contributions ?? []).length === 0 ? (
               <p className="mt-1 text-sm text-cosmic/70">No contributions yet.</p>
             ) : (

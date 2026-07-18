@@ -211,7 +211,7 @@ export default function CohortPage() {
 
       {/* Members */}
       <Card className="mt-6">
-        <p className="font-medium text-cosmic">Members ({members.length})</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Members ({members.length})</p>
         {members.length === 0 ? (
           <p className="mt-2 text-sm text-cosmic/70">No investors assigned yet.</p>
         ) : (
@@ -234,7 +234,7 @@ export default function CohortPage() {
 
       {/* Assign member */}
       <Card className="mt-4">
-        <p className="font-medium text-cosmic">Assign a verified investor</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Assign a verified investor</p>
         {assignable.length === 0 ? (
           <p className="mt-2 text-sm text-cosmic/70">No verified investors available to add.</p>
         ) : (
@@ -253,7 +253,7 @@ export default function CohortPage() {
       {/* Pool allocation */}
       <Card className="mt-4">
         <div className="flex items-center justify-between gap-2">
-          <p className="font-medium text-cosmic">Pool allocation</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Pool allocation</p>
           <Badge tone={remaining === 0 ? "venture" : "pitch"}>{totalAllocated}% allocated · {remaining}% left</Badge>
         </div>
         <p className="mt-1 text-sm text-cosmic/70">Split this cohort&apos;s pool across one or more portfolios (must total ≤ 100%).</p>

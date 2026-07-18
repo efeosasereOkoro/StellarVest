@@ -378,7 +378,7 @@ export default function FounderPage() {
       {/* Founder profile (B-065) — the person first, then the venture. */}
       <Card className="mt-6">
         <div className="flex items-center justify-between">
-          <p className="font-medium text-cosmic">Founder profile</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Founder profile</p>
           {fpExists && <Badge tone="venture">complete</Badge>}
         </div>
         <p className="mt-1 text-sm text-cosmic/70">
@@ -402,7 +402,7 @@ export default function FounderPage() {
         {fpExists && (
           <div className="mt-5 border-t border-cosmic/10 pt-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-cosmic">Identity verification</p>
+              <p className="font-semibold text-cosmic">Identity verification</p>
               <Badge tone={vStatus === "verified" ? "venture" : vStatus === "submitted" ? "pitch" : vStatus === "rejected" ? "ignition" : "neutral"}>
                 {vStatus === "incomplete" ? "required" : vStatus}
               </Badge>
@@ -486,12 +486,12 @@ export default function FounderPage() {
       {/* Startup profile — unlocked once the founder profile exists. */}
       {!fpExists && !startup ? (
         <Card className="mt-4 border-cosmic/10 bg-cosmic/[0.03]">
-          <p className="font-medium text-cosmic/70">Startup profile</p>
+          <p className="font-display text-lg font-semibold text-cosmic/70">Startup profile</p>
           <p className="mt-1 text-sm text-cosmic/60">Complete your founder profile above to create your startup profile.</p>
         </Card>
       ) : (
       <Card className="mt-4">
-        <p className="font-medium text-cosmic">Startup profile</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Startup profile</p>
         {editable ? (
           <form onSubmit={saveProfile} className="mt-3 space-y-3">
             <Field label="Startup name" value={name} error={pErr.name}
@@ -527,7 +527,7 @@ export default function FounderPage() {
       {/* Team */}
       {startup && (
         <Card className="mt-4">
-          <p className="font-medium text-cosmic">Team</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Team</p>
           <p className="mt-1 text-sm text-cosmic/70">The people behind {startup.name}, shown to the StarSector8 review team.</p>
           {team.length > 0 && (
             <ul className="mt-3 divide-y divide-cosmic/10 border-t border-cosmic/10">
@@ -578,7 +578,7 @@ export default function FounderPage() {
       {/* Documents */}
       {startup && (
         <Card className="mt-4">
-          <p className="font-medium text-cosmic">Documents</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Documents</p>
           {docs.length === 0 ? (
             <p className="mt-1 text-sm text-cosmic/70">No documents yet.</p>
           ) : (
@@ -610,7 +610,7 @@ export default function FounderPage() {
       {/* Submit */}
       {startup && editable && (
         <Card className="mt-4">
-          <p className="font-medium text-cosmic">Submit for review</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Submit for review</p>
           <p className="mt-1 text-sm text-cosmic/70">Once you submit, StarSector8 reviews your startup and documents. You&rsquo;ll be emailed the result.</p>
           <Button variant="accent" disabled={busy} onClick={submit} className="mt-3">Submit for review</Button>
         </Card>
@@ -619,7 +619,7 @@ export default function FounderPage() {
       {/* Updates (approved) */}
       {startup?.status === "approved" && (
         <Card className="mt-4">
-          <p className="font-medium text-cosmic">Investor updates</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Investor updates</p>
           <p className="mt-1 text-sm text-cosmic/70">
             Please post a comprehensive update at least once a quarter, and whenever you hit a
             significant milestone. Updates are reviewed by StarSector8 before investors see them.

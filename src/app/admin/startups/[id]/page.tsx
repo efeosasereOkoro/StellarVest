@@ -110,7 +110,7 @@ export default function AdminStartupReviewPage() {
       <p className="mt-1 text-sm text-cosmic/60">{startup.founderEmail ?? "—"}</p>
 
       <Card className="mt-6">
-        <p className="font-medium text-cosmic">Profile</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Profile</p>
         <div className="mt-2 space-y-1 text-sm text-cosmic/80">
           {startup.description && <p>{startup.description}</p>}
           {startup.website && <p className="text-cosmic/60"><ExternalLink href={startup.website} /></p>}
@@ -120,7 +120,7 @@ export default function AdminStartupReviewPage() {
 
       {/* The person operating the startup (B-065). */}
       <Card className="mt-4">
-        <p className="font-medium text-cosmic">Founder</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Founder</p>
         {!founder ? (
           <p className="mt-1 text-sm text-cosmic/70">No founder profile yet (created before founder profiles existed — required on their next submission).</p>
         ) : (
@@ -134,7 +134,7 @@ export default function AdminStartupReviewPage() {
       </Card>
 
       <Card className="mt-4">
-        <p className="font-medium text-cosmic">Team</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Team</p>
         {team.length === 0 ? (
           <p className="mt-1 text-sm text-cosmic/70">No team members listed.</p>
         ) : (
@@ -158,7 +158,7 @@ export default function AdminStartupReviewPage() {
       </Card>
 
       <Card className="mt-4">
-        <p className="font-medium text-cosmic">Documents</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Documents</p>
         {docs.length === 0 ? (
           <p className="mt-1 text-sm text-cosmic/70">No documents.</p>
         ) : (
@@ -174,7 +174,7 @@ export default function AdminStartupReviewPage() {
       </Card>
 
       <Card className="mt-4">
-        <p className="font-medium text-cosmic">Review decision</p>
+        <p className="font-display text-lg font-semibold text-cosmic">Review decision</p>
         {(startup.status === "queried" || startup.status === "rejected") && startup.rejectionReason && (
           <p className="mt-1 text-sm text-cosmic/70">Last review note: {startup.rejectionReason}</p>
         )}

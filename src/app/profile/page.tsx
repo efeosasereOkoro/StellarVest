@@ -265,7 +265,7 @@ export default function ProfilePage() {
 
       <Card className="mt-6">
         <div className="mb-4 flex items-center justify-between">
-          <span className="text-sm font-medium text-cosmic">Identity verification (KYC)</span>
+          <span className="font-display text-lg font-semibold text-cosmic">Identity verification (KYC)</span>
           <Badge tone={KYC_TONE[kyc] ?? "neutral"}>{kyc}</Badge>
         </div>
 

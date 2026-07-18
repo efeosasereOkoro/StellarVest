@@ -104,7 +104,7 @@ export default function DealsPage() {
 
       {needsReview.length > 0 && (
         <Card className="mt-6 border-pitch bg-pitch/20">
-          <p className="font-medium text-cosmic">Awaiting committee review ({needsReview.length})</p>
+          <p className="font-display text-lg font-semibold text-cosmic">Awaiting committee review ({needsReview.length})</p>
           <ul className="mt-2 space-y-1.5">
             {needsReview.map((d) => (
               <li key={d.id} className="flex items-center justify-between gap-3 text-sm">
@@ -118,7 +118,7 @@ export default function DealsPage() {
 
       {/* Create a deal from an approved startup */}
       <Card className="mt-6">
-        <p className="font-medium text-cosmic">New deal</p>
+        <p className="font-display text-lg font-semibold text-cosmic">New deal</p>
         {approved.length === 0 ? (
           <p className="mt-2 text-sm text-cosmic/70">
             No approved startups yet. <Link href="/admin/startups" className="font-medium text-ignition-ink underline">Review &amp; approve a startup</Link> first — deals are created from approved startups.
