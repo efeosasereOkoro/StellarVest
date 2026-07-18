@@ -21,6 +21,11 @@ export async function POST(req: Request) {
   if (!profile) {
     return NextResponse.json({ error: "Complete your founder profile first." }, { status: 400 });
   }
+  // The utility bill proves the address on the profile — legacy profiles
+  // saved before the address became mandatory must add it first.
+  if (!profile.residentialAddress) {
+    return NextResponse.json({ error: "Add your residential address to your founder profile first — the utility bill you upload verifies it." }, { status: 400 });
+  }
   if (profile.verificationStatus === "verified" || profile.verificationStatus === "submitted") {
     return NextResponse.json({ error: "Your verification is already " + profile.verificationStatus + "." }, { status: 400 });
   }

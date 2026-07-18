@@ -40,6 +40,9 @@ export async function POST(req: Request) {
   if (!phone) fields.phone = "Your phone number is required.";
   if (!linkedin) fields.linkedin = "Your LinkedIn profile is required.";
   else if (!isLinkedinUrl(linkedin)) fields.linkedin = "Enter a valid LinkedIn URL (e.g. https://linkedin.com/in/your-name).";
+  // Mandatory since 2026-07-18 — the utility bill in identity verification
+  // proves this address.
+  if (!residentialAddress) fields.residentialAddress = "Your residential address is required.";
   if (Object.keys(fields).length) {
     return NextResponse.json({ error: "Some required details are missing.", fields }, { status: 400 });
   }
@@ -49,7 +52,7 @@ export async function POST(req: Request) {
     fullName,
     phone,
     linkedin,
-    residentialAddress: residentialAddress || null,
+    residentialAddress,
   };
   const [profile] = await db
     .insert(founderProfiles)

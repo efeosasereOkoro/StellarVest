@@ -34,6 +34,7 @@ export const ID_TYPES = [
 export const FOUNDER_DOCS: { kind: string; label: string }[] = [
   { kind: "founder_photo", label: "Photograph" },
   { kind: "founder_id", label: "Government ID (NIN slip/card, passport, or national ID)" },
+  { kind: "founder_utility_bill", label: "Utility bill (proof of address)" },
 ];
 
 export const DOC_KIND_LABEL: Record<string, string> = {
@@ -43,6 +44,7 @@ export const DOC_KIND_LABEL: Record<string, string> = {
   id_doc: "ID document",
   founder_photo: "Photograph",
   founder_id: "Government ID",
+  founder_utility_bill: "Utility bill",
 };
 
 export function isResidency(v: unknown): v is Residency {

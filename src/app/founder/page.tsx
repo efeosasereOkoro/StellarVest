@@ -196,6 +196,7 @@ export default function FounderPage() {
     if (!fpPhone.trim()) errs.phone = "Your phone number is required.";
     if (!fpLinkedin.trim()) errs.linkedin = "Your LinkedIn profile is required.";
     else if (!isLinkedinUrl(fpLinkedin)) errs.linkedin = "Enter a valid LinkedIn URL (e.g. https://linkedin.com/in/your-name).";
+    if (!fpAddress.trim()) errs.residentialAddress = "Your residential address is required.";
     setFpErr(errs);
     if (Object.keys(errs).length) return;
 
@@ -391,8 +392,8 @@ export default function FounderPage() {
           <Field label="LinkedIn profile" value={fpLinkedin} error={fpErr.linkedin}
             placeholder="https://linkedin.com/in/your-name"
             onChange={(e) => { setFpLinkedin(e.target.value); setFpErr((p) => ({ ...p, linkedin: "" })); }} />
-          <Field label="Residential address (optional)" value={fpAddress}
-            onChange={(e) => setFpAddress(e.target.value)} />
+          <Field label="Residential address" value={fpAddress} error={fpErr.residentialAddress}
+            onChange={(e) => { setFpAddress(e.target.value); setFpErr((p) => ({ ...p, residentialAddress: "" })); }} />
           {fpSaved && <p className="text-sm text-deep-frontier">Founder profile saved.</p>}
           <Button type="submit" disabled={busy}>{fpExists ? "Save founder profile" : "Save & continue"}</Button>
         </form>
@@ -456,7 +457,7 @@ export default function FounderPage() {
                   </label>
                   <Field label="ID number" value={vIdNumber} error={vErr.idNumber}
                     onChange={(e) => { setVIdNumber(e.target.value); setVErr((p) => ({ ...p, idNumber: "" })); }} />
-                  {[FOUNDER_DOCS[1]].map((d) => (
+                  {FOUNDER_DOCS.slice(1).map((d) => (
                     <div key={d.kind}>
                       <span className="mb-1 block text-sm font-medium text-cosmic/80">{d.label}</span>
                       <input
