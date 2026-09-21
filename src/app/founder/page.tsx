@@ -422,7 +422,7 @@ export default function FounderPage() {
                   </div>
                 )}
                 <p className="mt-2 text-sm text-cosmic/70">
-                  Everyone on StelarVest is identity-verified. Upload a photograph, a government ID, and a
+                  Everyone on StellarVest is identity-verified. Upload a photograph, a government ID, and a
                   utility bill (proof of address) — the StarSector8 team reviews them before you can submit
                   your startup. Files: JPG, PNG, WebP, or PDF, max 4MB.
                 </p>

@@ -8,7 +8,7 @@ Sentry.init({
   tracesSampleRate: 0,
   // Drop noise from visitors' browser extensions — not our code. Crypto
   // wallets (MetaMask etc.) inject inpage.js into every page and throw when
-  // they can't connect; StelarVest doesn't use web3 at all. These would
+  // they can't connect; StellarVest doesn't use web3 at all. These would
   // otherwise page the team for a problem in someone else's browser.
   ignoreErrors: [
     /MetaMask/i,

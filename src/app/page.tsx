@@ -1,4 +1,4 @@
-// StelarVest landing — faithful implementation of the "StelarVest Landing"
+// StellarVest landing — faithful implementation of the "StellarVest Landing"
 // design (Claude Design export). A cosmic-dark hero with an animated starfield
 // and orbital graphic, trust guarantees, a three-step how-it-works, a founders
 // band, and a dark closing CTA. Ported to the app's brand tokens
@@ -128,13 +128,13 @@ export default function Home() {
             <span className="inline-flex items-center rounded-full bg-ignition px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-pioneer">
               Alpha
             </span>
-            <span>StelarVest platform — in active development, features may change.</span>
+            <span>StellarVest platform — in active development, features may change.</span>
           </div>
 
           {/* nav */}
           <nav className="flex items-center justify-between gap-4 pb-1.5 pt-4">
             <a href="/" className="font-display text-[22px] font-bold tracking-[-0.02em] text-pioneer">
-              Stelar<span className="text-ignition">Vest</span>
+              Stellar<span className="text-ignition">Vest</span>
             </a>
             <div className="flex items-center gap-2">
               <a href="/login" className="hidden items-center whitespace-nowrap rounded-[10px] px-4 py-2.5 text-[15px] font-semibold text-pioneer/85 transition-colors hover:bg-white/10 sm:inline-flex">
@@ -221,7 +221,7 @@ export default function Home() {
       <section className="mx-auto w-full max-w-[1180px] px-6 pb-[clamp(48px,6vw,72px)] pt-[clamp(64px,9vw,120px)]">
         <div className="max-w-[640px]">
           <p className="mb-3 font-display text-[13px] font-semibold uppercase tracking-[0.2em] text-ignition-ink">
-            Why StelarVest
+            Why StellarVest
           </p>
           <h2 className="font-display text-[clamp(1.9rem,3.6vw,2.7rem)] font-bold leading-[1.1] tracking-[-0.02em] text-cosmic">
             Trust, engineered in.
@@ -340,7 +340,7 @@ export default function Home() {
         <div className="mx-auto flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-4 px-6 py-8 text-[15px] text-cosmic/70">
           <div className="flex items-center gap-3.5">
             <span className="font-display text-[17px] font-bold tracking-[-0.02em] text-cosmic">
-              Stelar<span className="text-ignition">Vest</span>
+              Stellar<span className="text-ignition">Vest</span>
             </span>
             <span>© 2026 StarSector8 (Alpha)</span>
           </div>
