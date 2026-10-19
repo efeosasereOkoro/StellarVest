@@ -56,7 +56,8 @@ export default function WaitlistPage() {
             {done === "already" ? "You're already on the list" : "You're on the list"}
           </h1>
           <p className="mt-2 text-sm text-cosmic/70">
-            We&rsquo;ll email you at <span className="font-medium text-cosmic">{email}</span> when we open access. There&rsquo;s nothing else to do right now.
+            We&rsquo;ll email you at <span className="font-medium text-cosmic">{email}</span>{" "}
+            when we open access. There&rsquo;s nothing else to do right now.
           </p>
           <Link href="/" className="mt-6 inline-block text-sm font-medium text-cosmic underline">Back to home</Link>
         </Card>
