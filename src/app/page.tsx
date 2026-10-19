@@ -5,7 +5,7 @@
 //
 // Pre-launch: the primary CTAs point to the waitlist, not self-signup (B-077).
 // The landing carries its own dark nav + footer, so the global light chrome
-// (SiteHeader / AlphaBanner / SiteFooter) is suppressed on "/".
+// (SiteHeader / SiteFooter) is suppressed on "/".
 
 const COSMIC = "#161616";
 
