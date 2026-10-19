@@ -1,12 +1,11 @@
-// StellarVest landing — faithful implementation of the "StellarVest Landing"
-// design (Claude Design export). A cosmic-dark hero with an animated starfield
-// and orbital graphic, trust guarantees, a three-step how-it-works, a founders
-// band, and a dark closing CTA. Ported to the app's brand tokens
+// Stelvest landing — cosmic-dark hero with an animated starfield and orbital
+// graphic, trust guarantees, a three-step how-it-works, a founders band, and a
+// dark closing CTA. Ported to the app's brand tokens
 // (venture/cosmic/ignition/frontier/pitch) and fonts (Funnel Display / Figtree).
 //
+// Pre-launch: the primary CTAs point to the waitlist, not self-signup (B-077).
 // The landing carries its own dark nav + footer, so the global light chrome
-// (SiteHeader / AlphaBanner / SiteFooter) is suppressed on "/" — see those
-// components. decoration=on and glow=60% from the design are baked in.
+// (SiteHeader / AlphaBanner / SiteFooter) is suppressed on "/".
 
 const COSMIC = "#161616";
 
@@ -66,7 +65,7 @@ function ArrowIcon() {
   );
 }
 
-const HERO_CUES = ["KYC-verified investors", "Funds held in escrow", "Every action audited"];
+const HERO_CUES = ["Verified investors", "Funds held in escrow", "Every action audited"];
 
 const TRUST = [
   {
@@ -78,26 +77,26 @@ const TRUST = [
   {
     box: "bg-pitch text-deep-pitch",
     t: "Documents kept private",
-    d: "IDs and diligence files sit in access-controlled storage — never public (based on GDPR & NDPR).",
+    d: "IDs and diligence files sit in access-controlled storage, never public. Handled in line with the Nigeria Data Protection Regulation.",
     icon: (<><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></>),
   },
   {
     box: "bg-ignition/15 text-ignition-ink",
     t: "Every action audited",
-    d: "Logins, document access, votes, and status changes are all written to a tamper-proof, append-only log.",
+    d: "Logins, document access, approvals and status changes are all written to a tamper-proof, append-only log.",
     icon: (<><rect x="6" y="4" width="12" height="16" rx="2" /><path d="M9 4h6v3H9z" /><path d="m9.5 13 2 2 3-3.5" /></>),
   },
   {
     box: "bg-frontier text-deep-frontier",
     t: "End-to-end secure channel for your money",
-    d: "Funds move bank-to-bank through escrow; the platform only records the steps.",
+    d: "Funds move bank-to-bank through a licensed escrow; the platform only records the steps.",
     icon: (<><path d="M3 9 12 4l9 5" /><path d="M5 9v9M19 9v9M9.5 9v9M14.5 9v9" /><path d="M3 20h18" /></>),
   },
 ];
 
 const STEPS = [
   { n: "1", t: "Create your account", d: "Sign up and verify your email in about a minute." },
-  { n: "2", t: "Get verified", d: "Upload your ID; the StarSector8 team completes your KYC review." },
+  { n: "2", t: "Get verified", d: "Upload your ID and complete your KYC review." },
   { n: "3", t: "Join an investment cohort", d: "Your capital is pooled and deployed into vetted startups." },
 ];
 
@@ -123,25 +122,23 @@ export default function Home() {
         </div>
 
         <div className="relative z-[2] mx-auto w-full max-w-[1180px] px-6">
-          {/* alpha strip */}
-          <div className="flex items-center gap-2.5 pt-4 text-[13px] text-pioneer/60">
-            <span className="inline-flex items-center rounded-full bg-ignition px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-pioneer">
-              Alpha
-            </span>
-            <span>StellarVest platform — in active development, features may change.</span>
-          </div>
+          {/* credibility strip */}
+          <p className="max-w-[760px] pt-4 text-[13px] leading-relaxed text-pioneer/60">
+            StarSector8 is a registered Nigerian incubator building startups in South-South Nigeria.
+            Stelvest is its investment platform, operating custody-free through a licensed partner.
+          </p>
 
           {/* nav */}
           <nav className="flex items-center justify-between gap-4 pb-1.5 pt-4">
             <a href="/" className="font-display text-[22px] font-bold tracking-[-0.02em] text-pioneer">
-              Stellar<span className="text-ignition">Vest</span>
+              Stel<span className="text-ignition">vest</span>
             </a>
             <div className="flex items-center gap-2">
               <a href="/login" className="hidden items-center whitespace-nowrap rounded-[10px] px-4 py-2.5 text-[15px] font-semibold text-pioneer/85 transition-colors hover:bg-white/10 sm:inline-flex">
                 Sign in
               </a>
-              <a href="/signup" className="inline-flex items-center whitespace-nowrap rounded-[10px] bg-venture px-[18px] py-2.5 text-[15px] font-semibold text-cosmic transition hover:brightness-95">
-                Create account
+              <a href="/waitlist" className="inline-flex items-center whitespace-nowrap rounded-[10px] bg-venture px-[18px] py-2.5 text-[15px] font-semibold text-cosmic transition hover:brightness-95">
+                Join the waitlist
               </a>
             </div>
           </nav>
@@ -153,10 +150,10 @@ export default function Home() {
                 StarSector8 Syndicate
               </p>
               <h1
-                className="font-display text-[clamp(2.7rem,6.2vw,4.6rem)] font-bold leading-[1.02] tracking-[-0.025em] text-pioneer"
+                className="font-display text-[clamp(2.4rem,5.4vw,4rem)] font-bold leading-[1.05] tracking-[-0.025em] text-pioneer"
                 style={{ textWrap: "balance" }}
               >
-                From day-zero ideas to <span className="text-venture">infinite success</span>.
+                Pooled capital. Vetted startups. <span className="text-venture">Every step recorded.</span>
               </h1>
               <p
                 className="mt-[22px] max-w-[520px] text-[clamp(1.05rem,1.5vw,1.22rem)] text-pioneer/75"
@@ -167,8 +164,8 @@ export default function Home() {
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <a href="/signup" className="inline-flex items-center gap-2 whitespace-nowrap rounded-[11px] bg-venture px-7 py-[15px] text-[16px] font-semibold text-cosmic transition hover:brightness-95">
-                  Start Investing
+                <a href="/waitlist" className="inline-flex items-center gap-2 whitespace-nowrap rounded-[11px] bg-venture px-7 py-[15px] text-[16px] font-semibold text-cosmic transition hover:brightness-95">
+                  Join the waitlist
                   <ArrowIcon />
                 </a>
                 <a href="/login" className="inline-flex items-center whitespace-nowrap rounded-[11px] border border-white/30 px-[26px] py-[15px] text-[16px] font-semibold text-pioneer transition-colors hover:bg-white/10">
@@ -221,14 +218,14 @@ export default function Home() {
       <section className="mx-auto w-full max-w-[1180px] px-6 pb-[clamp(48px,6vw,72px)] pt-[clamp(64px,9vw,120px)]">
         <div className="max-w-[640px]">
           <p className="mb-3 font-display text-[13px] font-semibold uppercase tracking-[0.2em] text-ignition-ink">
-            Why StellarVest
+            Why Stelvest
           </p>
           <h2 className="font-display text-[clamp(1.9rem,3.6vw,2.7rem)] font-bold leading-[1.1] tracking-[-0.02em] text-cosmic">
             Trust, engineered in.
           </h2>
           <p className="mt-3.5 text-[1.05rem] text-cosmic/70" style={{ textWrap: "pretty" }}>
-            Handling money and identity takes more than good intentions. These are guarantees, not
-            promises — enforced by the platform itself.
+            Handling money and identity takes more than good intentions. These are guarantees, enforced by
+            the platform itself.
           </p>
         </div>
 
@@ -257,7 +254,7 @@ export default function Home() {
               Getting started
             </p>
             <h2 className="font-display text-[clamp(1.9rem,3.6vw,2.7rem)] font-bold leading-[1.1] tracking-[-0.02em] text-cosmic">
-              Your investment, in three steps.
+              How investors join.
             </h2>
           </div>
 
@@ -289,11 +286,11 @@ export default function Home() {
               </h2>
               <p className="mt-3 max-w-[560px] text-[1.05rem] text-cosmic/[0.72]" style={{ textWrap: "pretty" }}>
                 List your startup, share your pitch and due-diligence documents and submit to be considered
-                for investment by StarSector8 — through the same secure, audited platform.
+                for investment by StarSector8, through the same secure, audited platform.
               </p>
             </div>
-            <a href="/signup" className="inline-flex flex-none items-center gap-2 whitespace-nowrap rounded-[11px] bg-cosmic px-[26px] py-[15px] text-[16px] font-semibold text-pioneer transition-colors hover:bg-cosmic/90">
-              List your startup
+            <a href="/waitlist" className="inline-flex flex-none items-center gap-2 whitespace-nowrap rounded-[11px] bg-cosmic px-[26px] py-[15px] text-[16px] font-semibold text-pioneer transition-colors hover:bg-cosmic/90">
+              Join the waitlist
               <ArrowIcon />
             </a>
           </div>
@@ -312,14 +309,14 @@ export default function Home() {
             className="font-display text-[clamp(2rem,4.4vw,3.2rem)] font-bold leading-[1.06] tracking-[-0.025em] text-pioneer"
             style={{ textWrap: "balance" }}
           >
-            Invest in the next generation of startups.
+            Back the next generation of startups.
           </h2>
           <p className="mx-auto mt-[18px] max-w-[520px] text-[1.1rem] text-pitch/85" style={{ textWrap: "pretty" }}>
-            Join StarSector8&rsquo;s syndicate — verified, governed and transparent from day zero.
+            Join StarSector8&rsquo;s syndicate, verified, governed and transparent from day zero.
           </p>
           <div className="mt-[34px] flex flex-wrap justify-center gap-3">
-            <a href="/signup" className="inline-flex items-center gap-2 whitespace-nowrap rounded-[11px] bg-venture px-[30px] py-4 text-[16px] font-semibold text-cosmic transition hover:brightness-95">
-              Create an account
+            <a href="/waitlist" className="inline-flex items-center gap-2 whitespace-nowrap rounded-[11px] bg-venture px-[30px] py-4 text-[16px] font-semibold text-cosmic transition hover:brightness-95">
+              Join the waitlist
               <ArrowIcon />
             </a>
             <a href="/login" className="inline-flex items-center whitespace-nowrap rounded-[11px] border border-white/30 px-7 py-4 text-[16px] font-semibold text-pioneer transition-colors hover:bg-white/10">
@@ -340,9 +337,9 @@ export default function Home() {
         <div className="mx-auto flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-4 px-6 py-8 text-[15px] text-cosmic/70">
           <div className="flex items-center gap-3.5">
             <span className="font-display text-[17px] font-bold tracking-[-0.02em] text-cosmic">
-              Stellar<span className="text-ignition">Vest</span>
+              Stel<span className="text-ignition">vest</span>
             </span>
-            <span>© 2026 StarSector8 (Alpha)</span>
+            <span>© 2026 StarSector8</span>
           </div>
           <nav className="flex flex-wrap gap-[22px]">
             <a href="/terms" className="underline hover:text-cosmic">Terms</a>

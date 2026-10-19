@@ -100,11 +100,11 @@ export function SiteHeader() {
           Sign in
         </Link>
         <Link
-          href="/signup"
+          href="/waitlist"
           className="rounded-lg bg-cosmic px-3 py-2 text-center font-medium text-pioneer hover:bg-cosmic/90"
           onClick={() => setOpen(false)}
         >
-          Create account
+          Join the waitlist
         </Link>
       </>
     );
@@ -164,7 +164,7 @@ export function SiteHeader() {
           className="font-display text-xl font-semibold tracking-tight text-cosmic"
           onClick={() => setOpen(false)}
         >
-          Stellar<span className="text-ignition">Vest</span>
+          Stel<span className="text-ignition">vest</span>
         </Link>
 
         <div className="flex items-center gap-1">

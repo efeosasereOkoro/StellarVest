@@ -18,7 +18,7 @@ export async function slackAdmin(n: { title: string; body?: string; href?: strin
   const webhook = process.env.SLACK_WEBHOOK_URL;
   if (!webhook) return;
   const link = `${APP_URL}${n.href ?? ""}`;
-  const text = `*${n.title}*${n.body ? `\n${n.body}` : ""}\n<${link}|Open in StellarVest →>`;
+  const text = `*${n.title}*${n.body ? `\n${n.body}` : ""}\n<${link}|Open in Stelvest →>`;
   try {
     await fetch(webhook, {
       method: "POST",

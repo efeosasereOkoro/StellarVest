@@ -190,6 +190,13 @@
       "when": 1784359218667,
       "tag": "0026_uneven_lifeguard",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1792395781104,
+      "tag": "0027_powerful_emma_frost",
+      "breakpoints": true
     }
   ]
 }

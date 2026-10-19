@@ -376,6 +376,18 @@ export const notificationReads = pgTable(
 
 export type Notification = typeof notifications.$inferSelect;
 
+// Pre-launch waitlist (B-077). New people join here instead of self-signing up
+// while the platform is pre-launch. One row per email.
+export const waitlistSignups = pgTable("waitlist_signups", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: text("email").notNull().unique(),
+  fullName: text("full_name").notNull(),
+  interest: text("interest").notNull(), // investor | founder | both
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type WaitlistSignup = typeof waitlistSignups.$inferSelect;
+
 export type InvestorCohort = typeof investorCohorts.$inferSelect;
 export type StartupCohort = typeof startupCohorts.$inferSelect;
 export type Allocation = typeof allocations.$inferSelect;
