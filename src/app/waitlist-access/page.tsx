@@ -28,8 +28,12 @@ export default function WaitlistAccessPage() {
       body: JSON.stringify({ password }),
     });
     setLoading(false);
-    if (!res.ok) {
+    if (res.status === 401) {
       setError("Incorrect password.");
+      return;
+    }
+    if (!res.ok) {
+      setError("Could not load the waitlist right now. Please try again shortly.");
       return;
     }
     const data = await res.json().catch(() => ({}));
