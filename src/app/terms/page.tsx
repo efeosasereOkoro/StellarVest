@@ -6,8 +6,7 @@ export default function TermsPage() {
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Terms of Use</h1>
-      <p className="mt-2 text-sm text-cosmic/70">Alpha draft — these terms will be finalised before launch.</p>
-      <p className="mt-1 text-sm text-cosmic/50">Last updated: 17 July 2026</p>
+      <p className="mt-2 text-sm text-cosmic/50">Last updated: 17 July 2026</p>
 
       <div className="mt-8 space-y-6 text-cosmic/80">
         <section>
@@ -28,7 +27,7 @@ export default function TermsPage() {
         <section>
           <h2 className="font-display text-xl font-semibold text-cosmic">3. Verification &amp; funds</h2>
           <p className="mt-2">
-            During the alpha, identity checks and the movement of funds are handled manually
+            At this stage, identity checks and the movement of funds are handled manually
             (a &quot;concierge&quot; model). Stelvest records these steps; it does not itself hold or
             move money.
           </p>
@@ -52,8 +51,8 @@ export default function TermsPage() {
           <h2 className="font-display text-xl font-semibold text-cosmic">5. Founders &amp; startups</h2>
           <p className="mt-2">
             Before listing a startup you complete a founder profile identifying you as the person
-            operating it (including your LinkedIn profile), and complete identity verification —
-            like investors, founders are verified before their startup can be submitted for review.
+            operating it (including your LinkedIn profile), and complete identity verification.
+            Like investors, founders are verified before their startup can be submitted for review.
             If you list a startup, you confirm
             you&apos;re authorised to do so and that the information and documents you submit are
             accurate. StarSector8 reviews submissions at its discretion; listing or submitting does{" "}

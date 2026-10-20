@@ -56,7 +56,7 @@ function layout(heading: string, bodyHtml: string): string {
       ${bodyHtml}
     </div>
     <p style="font-size:12px;color:#6b6b6b;margin-top:16px">
-      Stelvest is in alpha. Questions? <a href="mailto:support@starsector8.org" style="color:#c2410c">support@starsector8.org</a>
+      Questions? <a href="mailto:support@starsector8.org" style="color:#c2410c">support@starsector8.org</a>
     </p>
   </div>`;
 }
