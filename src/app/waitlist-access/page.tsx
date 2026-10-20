@@ -6,8 +6,16 @@ import { Field } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-type Row = { id: string; fullName: string; email: string; interest: string; createdAt: string };
-const INTEREST_LABEL: Record<string, string> = { investor: "Investor", founder: "Founder", both: "Both" };
+type Row = {
+  id: string;
+  fullName: string;
+  email: string;
+  interest: string;
+  location: string | null;
+  whatsapp: string | null;
+  createdAt: string;
+};
+const INTEREST_LABEL: Record<string, string> = { investor: "Investing", founder: "Building", both: "Both" };
 
 // Password-gated waitlist view for the PM (B-078). No account needed. The
 // password is verified server-side at /api/waitlist/view; rows only come back
@@ -17,6 +25,7 @@ export default function WaitlistAccessPage() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,14 +49,47 @@ export default function WaitlistAccessPage() {
     setRows(data.waitlist ?? []);
   }
 
+  // Download the list as a CSV (opens in Excel). Re-uses the same password.
+  async function onExport() {
+    setExporting(true);
+    try {
+      const res = await fetch("/api/waitlist/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "stelvest-waitlist.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   if (rows) {
     return (
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Waitlist</h1>
-        <p className="mt-1 text-sm text-cosmic/70">
-          People waiting for pre-launch access. On the list:{" "}
-          <span className="font-medium text-cosmic">{rows.length}</span>
-        </p>
+      <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-12">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">Waitlist</h1>
+            <p className="mt-1 text-sm text-cosmic/70">
+              People waiting for pre-launch access. On the list:{" "}
+              <span className="font-medium text-cosmic">{rows.length}</span>
+            </p>
+          </div>
+          {rows.length > 0 && (
+            <Button type="button" onClick={onExport} disabled={exporting} variant="outline">
+              {exporting ? "Preparing…" : "Export to Excel"}
+            </Button>
+          )}
+        </div>
 
         {rows.length === 0 ? (
           <Card className="mt-6 text-sm text-cosmic/60">No one on the waitlist yet.</Card>
@@ -59,6 +101,8 @@ export default function WaitlistAccessPage() {
                   <th className="px-4 py-3 font-medium">Name</th>
                   <th className="px-4 py-3 font-medium">Email</th>
                   <th className="px-4 py-3 font-medium">Interest</th>
+                  <th className="px-4 py-3 font-medium">Location</th>
+                  <th className="px-4 py-3 font-medium">WhatsApp</th>
                   <th className="px-4 py-3 font-medium">Joined</th>
                 </tr>
               </thead>
@@ -70,6 +114,8 @@ export default function WaitlistAccessPage() {
                       <a href={`mailto:${r.email}`} className="text-ignition-ink underline">{r.email}</a>
                     </td>
                     <td className="px-4 py-3"><Badge tone="pitch">{INTEREST_LABEL[r.interest] ?? r.interest}</Badge></td>
+                    <td className="px-4 py-3 text-cosmic/80">{r.location || "-"}</td>
+                    <td className="px-4 py-3 text-cosmic/80">{r.whatsapp || "-"}</td>
                     <td className="px-4 py-3 text-cosmic/60">{new Date(r.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}

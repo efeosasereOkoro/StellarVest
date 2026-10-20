@@ -25,6 +25,8 @@ export async function POST(req: Request) {
       fullName: waitlistSignups.fullName,
       email: waitlistSignups.email,
       interest: waitlistSignups.interest,
+      location: waitlistSignups.location,
+      whatsapp: waitlistSignups.whatsapp,
       createdAt: waitlistSignups.createdAt,
     })
     .from(waitlistSignups)

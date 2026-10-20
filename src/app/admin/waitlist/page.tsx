@@ -6,9 +6,9 @@ import { useSession, getToken } from "@/lib/auth-client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-type Row = { id: string; fullName: string; email: string; interest: string; createdAt: string };
+type Row = { id: string; fullName: string; email: string; interest: string; location: string | null; whatsapp: string | null; createdAt: string };
 
-const INTEREST_LABEL: Record<string, string> = { investor: "Investor", founder: "Founder", both: "Both" };
+const INTEREST_LABEL: Record<string, string> = { investor: "Investing", founder: "Building", both: "Both" };
 
 async function authHeaders(extra: Record<string, string> = {}) {
   const token = await getToken();
@@ -49,7 +49,7 @@ export default function AdminWaitlistPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+    <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-12">
       <h1 className="font-display text-3xl font-semibold tracking-tight">Waitlist</h1>
       <p className="mt-1 text-sm text-cosmic/70">People waiting for pre-launch access.</p>
       <p className="mt-1 text-sm text-cosmic/60">
@@ -66,6 +66,8 @@ export default function AdminWaitlistPage() {
                 <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">Interest</th>
+                <th className="px-4 py-3 font-medium">Location</th>
+                <th className="px-4 py-3 font-medium">WhatsApp</th>
                 <th className="px-4 py-3 font-medium">Joined</th>
               </tr>
             </thead>
@@ -77,6 +79,8 @@ export default function AdminWaitlistPage() {
                     <a href={`mailto:${r.email}`} className="text-ignition-ink underline">{r.email}</a>
                   </td>
                   <td className="px-4 py-3"><Badge tone="pitch">{INTEREST_LABEL[r.interest] ?? r.interest}</Badge></td>
+                  <td className="px-4 py-3 text-cosmic/80">{r.location || "-"}</td>
+                  <td className="px-4 py-3 text-cosmic/80">{r.whatsapp || "-"}</td>
                   <td className="px-4 py-3 text-cosmic/60">{new Date(r.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
