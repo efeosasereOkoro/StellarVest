@@ -1,7 +1,7 @@
 // Drizzle schema — database tables live here.
 // Tables are added as we build each story.
 
-import { pgTable, pgEnum, uuid, text, integer, numeric, jsonb, timestamp, unique } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, text, integer, numeric, jsonb, timestamp, unique, boolean } from "drizzle-orm/pg-core";
 
 // KYC lifecycle for an investor (manual review in the MVP — see DECISIONS D-003).
 export const kycStatus = pgEnum("kyc_status", [
@@ -383,6 +383,14 @@ export const waitlistSignups = pgTable("waitlist_signups", {
   email: text("email").notNull().unique(),
   fullName: text("full_name").notNull(),
   interest: text("interest").notNull(), // investor | founder | both
+  // Where they're based. Investors: "Nigeria" | "Outside Nigeria". Founders/both:
+  // a Nigerian state or "Outside Nigeria". Nullable so the first signups (before
+  // this field existed) stay valid; required at the form + API layer going forward.
+  location: text("location"),
+  // Optional WhatsApp number, free text with country code.
+  whatsapp: text("whatsapp"),
+  // Consent to be emailed about early access. Required to submit the form.
+  marketingConsent: boolean("marketing_consent").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

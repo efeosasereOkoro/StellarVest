@@ -3,10 +3,11 @@ import { db } from "@/db";
 import { waitlistSignups } from "@/db/schema";
 import { sendEmail, waitlistConfirmationEmail } from "@/lib/email";
 import { notifyAdmins } from "@/lib/notify";
+import { INTERESTS, isValidLocation } from "@/lib/waitlist-options";
 
 // Public pre-launch waitlist (B-077). No auth: anyone can join. One row per
 // email; a repeat email is treated as a friendly "already on the list".
-const INTERESTS = ["investor", "founder", "both"];
+const INTEREST_VALUES = INTERESTS.map((i) => i.value);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: Request) {
@@ -14,12 +15,23 @@ export async function POST(req: Request) {
   const fullName = String(body.fullName ?? "").trim();
   const email = String(body.email ?? "").trim().toLowerCase();
   const interest = String(body.interest ?? "").trim();
+  const location = String(body.location ?? "").trim();
+  const whatsapp = String(body.whatsapp ?? "").trim();
+  const marketingConsent = body.marketingConsent === true;
 
   const fields: Record<string, string> = {};
   if (!fullName) fields.fullName = "Your name is required.";
   if (!email) fields.email = "Your email is required.";
   else if (!EMAIL_RE.test(email) || email.length > 320) fields.email = "Enter a valid email address.";
-  if (!INTERESTS.includes(interest)) fields.interest = "Choose what you're interested in.";
+  if (!INTEREST_VALUES.includes(interest as (typeof INTEREST_VALUES)[number])) {
+    fields.interest = "Choose what you're interested in.";
+  } else if (!location) {
+    fields.location = "Please tell us where you're based.";
+  } else if (!isValidLocation(interest, location)) {
+    fields.location = "Please choose a location from the list.";
+  }
+  if (whatsapp.length > 40) fields.whatsapp = "That number looks too long.";
+  if (!marketingConsent) fields.marketingConsent = "Please agree before joining.";
   if (Object.keys(fields).length) {
     return NextResponse.json({ error: "Please check the highlighted fields.", fields }, { status: 400 });
   }
@@ -27,7 +39,7 @@ export async function POST(req: Request) {
   // Insert, or no-op if the email is already on the list.
   const inserted = await db
     .insert(waitlistSignups)
-    .values({ fullName, email, interest })
+    .values({ fullName, email, interest, location, whatsapp: whatsapp || null, marketingConsent })
     .onConflictDoNothing({ target: waitlistSignups.email })
     .returning({ id: waitlistSignups.id });
 
@@ -40,7 +52,7 @@ export async function POST(req: Request) {
   await notifyAdmins({
     type: "waitlist.joined",
     title: "New waitlist signup",
-    body: `${fullName} (${email}) joined the waitlist as: ${interest}.`,
+    body: `${fullName} (${email}) joined the waitlist as: ${interest}, based in ${location}.`,
     href: "/admin/waitlist",
   });
 
