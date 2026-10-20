@@ -14,7 +14,10 @@ export default function TermsPage() {
           <p className="mt-2">
             Stelvest is a cohort-based investment platform operated by StarSector8. It lets
             verified investors join investment cohorts whose capital is pooled and deployed into
-            vetted early-stage startups under StarSector8&apos;s governance.
+            vetted early-stage startups under StarSector8&apos;s governance. Before launch, you can
+            join our waitlist to register interest in early access. Joining the waitlist is not an
+            account, an investment, or a commitment by you or by StarSector8, and it does not
+            guarantee access.
           </p>
         </section>
         <section>

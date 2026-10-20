@@ -10,6 +10,17 @@ export default function PrivacyPage() {
 
       <div className="mt-8 space-y-6 text-cosmic/80">
         <section>
+          <h2 className="font-display text-xl font-semibold text-cosmic">The waitlist</h2>
+          <p className="mt-2">
+            If you join our pre-launch waitlist, we collect your name, email address, where
+            you&apos;re based (your country or Nigerian state), and, if you choose to give it, your
+            WhatsApp number. We use these only to email you about early access to Stelvest, and only
+            because you agreed when you joined. Brevo, our email provider, handles these messages. You
+            can ask us to remove you or to stop emailing you at any time by contacting{" "}
+            <a href="mailto:support@starsector8.org" className="underline">support@starsector8.org</a>.
+          </p>
+        </section>
+        <section>
           <h2 className="font-display text-xl font-semibold text-cosmic">What we collect</h2>
           <p className="mt-2">
             Account details (name, email) and the identity information you provide for verification:
