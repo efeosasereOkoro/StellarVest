@@ -23,12 +23,13 @@ export const NIGERIA_STATES = [
   "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara", "Federal Capital Territory",
 ];
 
-// Founders (and "both") pick a state or outside.
+// Founders pick a state or outside.
 export const FOUNDER_LOCATIONS = [...NIGERIA_STATES, OUTSIDE_NIGERIA];
 
 // Server-side check that a submitted location fits the chosen interest.
+// Investors and "both" answer the simple binary; founders pick a state.
 export function isValidLocation(interest: string, location: string): boolean {
-  if (interest === "investor") return (INVESTOR_LOCATIONS as readonly string[]).includes(location);
-  if (interest === "founder" || interest === "both") return FOUNDER_LOCATIONS.includes(location);
+  if (interest === "investor" || interest === "both") return (INVESTOR_LOCATIONS as readonly string[]).includes(location);
+  if (interest === "founder") return FOUNDER_LOCATIONS.includes(location);
   return false;
 }

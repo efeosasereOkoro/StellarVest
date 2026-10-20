@@ -131,8 +131,9 @@ export default function WaitlistPage() {
             {errors.interest && <p className="mt-1 text-sm text-danger">{errors.interest}</p>}
           </div>
 
-          {/* Location — required, shape depends on interest (#111) */}
-          {interest === "investor" && (
+          {/* Location — required, shape depends on interest (#111, #117).
+              Investors and "both" get the binary; founders get the states dropdown. */}
+          {(interest === "investor" || interest === "both") && (
             <div>
               <span className="mb-1 block text-sm font-medium text-cosmic/80">Where will you be investing from?</span>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -157,7 +158,7 @@ export default function WaitlistPage() {
             </div>
           )}
 
-          {(interest === "founder" || interest === "both") && (
+          {interest === "founder" && (
             <label className="block">
               <span className="mb-1 block text-sm font-medium text-cosmic/80">Where is your startup based?</span>
               <select
