@@ -161,10 +161,11 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
         <Link
           href="/"
-          className="font-display text-xl font-semibold tracking-tight text-cosmic"
+          className="flex items-center"
           onClick={() => setOpen(false)}
         >
-          Stel<span className="text-ignition">vest</span>
+          {/* Dark-ink logo on the light header */}
+          <img src="/stelvest-logo-dark.svg" alt="Stelvest" className="h-6 w-auto" />
         </Link>
 
         <div className="flex items-center gap-1">

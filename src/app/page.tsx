@@ -130,8 +130,9 @@ export default function Home() {
 
           {/* nav */}
           <nav className="flex items-center justify-between gap-4 pb-1.5 pt-4">
-            <a href="/" className="font-display text-[22px] font-bold tracking-[-0.02em] text-pioneer">
-              Stel<span className="text-ignition">vest</span>
+            <a href="/" className="flex items-center">
+              {/* Light-ink logo on the dark hero */}
+              <img src="/stelvest-logo-light.svg" alt="Stelvest" className="h-7 w-auto" />
             </a>
             <div className="flex items-center gap-2">
               <a href="/login" className="hidden items-center whitespace-nowrap rounded-[10px] px-4 py-2.5 text-[15px] font-semibold text-pioneer/85 transition-colors hover:bg-white/10 sm:inline-flex">
@@ -336,9 +337,8 @@ export default function Home() {
       <footer className="border-t border-cosmic/10 bg-pioneer">
         <div className="mx-auto flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-4 px-6 py-8 text-[15px] text-cosmic/70">
           <div className="flex items-center gap-3.5">
-            <span className="font-display text-[17px] font-bold tracking-[-0.02em] text-cosmic">
-              Stel<span className="text-ignition">vest</span>
-            </span>
+            {/* Dark-ink logo on the light footer */}
+            <img src="/stelvest-logo-dark.svg" alt="Stelvest" className="h-5 w-auto" />
             <span>© 2026 StarSector8</span>
           </div>
           <nav className="flex flex-wrap gap-[22px]">
